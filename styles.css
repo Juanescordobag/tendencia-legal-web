@@ -363,3 +363,72 @@ footer hr {
     display: inline-block;
 
 }
+/* --- ESTILOS PARA PÁGINAS INTERNAS (ÁREAS DE PRÁCTICA) --- */
+
+/* 1. Encabezado de la sección (Título grande) */
+.page-header {
+    background-color: #f4f4f4; /* Fondo gris muy claro */
+    padding: 60px 0 40px 0;
+    text-align: left; /* Alineado a la izquierda como en la foto */
+    border-bottom: 1px solid #ddd;
+}
+
+.page-header h1 {
+    color: #162F45; /* Azul Corporativo */
+    font-size: 42px;
+    margin-bottom: 15px;
+    /* Fuente con remates para elegancia */
+    font-family: 'Times New Roman', Times, serif; 
+}
+
+.page-header p {
+    font-size: 18px;
+    color: #53565A;
+    max-width: 800px;
+}
+
+/* 2. La Grilla de Botones/Servicios */
+.services-list-section {
+    padding: 50px 0;
+    background-color: #fff; /* Fondo blanco general */
+}
+
+.services-grid {
+    display: grid;
+    /* Esto crea 3 columnas automáticas */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; /* Espacio entre cuadros */
+}
+
+/* 3. Diseño de cada Cuadro/Botón */
+.service-item {
+    background: #ffffff;
+    border: 1px solid #e0e0e0; /* Borde gris suave */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 25px 20px;
+    font-size: 18px;
+    color: #162F45; /* Texto Azul */
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Sombra muy sutil */
+    transition: 0.3s; /* Para efecto al pasar el mouse */
+    display: flex;
+    align-items: center; /* Centrar texto verticalmente si ocupa 2 líneas */
+    min-height: 80px; /* Altura mínima para uniformidad */
+}
+
+/* Efecto al pasar el mouse por encima de un servicio */
+.service-item:hover {
+    border-color: #B68656; /* Borde Dorado */
+    color: #B68656; /* Texto Dorado */
+    background-color: #fffaf5; /* Fondo dorado muy pálido */
+    transform: translateY(-3px); /* Se levanta un poquito */
+    cursor: pointer;
+}
+
+/* RESPONSIVE: En celulares, que sea 1 sola columna */
+@media (max-width: 768px) {
+    .services-grid {
+        grid-template-columns: 1fr; /* Una columna */
+    }
+}
+
