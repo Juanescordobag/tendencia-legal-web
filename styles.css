@@ -279,7 +279,6 @@ footer {
 .footer-social h3 {
     font-size: 20px;
     margin-bottom: 15px;
-    text-transform: uppercase;
 }
 
 /* LOS BOTONES DE REDES SOCIALES (Cuadraditos blancos) */
@@ -362,4 +361,5 @@ footer hr {
     border-radius: 4px;
     margin-bottom: 20px;
     display: inline-block;
+
 }
