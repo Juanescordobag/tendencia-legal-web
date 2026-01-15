@@ -376,9 +376,19 @@ footer hr {
 .page-header h1 {
     color: #162F45; /* Azul Corporativo */
     font-size: 42px;
-    margin-bottom: 15px;
     /* Fuente con remates para elegancia */
     font-family: 'Times New Roman', Times, serif; 
+}
+/* --- LA LÍNEA DORADA BAJO EL TÍTULO --- */
+/* ::after significa "crea algo justo después del contenido del h1" */
+.page-header h1::after {
+    content: ""; /* Necesario para que el elemento exista */
+    display: block; /* Hace que ocupe su propia línea debajo del texto */
+    width: 80px; /* EL LARGO: Cámbialo si la quieres más larga o corta */
+    height: 4px; /* EL GROSOR: Qué tan gruesa es la línea */
+    background-color: #B68656; /* Tu color DORADO exacto */
+    margin-top: 15px; /* Espacio entre el texto y la línea */
+    margin-bottom: 25px; /* Espacio entre la línea y el párrafo de abajo */
 }
 
 .page-header p {
@@ -431,4 +441,5 @@ footer hr {
         grid-template-columns: 1fr; /* Una columna */
     }
 }
+
 
