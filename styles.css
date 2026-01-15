@@ -444,6 +444,12 @@ footer hr {
         grid-template-columns: 1fr; /* Una columna */
     }
 }
+/* --- ESTADO ACTIVO DEL MENÚ --- */
+/* Esto mantiene el color dorado en la sección actual */
+header nav ul li a.active {
+    color: #B68656; /* El mismo dorado del hover */
+    border-bottom: 2px solid #B68656; /* Opcional: una rayita debajo para resaltar más */
+}
 
 
 
