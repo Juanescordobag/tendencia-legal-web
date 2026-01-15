@@ -374,11 +374,13 @@ footer hr {
 }
 
 .page-header h1 {
-    color: #162F45; /* Azul Corporativo */
+    color: #162F45;
     font-size: 42px;
-    /* Fuente con remates para elegancia */
     font-family: 'Times New Roman', Times, serif;
     position: relative;
+    
+    /* ¡ESTA ES LA QUE FALTA! */
+    display: inline-block; 
 }
 /* --- LA LÍNEA DORADA BAJO EL TÍTULO --- */
 /* ::after significa "crea algo justo después del contenido del h1" */
@@ -442,6 +444,7 @@ footer hr {
         grid-template-columns: 1fr; /* Una columna */
     }
 }
+
 
 
 
