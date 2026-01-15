@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derecho Laboral | Tendencia Legal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html"><img src="logo.png" alt="Logo Tendencia Legal"></a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#" class="dropdown-toggle">Áreas y Servicios jurídicos</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="derecho-civil.html">Derecho Civil y de familia</a></li>
+                        <li><a href="derecho-laboral.html" class="active">Derecho laboral</a></li> <li><a href="#">Derecho comercial</a></li>
+                        <li><a href="#">Derecho estatal y administrativo</a></li>
+                    </ul>
+                    </li>
+                    <li><a href="index.html">Recursos humanos</a></li>
+                    <li><a href="index.html">Sobre nosotros</a></li>
+                    <li><a href="index.html">Noticias</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Derecho Laboral</h1>
+            <p>Asesoría estratégica en relaciones laborales, cumplimiento normativo y gestión del talento humano para empresas y trabajadores en el entorno moderno.</p>
+        </div>
+    </section>
+
+    <section class="services-list-section">
+        <div class="container">
+            <div class="services-grid">
+                <div class="service-item">Contratos laborales y esquemas de remuneración</div>
+                <div class="service-item">Reglamentos internos de trabajo</div>
+                <div class="service-item">Procesos disciplinarios y despidos</div>
+                
+                <div class="service-item">Seguridad Social y Pensiones</div>
+                <div class="service-item">Acoso laboral y estabilidad reforzada</div>
+                <div class="service-item">Derecho colectivo y sindicatos</div>
+
+                <div class="service-item">Auditorías laborales (Due Diligence)</div>
+                <div class="service-item">Litigios ante jurisdicción laboral</div>
+                <div class="service-item">Conciliaciones ante Ministerio de Trabajo</div>
+
+                <div class="service-item">Tercerización y outsourcing</div>
+                <div class="service-item">Seguridad y salud en el trabajo (SST)</div>
+                </div>
+        </div>
+    </section>
+
+    <script>
+        window.addEventListener("scroll", function(){
+            var header = document.querySelector("header");
+            header.classList.toggle("abajo", window.scrollY > 0);
+        });
+    </script>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <img src="logo.png" alt="Logo Tendencia Legal" class="footer-logo">
+                    <p>
+                        Somos una firma de abogados que combina la experiencia jurídica con la innovación tecnológica. 
+                        Creemos en la gestión estratégica de riesgos para proteger el patrimonio y el futuro de nuestros clientes.
+                    </p>
+                </div>
+                <div class="footer-social">
+                    <h3>Síguenos</h3>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/tendencialegal1?igsh=MWl1eGc2a2phaTg2eA==" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/company/tendencialegal" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=61577968206715" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="footer-bottom">
+                <p>Copyright © 2026 Tendencia Legal | Todos los derechos reservados</p>
+                <a href="#">Política de Tratamiento de Datos Personales</a>
+            </div>
+        </div>
+    </footer>   
+</body>
+</html>
