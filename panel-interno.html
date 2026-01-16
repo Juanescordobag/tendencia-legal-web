@@ -9,119 +9,56 @@
     
     <style>
         /* --- ESTILOS GESTIÓN INTERNA TENDENCIA LEGAL --- */
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; display: flex; height: 100vh; overflow: hidden; }
 
-        /* SIDEBAR (Barra Lateral) */
-        .sidebar {
-            width: 260px;
-            background-color: #162F45;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
-        }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 50px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(182, 134, 86, 0.3);
-        }
-
+        /* SIDEBAR */
+        .sidebar { width: 260px; background-color: #162F45; color: white; display: flex; flex-direction: column; padding: 20px; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+        .sidebar-logo { display: flex; align-items: center; gap: 15px; margin-bottom: 50px; padding-bottom: 20px; border-bottom: 1px solid rgba(182, 134, 86, 0.3); }
         .sidebar-logo img { width: 45px; }
         .sidebar-logo div { display: flex; flex-direction: column; }
         .sidebar-logo h2 { font-size: 16px; margin: 0; color: white; font-family: 'Times New Roman', serif; letter-spacing: 0.5px; }
         .sidebar-logo span { font-size: 11px; color: #B68656; text-transform: uppercase; margin-top: 3px; }
 
-        .menu-item {
-            padding: 12px 15px;
-            color: #ddd;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-radius: 5px;
-            margin-bottom: 8px;
-            transition: all 0.2s;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .menu-item:hover, .menu-item.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-left: 4px solid #B68656;
-        }
-
+        .menu-item { padding: 12px 15px; color: #ddd; text-decoration: none; display: flex; align-items: center; gap: 15px; border-radius: 5px; margin-bottom: 8px; transition: all 0.2s; cursor: pointer; font-size: 14px; }
+        .menu-item:hover, .menu-item.active { background-color: rgba(255, 255, 255, 0.1); color: #fff; border-left: 4px solid #B68656; }
         .menu-item i { width: 20px; text-align: center; color: #B68656; }
         .menu-item.active i { color: #fff; }
-
         .logout-btn { margin-top: auto; color: #ffcccc; }
         .logout-btn:hover { background-color: rgba(200, 50, 50, 0.2); border-left: none; }
 
-        /* ÁREA PRINCIPAL */
-        .main-content {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-        }
-
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 20px;
-        }
-
+        /* CONTENT */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
         .header h1 { color: #162F45; margin: 0; font-size: 24px; font-family: 'Times New Roman', serif; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #555; background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        .user-profile {
-            display: flex; align-items: center; gap: 10px; font-size: 14px;
-            color: #555; background: white; padding: 8px 15px;
-            border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        /* VISTAS */
+        /* VIEWS & ANIMATIONS */
         .section-view { display: none; animation: fadeIn 0.3s; }
         .section-view.active-view { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ESTILOS FORMULARIO Y TABLAS */
-        .data-table-container {
-            background: white; padding: 30px; border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-        }
+        /* FORMS & TABLES */
+        .data-table-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .table-header-flex h3 { margin: 0; color: #162F45; }
         
-        /* Inputs Generales */
-        input, select, textarea {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;
-        }
+        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #162F45; margin-top: 15px; }
 
-        .btn-action {
-            background-color: #162F45; color: white; border: none; padding: 10px 20px;
-            border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;
-            display: flex; align-items: center; gap: 8px; margin-top: 20px;
-        }
+        .btn-action { background-color: #162F45; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-top: 20px; }
         .btn-action:hover { background-color: #B68656; }
 
-        /* KPI Cards Styles (Resumido para ahorrar espacio, ya los tenías bien) */
+        /* ESTILOS PARA ARCHIVOS ADJUNTOS (NUEVO) */
+        .file-upload-wrapper { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .file-name-display { display: none; align-items: center; gap: 10px; background: #e3f2fd; padding: 5px 10px; border-radius: 4px; font-size: 13px; color: #1565c0; border: 1px solid #bbdefb; }
+        .btn-delete-file { background: none; border: none; color: #c62828; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn-delete-file:hover { color: red; }
+
+        /* KPI & TABLES */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
         .kpi-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border-top: 4px solid #162F45; }
         .kpi-card h3 { margin: 0 0 10px 0; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; }
         .kpi-card .number { font-size: 28px; font-weight: bold; color: #162F45; }
-        
-        /* Table Styles */
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th { text-align: left; padding: 15px; background-color: #f4f6f8; color: #555; font-weight: 600; border-bottom: 2px solid #e1e4e8; }
         td { padding: 15px; border-bottom: 1px solid #eee; color: #444; }
@@ -129,7 +66,6 @@
         .status.active { background-color: #e8f5e9; color: #2e7d32; }
         .status.pending { background-color: #fff8e1; color: #f57f17; }
         .status.closed { background-color: #ffebee; color: #c62828; }
-
     </style>
 </head>
 <body>
@@ -142,78 +78,37 @@
                 <span>Gestión Interna</span>
             </div>
         </div>
-
-        <div class="menu-item active" onclick="showSection('dashboard', this)">
-            <i class="fas fa-home"></i> Inicio
-        </div>
-        <div class="menu-item" onclick="showSection('clientes', this)">
-            <i class="fas fa-address-book"></i> Clientes
-        </div>
-        <div class="menu-item" onclick="showSection('procesos', this)">
-            <i class="fas fa-balance-scale"></i> Procesos
-        </div>
-        <div class="menu-item" onclick="showSection('finanzas', this)">
-            <i class="fas fa-chart-line"></i> Finanzas
-        </div>
-        <div class="menu-item" onclick="showSection('gestion-noticias', this)">
-            <i class="fas fa-newspaper"></i> Publicar Noticias
-        </div>
-
-        <a href="login.html" class="menu-item logout-btn">
-            <i class="fas fa-power-off"></i> Salir
-        </a>
+        <div class="menu-item active" onclick="showSection('dashboard', this)"><i class="fas fa-home"></i> Inicio</div>
+        <div class="menu-item" onclick="showSection('clientes', this)"><i class="fas fa-address-book"></i> Clientes</div>
+        <div class="menu-item" onclick="showSection('procesos', this)"><i class="fas fa-balance-scale"></i> Procesos</div>
+        <div class="menu-item" onclick="showSection('finanzas', this)"><i class="fas fa-chart-line"></i> Finanzas</div>
+        <div class="menu-item" onclick="showSection('gestion-noticias', this)"><i class="fas fa-newspaper"></i> Publicar Noticias</div>
+        <a href="login.html" class="menu-item logout-btn"><i class="fas fa-power-off"></i> Salir</a>
     </div>
 
     <div class="main-content">
-        
         <div class="header">
             <h1 id="page-title">Resumen Ejecutivo</h1>
             <div class="user-profile">
-                <i class="fas fa-user-tie"></i>
-                <span>Socio: Juan Esteban Córdoba</span>
+                <i class="fas fa-user-tie"></i> <span>Socio: Juan Esteban Córdoba</span>
             </div>
         </div>
 
         <div id="dashboard" class="section-view active-view">
             <div class="kpi-grid">
-                <div class="kpi-card" style="border-top-color: #162F45;">
-                    <h3>Casos Activos</h3>
-                    <div class="number">12</div>
-                </div>
-                <div class="kpi-card" style="border-top-color: #B68656;">
-                    <h3>Nuevos Clientes (Mes)</h3>
-                    <div class="number">4</div>
-                </div>
-                <div class="kpi-card" style="border-top-color: #2e7d32;">
-                    <h3>Facturación Enero</h3>
-                    <div class="number">$ 15.2M</div>
-                </div>
-                <div class="kpi-card" style="border-top-color: #d32f2f;">
-                    <h3>Tareas Críticas</h3>
-                    <div class="number">3</div>
-                </div>
+                <div class="kpi-card" style="border-top-color: #162F45;"><h3>Casos Activos</h3><div class="number">12</div></div>
+                <div class="kpi-card" style="border-top-color: #B68656;"><h3>Nuevos Clientes (Mes)</h3><div class="number">4</div></div>
+                <div class="kpi-card" style="border-top-color: #2e7d32;"><h3>Facturación Enero</h3><div class="number">$ 15.2M</div></div>
+                <div class="kpi-card" style="border-top-color: #d32f2f;"><h3>Tareas Críticas</h3><div class="number">3</div></div>
             </div>
-
             <div class="data-table-container">
-                <div class="table-header-flex">
-                    <h3>Últimos Movimientos</h3>
-                </div>
+                <div class="table-header-flex"><h3>Últimos Movimientos</h3></div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Detalle</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Fecha</th><th>Cliente</th><th>Detalle</th><th>Estado</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td>16 Ene 2026</td>
-                            <td>Peludencios S.A.S</td>
-                            <td>Revisión Contrato Proveedores</td>
-                            <td><span class="status active">En Proceso</span></td>
-                        </tr>
+                        <tr><td>16 Ene 2026</td><td>Peludencios S.A.S</td><td>Revisión Contrato Proveedores</td><td><span class="status active">En Proceso</span></td></tr>
+                        <tr><td>15 Ene 2026</td><td>Scotiabank</td><td>Entrevista VP Recursos Humanos</td><td><span class="status active">Gestión</span></td></tr>
+                        <tr><td>12 Ene 2026</td><td>Carlos Pérez</td><td>Radicación Demanda</td><td><span class="status pending">Pendiente</span></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -253,14 +148,26 @@
                     </div>
 
                     <div>
-                        <label>URL de la Imagen (Opcional)</label>
-                        <input type="text" id="imagenNoticia" placeholder="Pega aquí el enlace de la foto (Ej: https://sitio.com/foto.jpg)">
-                        <small style="color:#888;">Si lo dejas vacío, se usará el logo por defecto.</small>
+                        <label><i class="fas fa-camera"></i> Imagen Destacada</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="inputImagen" accept="image/*" onchange="manejarArchivo('inputImagen', 'nombreImagen', 'displayImagen')">
+                        </div>
+                        <div id="displayImagen" class="file-name-display">
+                            <span id="nombreImagen">nombre_archivo.jpg</span>
+                            <button type="button" class="btn-delete-file" onclick="borrarArchivo('inputImagen', 'displayImagen')"><i class="fas fa-times"></i></button>
+                        </div>
                     </div>
 
                     <div>
-                        <label>Enlace de la Noticia / Fuente</label>
-                        <input type="text" id="linkNoticia" placeholder="Ej: https://www.elespectador.com/noticia... o Link a PDF">
+                        <label><i class="fas fa-paperclip"></i> Adjuntar Documento (Decretos/Leyes)</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="inputDoc" accept=".pdf,.doc,.docx" onchange="manejarArchivo('inputDoc', 'nombreDoc', 'displayDoc')">
+                        </div>
+                        <div id="displayDoc" class="file-name-display" style="background: #fff3e0; border-color: #ffe0b2; color: #e65100;">
+                            <span id="nombreDoc">ley_123.pdf</span>
+                            <button type="button" class="btn-delete-file" onclick="borrarArchivo('inputDoc', 'displayDoc')"><i class="fas fa-times"></i></button>
+                        </div>
+                        <small style="color:#888;">Opcional. Si sube un archivo, el botón "Leer más" descargará este documento.</small>
                     </div>
 
                     <button type="submit" class="btn-action" style="font-size:16px;">
@@ -294,6 +201,20 @@
                             <td>300 123 4567</td>
                             <td><i class="fas fa-ellipsis-h"></i></td>
                         </tr>
+                        <tr>
+                            <td><strong>Martina López</strong></td>
+                            <td>Natural</td>
+                            <td>Martina López</td>
+                            <td>310 987 6543</td>
+                            <td><i class="fas fa-ellipsis-h"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transportes del Norte</strong></td>
+                            <td>Corporativo</td>
+                            <td>Gerencia RRHH</td>
+                            <td>320 555 1122</td>
+                            <td><i class="fas fa-ellipsis-h"></i></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -323,12 +244,25 @@
                             <td><span class="status closed">Registro Concedido</span></td>
                             <td>Juan E. Córdoba</td>
                         </tr>
+                        <tr>
+                            <td>CIV-092-22</td>
+                            <td>Familia Ramírez</td>
+                            <td>Sucesión</td>
+                            <td><span class="status pending">Fallo</span></td>
+                            <td>Manuela Correa</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <div id="finanzas" class="section-view">
+            <div class="kpi-grid">
+                <div class="kpi-card"><h3>Total Facturado</h3><div class="number" style="color:#2e7d32;">$ 15,200,000</div></div>
+                <div class="kpi-card"><h3>Gastos Operativos</h3><div class="number" style="color:#c62828;">$ 4,500,000</div></div>
+                <div class="kpi-card"><h3>Utilidad Neta</h3><div class="number" style="color:#B68656;">$ 10,700,000</div></div>
+            </div>
+            
             <div class="data-table-container">
                 <div class="table-header-flex">
                     <h3>Cuentas de Cobro Activas</h3>
@@ -360,53 +294,82 @@
     </div>
 
     <script>
-        // 1. FUNCIÓN DE NAVEGACIÓN
+        // VARIABLES GLOBALES PARA GUARDAR LOS ARCHIVOS EN BASE64
+        let imagenBase64 = 'logo.png'; // Por defecto
+        let documentoBase64 = null;    // Por defecto null
+        let documentoNombre = null;
+
+        // 1. NAVEGACIÓN
         function showSection(sectionId, element) {
             document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
             document.getElementById(sectionId).classList.add('active-view');
-
-            const titles = {
-                'dashboard': 'Resumen Ejecutivo',
-                'clientes': 'Gestión de Clientes',
-                'procesos': 'Control de Procesos',
-                'finanzas': 'Información Financiera',
-                'gestion-noticias': 'Gestor de Contenidos (CMS)'
-            };
+            const titles = { 'dashboard': 'Resumen Ejecutivo', 'clientes': 'Gestión de Clientes', 'procesos': 'Control de Procesos', 'finanzas': 'Información Financiera', 'gestion-noticias': 'Gestor de Contenidos (CMS)' };
             document.getElementById('page-title').innerText = titles[sectionId];
-
             if (element) {
                 document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
                 element.classList.add('active');
             }
         }
 
-        // 2. LÓGICA PARA GUARDAR NOTICIAS (ACTUALIZADA CON IMAGEN Y LINK)
+        // 2. FUNCIÓN PARA MANEJAR LA SELECCIÓN DE ARCHIVOS (VISUAL + CONVERSIÓN)
+        function manejarArchivo(inputId, nombreSpanId, displayId) {
+            const input = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            const nombreSpan = document.getElementById(nombreSpanId);
+
+            if (input.files && input.files[0]) {
+                const archivo = input.files[0];
+                nombreSpan.innerText = archivo.name;
+                display.style.display = 'inline-flex'; // Mostrar la cajita con el nombre
+
+                // CONVERTIR A BASE64 PARA GUARDARLO EN EL NAVEGADOR
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (inputId === 'inputImagen') {
+                        imagenBase64 = e.target.result; // Guardamos la foto convertida en texto
+                    } else if (inputId === 'inputDoc') {
+                        documentoBase64 = e.target.result; // Guardamos el PDF convertido en texto
+                        documentoNombre = archivo.name;
+                    }
+                };
+                reader.readAsDataURL(archivo);
+            }
+        }
+
+        // 3. FUNCIÓN PARA BORRAR ARCHIVO SELECCIONADO
+        function borrarArchivo(inputId, displayId) {
+            document.getElementById(inputId).value = ""; // Limpiar input
+            document.getElementById(displayId).style.display = 'none'; // Ocultar cajita
+            
+            // Resetear variables
+            if (inputId === 'inputImagen') imagenBase64 = 'logo.png';
+            if (inputId === 'inputDoc') { documentoBase64 = null; documentoNombre = null; }
+        }
+
+        // 4. GUARDAR NOTICIA
         document.getElementById('formNoticia').addEventListener('submit', function(e) {
             e.preventDefault();
-
-            // A. Capturar datos del formulario
-            const imagenInput = document.getElementById('imagenNoticia').value;
-            const linkInput = document.getElementById('linkNoticia').value;
 
             const nuevaNoticia = {
                 titulo: document.getElementById('tituloNoticia').value,
                 categoria: document.getElementById('categoriaNoticia').value,
                 fecha: document.getElementById('fechaNoticia').value,
                 resumen: document.getElementById('resumenNoticia').value,
-                // Si el campo de imagen está vacío, usamos 'logo.png'
-                imagen: imagenInput !== "" ? imagenInput : 'logo.png',
-                // Si el link está vacío, ponemos '#'
-                enlace: linkInput !== "" ? linkInput : '#'
+                imagen: imagenBase64,
+                archivoAdjunto: documentoBase64, // Aquí va el PDF codificado
+                nombreArchivo: documentoNombre
             };
 
-            // B. Guardar en localStorage
             let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
             noticiasGuardadas.unshift(nuevaNoticia);
             localStorage.setItem('noticias_tendencia', JSON.stringify(noticiasGuardadas));
 
-            // C. Confirmación
-            alert('¡Noticia publicada con éxito! Ahora tiene imagen personalizada y enlace.');
+            alert('¡Noticia publicada! Se ha guardado la imagen y el documento.');
             document.getElementById('formNoticia').reset();
+            
+            // Reiniciar visuales de archivos
+            borrarArchivo('inputImagen', 'displayImagen');
+            borrarArchivo('inputDoc', 'displayDoc');
         });
     </script>
 </body>
