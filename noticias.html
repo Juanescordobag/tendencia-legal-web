@@ -133,25 +133,51 @@
             // B. Recorrer y crear cada noticia
             noticiasGuardadas.forEach(noticia => {
                 
-                // Formatear la fecha (Le agregamos T00:00:00 para evitar errores de zona horaria)
-                const fechaObj = new Date(noticia.fecha + 'T00:00:00'); 
-                const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-                const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
+                // A. Formatear la fecha
+            // Agregamos 'T00:00:00' para evitar que la fecha cambie por zona horaria
+            const fechaObj = new Date(noticia.fecha + 'T00:00:00'); 
+            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
 
-                // Plantilla HTML de la tarjeta
-                const tarjetaHTML = `
-                    <article class="blog-card">
-                        <div class="blog-image">
-                            <img src="${noticia.imagen}" alt="${noticia.titulo}">
-                        </div>
-                        <div class="blog-content">
-                            <span class="blog-date">${fechaFormateada} | ${noticia.categoria}</span>
-                            <h3>${noticia.titulo}</h3>
-                            <p>${noticia.resumen}</p>
-                            <a href="#" class="btn-read-more">Leer artículo completo &rarr;</a>
-                        </div>
-                    </article>
-                `;
+            // B. Definir qué imagen mostrar (Si no hay, usa el logo)
+            const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
+
+            // C. LÓGICA INTELIGENTE DEL BOTÓN (Aquí está la magia)
+            let textoBoton = "Leer más &rarr;";
+            let linkDestino = "#";
+            let atributosExtra = ""; // Para descargas o abrir en nueva pestaña
+
+            if (noticia.archivoAdjunto) {
+                // CASO 1: Es un archivo (PDF, Doc)
+                textoBoton = `<i class="fas fa-file-download"></i> Descargar Documento`;
+                linkDestino = noticia.archivoAdjunto;
+                // Este atributo fuerza la descarga con el nombre original
+                atributosExtra = `download="${noticia.nombreArchivo || 'documento.pdf'}"`;
+            
+            } else if (noticia.enlace && noticia.enlace !== '#') {
+                // CASO 2: Es un enlace a otra página (El Tiempo, etc.)
+                textoBoton = `Leer noticia completa &rarr;`;
+                linkDestino = noticia.enlace;
+                atributosExtra = 'target="_blank"'; // Abre en pestaña nueva
+            }
+
+            // D. Crear la tarjeta HTML
+            const tarjetaHTML = `
+                <article class="blog-card">
+                    <div class="blog-image">
+                        <img src="${imagenSrc}" alt="${noticia.titulo}">
+                    </div>
+                    <div class="blog-content">
+                        <span class="blog-date">${fechaFormateada} | ${noticia.categoria}</span>
+                        <h3>${noticia.titulo}</h3>
+                        <p>${noticia.resumen}</p>
+                        <a href="${linkDestino}" class="btn-read-more" ${atributosExtra}>${textoBoton}</a>
+                    </div>
+                </article>
+            `;
+
+            // E. Insertar la noticia al principio de la lista
+            contenedor.insertAdjacentHTML('afterbegin', tarjetaHTML);
 
                 // C. Insertar al principio de la lista (antes de las fijas)
                 contenedor.insertAdjacentHTML('afterbegin', tarjetaHTML);
