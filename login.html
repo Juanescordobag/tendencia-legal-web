@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Vora Legal SMG | Tendencia Legal</title>
+    <link rel="icon" type="image/png" href="pilar.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ESTILOS EXCLUSIVOS PARA EL LOGIN (Estilo Minimalista) */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Pantalla completa */
+            background-image: linear-gradient(rgba(22, 47, 69, 0.9), rgba(22, 47, 69, 0.9)), url('logo.png'); /* Fondo azul corporativo con textura sutil */
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+
+        .login-container h2 {
+            color: #162F45;
+            margin-bottom: 10px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .login-container p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #162F45;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box; /* Para que el padding no rompa el ancho */
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            border-color: #B68656; /* Dorado al escribir */
+            outline: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background-color: #162F45;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-login:hover {
+            background-color: #B68656; /* Dorado al pasar mouse */
+        }
+
+        .footer-login {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .error-msg {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none; /* Oculto por defecto */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <img src="logo.png" alt="Logo" class="login-logo">
+        <h2>Vora Legal SMG</h2>
+        <p>Sistema de Gestión Interna - Tendencia Legal</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Usuario / Correo</label>
+                <input type="text" id="email" placeholder="usuario@tendencialegal.com" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-login">Ingresar al Sistema</button>
+            <p class="error-msg" id="errorMsg">Credenciales incorrectas</p>
+        </form>
+
+        <div class="footer-login">
+            <p>Acceso restringido únicamente para socios y personal autorizado.</p>
+            <a href="index.html" style="color: #B68656; text-decoration: none;">&larr; Volver al sitio web</a>
+        </div>
+    </div>
+
+    <script>
+        // SCRIPT DE SIMULACIÓN DE LOGIN
+        const loginForm = document.getElementById('loginForm');
+        const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('errorMsg');
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que la página se recargue
+
+            const password = passwordInput.value;
+
+            // VALIDACIÓN SIMPLE (PROTOTIPO)
+            // La contraseña es "vora2026"
+            if (password === "vora2026") {
+                // Si es correcta, nos lleva al Dashboard
+                // (Esta página la crearemos en el siguiente paso)
+                window.location.href = "vora-panel.html"; 
+            } else {
+                // Si es incorrecta, muestra error
+                errorMsg.style.display = "block";
+                passwordInput.style.border = "1px solid red";
+            }
+        });
+    </script>
+
+</body>
+</html>
