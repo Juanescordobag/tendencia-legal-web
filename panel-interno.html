@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control | Tendencia Legal</title>
+    <link rel="icon" type="image/png" href="pilar.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS GESTIÓN INTERNA TENDENCIA LEGAL --- */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa; /* Fondo muy claro */
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR (Barra Lateral) */
+        .sidebar {
+            width: 260px;
+            background-color: #162F45; /* Azul Corporativo */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(182, 134, 86, 0.3); /* Línea dorada sutil */
+        }
+
+        .sidebar-logo img {
+            width: 45px;
+        }
+
+        .sidebar-logo div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 16px;
+            margin: 0;
+            color: white;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-logo span {
+            font-size: 11px;
+            color: #B68656; /* Dorado */
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        .menu-item {
+            padding: 12px 15px;
+            color: #ddd;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-left: 4px solid #B68656; /* Indicador dorado a la izquierda */
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #B68656; /* Íconos dorados */
+        }
+
+        .menu-item.active i {
+            color: #fff;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            color: #ffcccc;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(200, 50, 50, 0.2);
+            border-left: none;
+        }
+
+        /* ÁREA PRINCIPAL */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #162F45;
+            margin: 0;
+            font-size: 24px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #555;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* TARJETAS KPI */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border-top: 4px solid #162F45; /* Borde superior de color */
+        }
+
+        .kpi-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: #888;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .kpi-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #162F45;
+        }
+
+        /* TABLAS */
+        .data-table-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .table-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header-flex h3 {
+            margin: 0;
+            color: #162F45;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background-color: #f4f6f8;
+            color: #555;
+            font-weight: 600;
+            border-bottom: 2px solid #e1e4e8;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            color: #444;
+        }
+
+        /* ESTADOS (Etiquetas de color) */
+        .status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status.active { background-color: #e8f5e9; color: #2e7d32; }
+        .status.pending { background-color: #fff8e1; color: #f57f17; }
+        .status.closed { background-color: #ffebee; color: #c62828; }
+
+        /* VISTAS */
+        .section-view { display: none; animation: fadeIn 0.3s; }
+        .section-view.active-view { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BOTONES */
+        .btn-action {
+            background-color: #162F45;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-action:hover { background-color: #B68656; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.png" alt="Logo">
+            <div>
+                <h2>Tendencia Legal</h2>
+                <span>Gestión Interna</span>
+            </div>
+        </div>
+
+        <div class="menu-item active" onclick="showSection('dashboard', this)">
+            <i class="fas fa-home"></i> Inicio
+        </div>
+        <div class="menu-item" onclick="showSection('clientes', this)">
+            <i class="fas fa-address-book"></i> Clientes
+        </div>
+        <div class="menu-item" onclick="showSection('procesos', this)">
+            <i class="fas fa-balance-scale"></i> Procesos
+        </div>
+        <div class="menu-item" onclick="showSection('finanzas', this)">
+            <i class="fas fa-chart-line"></i> Finanzas
+        </div>
+
+        <a href="login.html" class="menu-item logout-btn">
+            <i class="fas fa-power-off"></i> Salir
+        </a>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="header">
+            <h1 id="page-title">Resumen Ejecutivo</h1>
+            <div class="user-profile">
+                <i class="fas fa-user-tie"></i>
+                <span>Socio: Juan Esteban Córdoba</span>
+            </div>
+        </div>
+
+        <div id="dashboard" class="section-view active-view">
+            <div class="kpi-grid">
+                <div class="kpi-card" style="border-top-color: #162F45;">
+                    <h3>Casos Activos</h3>
+                    <div class="number">12</div>
+                </div>
+                <div class="kpi-card" style="border-top-color: #B68656;">
+                    <h3>Nuevos Clientes (Mes)</h3>
+                    <div class="number">4</div>
+                </div>
+                <div class="kpi-card" style="border-top-color: #2e7d32;">
+                    <h3>Facturación Enero</h3>
+                    <div class="number">$ 15.2M</div>
+                </div>
+                <div class="kpi-card" style="border-top-color: #d32f2f;">
+                    <h3>Tareas Críticas</h3>
+                    <div class="number">3</div>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <div class="table-header-flex">
+                    <h3>Últimos Movimientos</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Detalle</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>16 Ene 2026</td>
+                            <td>Peludencios S.A.S</td>
+                            <td>Revisión Contrato Proveedores</td>
+                            <td><span class="status active">En Proceso</span></td>
+                        </tr>
+                        <tr>
+                            <td>15 Ene 2026</td>
+                            <td>Scotiabank</td>
+                            <td>Entrevista VP Recursos Humanos</td>
+                            <td><span class="status active">Gestión</span></td>
+                        </tr>
+                        <tr>
+                            <td>12 Ene 2026</td>
+                            <td>Carlos Pérez</td>
+                            <td>Radicación Demanda</td>
+                            <td><span class="status pending">Pendiente</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="clientes" class="section-view">
+            <div class="data-table-container">
+                <div class="table-header-flex">
+                    <h3>Directorio de Clientes</h3>
+                    <button class="btn-action"><i class="fas fa-plus"></i> Registrar Cliente</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Contacto Principal</th>
+                            <th>Teléfono</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Peludencios S.A.S</strong></td>
+                            <td>Jurídica</td>
+                            <td>Juan José (Operaciones)</td>
+                            <td>300 123 4567</td>
+                            <td><i class="fas fa-ellipsis-h"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Martina López</strong></td>
+                            <td>Natural</td>
+                            <td>Martina López</td>
+                            <td>310 987 6543</td>
+                            <td><i class="fas fa-ellipsis-h"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="procesos" class="section-view">
+            <div class="data-table-container">
+                <div class="table-header-flex">
+                    <h3>Expedientes Digitales</h3>
+                    <button class="btn-action"><i class="fas fa-folder-plus"></i> Nuevo Expediente</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Radicado</th>
+                            <th>Cliente</th>
+                            <th>Tipo Proceso</th>
+                            <th>Etapa Actual</th>
+                            <th>Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TL-2026-001</td>
+                            <td>Peludencios S.A.S</td>
+                            <td>Propiedad Intelectual</td>
+                            <td><span class="status closed">Registro Concedido</span></td>
+                            <td>Juan E. Córdoba</td>
+                        </tr>
+                        <tr>
+                            <td>CIV-092-22</td>
+                            <td>Familia Ramírez</td>
+                            <td>Sucesión</td>
+                            <td><span class="status pending">Fallo</span></td>
+                            <td>Manuela Correa</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="finanzas" class="section-view">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <h3>Total Facturado</h3>
+                    <div class="number" style="color:#2e7d32;">$ 15,200,000</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Gastos Operativos</h3>
+                    <div class="number" style="color:#c62828;">$ 4,500,000</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Utilidad Neta</h3>
+                    <div class="number" style="color:#B68656;">$ 10,700,000</div>
+                </div>
+            </div>
+            
+            <div class="data-table-container">
+                <div class="table-header-flex">
+                    <h3>Cuentas de Cobro Activas</h3>
+                    <button class="btn-action"><i class="fas fa-file-invoice"></i> Nueva Factura</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th># Factura</th>
+                            <th>Cliente</th>
+                            <th>Vencimiento</th>
+                            <th>Valor</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>FAC-055</td>
+                            <td>Transportes del Norte</td>
+                            <td>30 Ene 2026</td>
+                            <td>$ 2,500,000</td>
+                            <td><span class="status pending">Pendiente</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showSection(sectionId, element) {
+            // Ocultar todo
+            document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
+            
+            // Mostrar selección
+            document.getElementById(sectionId).classList.add('active-view');
+
+            // Actualizar Título
+            const titles = {
+                'dashboard': 'Resumen Ejecutivo',
+                'clientes': 'Gestión de Clientes',
+                'procesos': 'Control de Procesos',
+                'finanzas': 'Información Financiera'
+            };
+            document.getElementById('page-title').innerText = titles[sectionId];
+
+            // Actualizar menú activo
+            if (element) {
+                document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+            }
+        }
+    </script>
+
+</body>
+</html>
