@@ -325,6 +325,7 @@
             document.getElementById('categoriaNoticia').value = noticia.categoria;
             document.getElementById('fechaNoticia').value = noticia.fecha;
             document.getElementById('resumenNoticia').value = noticia.resumen;
+            document.getElementById('contenidoNoticia').value = noticia.contenido || '';
             document.getElementById('linkNoticia').value = noticia.enlace || '';
 
             // Recuperar variables globales de archivos (para no perder la foto si no la cambia)
@@ -420,6 +421,7 @@
                 categoria: document.getElementById('categoriaNoticia').value,
                 fecha: document.getElementById('fechaNoticia').value,
                 resumen: document.getElementById('resumenNoticia').value,
+                contenido: document.getElementById('contenidoNoticia').value,
                 imagen: imagenBase64,
                 archivoAdjunto: documentoBase64, 
                 nombreArchivo: documentoNombre,
