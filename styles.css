@@ -615,6 +615,34 @@ header nav ul li a.active {
         right: 20px;
     }
 }
+/* --- ESTILOS DE LA PÁGINA DE POLÍTICA DE DATOS --- */
+.legal-text-section {
+    padding: 60px 0;
+    background-color: #fff;
+}
+
+.legal-content h3 {
+    color: #162F45; /* Títulos en Azul */
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+.legal-content p, .legal-content ul {
+    color: #53565A;
+    margin-bottom: 15px;
+    line-height: 1.8;
+    text-align: justify;
+}
+
+.legal-content ul {
+    padding-left: 20px; /* Sangría para las listas */
+}
+
+.legal-content li {
+    margin-bottom: 10px;
+}
+
 
 
 
