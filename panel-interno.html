@@ -48,7 +48,7 @@
         .btn-action { background-color: #162F45; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-top: 20px; }
         .btn-action:hover { background-color: #B68656; }
 
-        /* ESTILOS PARA ARCHIVOS ADJUNTOS (NUEVO) */
+        /* ESTILOS PARA ARCHIVOS ADJUNTOS */
         .file-upload-wrapper { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
         .file-name-display { display: none; align-items: center; gap: 10px; background: #e3f2fd; padding: 5px 10px; border-radius: 4px; font-size: 13px; color: #1565c0; border: 1px solid #bbdefb; }
         .btn-delete-file { background: none; border: none; color: #c62828; cursor: pointer; font-weight: bold; font-size: 14px; }
@@ -167,7 +167,12 @@
                             <span id="nombreDoc">ley_123.pdf</span>
                             <button type="button" class="btn-delete-file" onclick="borrarArchivo('inputDoc', 'displayDoc')"><i class="fas fa-times"></i></button>
                         </div>
-                        <small style="color:#888;">Opcional. Si sube un archivo, el botón "Leer más" descargará este documento.</small>
+                    </div>
+
+                    <div>
+                        <label><i class="fas fa-link"></i> Enlace Externo (Opcional)</label>
+                        <input type="text" id="linkNoticia" placeholder="Ej: https://www.elespectador.com/noticia...">
+                        <small style="color:#888;">Si sube un PDF, el botón descargará el PDF. Si no, abrirá este enlace.</small>
                     </div>
 
                     <button type="submit" class="btn-action" style="font-size:16px;">
@@ -184,37 +189,11 @@
                     <button class="btn-action"><i class="fas fa-plus"></i> Registrar Cliente</button>
                 </div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Tipo</th>
-                            <th>Contacto Principal</th>
-                            <th>Teléfono</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Cliente</th><th>Tipo</th><th>Contacto Principal</th><th>Teléfono</th><th>Acciones</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Peludencios S.A.S</strong></td>
-                            <td>Jurídica</td>
-                            <td>Juan José (Operaciones)</td>
-                            <td>300 123 4567</td>
-                            <td><i class="fas fa-ellipsis-h"></i></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Martina López</strong></td>
-                            <td>Natural</td>
-                            <td>Martina López</td>
-                            <td>310 987 6543</td>
-                            <td><i class="fas fa-ellipsis-h"></i></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Transportes del Norte</strong></td>
-                            <td>Corporativo</td>
-                            <td>Gerencia RRHH</td>
-                            <td>320 555 1122</td>
-                            <td><i class="fas fa-ellipsis-h"></i></td>
-                        </tr>
+                        <tr><td><strong>Peludencios S.A.S</strong></td><td>Jurídica</td><td>Juan José (Operaciones)</td><td>300 123 4567</td><td><i class="fas fa-ellipsis-h"></i></td></tr>
+                        <tr><td><strong>Martina López</strong></td><td>Natural</td><td>Martina López</td><td>310 987 6543</td><td><i class="fas fa-ellipsis-h"></i></td></tr>
+                        <tr><td><strong>Transportes del Norte</strong></td><td>Corporativo</td><td>Gerencia RRHH</td><td>320 555 1122</td><td><i class="fas fa-ellipsis-h"></i></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -227,30 +206,10 @@
                     <button class="btn-action"><i class="fas fa-folder-plus"></i> Nuevo Expediente</button>
                 </div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Radicado</th>
-                            <th>Cliente</th>
-                            <th>Tipo Proceso</th>
-                            <th>Etapa Actual</th>
-                            <th>Responsable</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Radicado</th><th>Cliente</th><th>Tipo Proceso</th><th>Etapa Actual</th><th>Responsable</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td>TL-2026-001</td>
-                            <td>Peludencios S.A.S</td>
-                            <td>Propiedad Intelectual</td>
-                            <td><span class="status closed">Registro Concedido</span></td>
-                            <td>Juan E. Córdoba</td>
-                        </tr>
-                        <tr>
-                            <td>CIV-092-22</td>
-                            <td>Familia Ramírez</td>
-                            <td>Sucesión</td>
-                            <td><span class="status pending">Fallo</span></td>
-                            <td>Manuela Correa</td>
-                        </tr>
+                        <tr><td>TL-2026-001</td><td>Peludencios S.A.S</td><td>Propiedad Intelectual</td><td><span class="status closed">Registro Concedido</span></td><td>Juan E. Córdoba</td></tr>
+                        <tr><td>CIV-092-22</td><td>Familia Ramírez</td><td>Sucesión</td><td><span class="status pending">Fallo</span></td><td>Manuela Correa</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -262,30 +221,15 @@
                 <div class="kpi-card"><h3>Gastos Operativos</h3><div class="number" style="color:#c62828;">$ 4,500,000</div></div>
                 <div class="kpi-card"><h3>Utilidad Neta</h3><div class="number" style="color:#B68656;">$ 10,700,000</div></div>
             </div>
-            
             <div class="data-table-container">
                 <div class="table-header-flex">
                     <h3>Cuentas de Cobro Activas</h3>
                     <button class="btn-action"><i class="fas fa-file-invoice"></i> Nueva Factura</button>
                 </div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th># Factura</th>
-                            <th>Cliente</th>
-                            <th>Vencimiento</th>
-                            <th>Valor</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th># Factura</th><th>Cliente</th><th>Vencimiento</th><th>Valor</th><th>Estado</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td>FAC-055</td>
-                            <td>Transportes del Norte</td>
-                            <td>30 Ene 2026</td>
-                            <td>$ 2,500,000</td>
-                            <td><span class="status pending">Pendiente</span></td>
-                        </tr>
+                        <tr><td>FAC-055</td><td>Transportes del Norte</td><td>30 Ene 2026</td><td>$ 2,500,000</td><td><span class="status pending">Pendiente</span></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -294,9 +238,9 @@
     </div>
 
     <script>
-        // VARIABLES GLOBALES PARA GUARDAR LOS ARCHIVOS EN BASE64
-        let imagenBase64 = 'logo.png'; // Por defecto
-        let documentoBase64 = null;    // Por defecto null
+        // VARIABLES GLOBALES PARA ARCHIVOS
+        let imagenBase64 = 'logo.png'; 
+        let documentoBase64 = null;    
         let documentoNombre = null;
 
         // 1. NAVEGACIÓN
@@ -311,7 +255,7 @@
             }
         }
 
-        // 2. FUNCIÓN PARA MANEJAR LA SELECCIÓN DE ARCHIVOS (VISUAL + CONVERSIÓN)
+        // 2. MANEJAR ARCHIVOS (VISUAL + CONVERSIÓN)
         function manejarArchivo(inputId, nombreSpanId, displayId) {
             const input = document.getElementById(inputId);
             const display = document.getElementById(displayId);
@@ -320,15 +264,15 @@
             if (input.files && input.files[0]) {
                 const archivo = input.files[0];
                 nombreSpan.innerText = archivo.name;
-                display.style.display = 'inline-flex'; // Mostrar la cajita con el nombre
+                display.style.display = 'inline-flex'; 
 
-                // CONVERTIR A BASE64 PARA GUARDARLO EN EL NAVEGADOR
+                // Convertir a Base64
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     if (inputId === 'inputImagen') {
-                        imagenBase64 = e.target.result; // Guardamos la foto convertida en texto
+                        imagenBase64 = e.target.result;
                     } else if (inputId === 'inputDoc') {
-                        documentoBase64 = e.target.result; // Guardamos el PDF convertido en texto
+                        documentoBase64 = e.target.result;
                         documentoNombre = archivo.name;
                     }
                 };
@@ -336,19 +280,20 @@
             }
         }
 
-        // 3. FUNCIÓN PARA BORRAR ARCHIVO SELECCIONADO
+        // 3. BORRAR ARCHIVO SELECCIONADO
         function borrarArchivo(inputId, displayId) {
-            document.getElementById(inputId).value = ""; // Limpiar input
-            document.getElementById(displayId).style.display = 'none'; // Ocultar cajita
-            
-            // Resetear variables
+            document.getElementById(inputId).value = "";
+            document.getElementById(displayId).style.display = 'none';
             if (inputId === 'inputImagen') imagenBase64 = 'logo.png';
             if (inputId === 'inputDoc') { documentoBase64 = null; documentoNombre = null; }
         }
 
-        // 4. GUARDAR NOTICIA
+        // 4. GUARDAR NOTICIA (LÓGICA FINAL)
         document.getElementById('formNoticia').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Capturar datos
+            const linkInput = document.getElementById('linkNoticia').value;
 
             const nuevaNoticia = {
                 titulo: document.getElementById('tituloNoticia').value,
@@ -356,18 +301,20 @@
                 fecha: document.getElementById('fechaNoticia').value,
                 resumen: document.getElementById('resumenNoticia').value,
                 imagen: imagenBase64,
-                archivoAdjunto: documentoBase64, // Aquí va el PDF codificado
-                nombreArchivo: documentoNombre
+                archivoAdjunto: documentoBase64, 
+                nombreArchivo: documentoNombre,
+                // Si hay link, lo guardamos, si no, es '#'
+                enlace: linkInput !== "" ? linkInput : '#'
             };
 
             let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
             noticiasGuardadas.unshift(nuevaNoticia);
             localStorage.setItem('noticias_tendencia', JSON.stringify(noticiasGuardadas));
 
-            alert('¡Noticia publicada! Se ha guardado la imagen y el documento.');
+            alert('¡Noticia publicada con éxito!');
             document.getElementById('formNoticia').reset();
             
-            // Reiniciar visuales de archivos
+            // Reiniciar archivos
             borrarArchivo('inputImagen', 'displayImagen');
             borrarArchivo('inputDoc', 'displayDoc');
         });
