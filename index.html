@@ -119,7 +119,7 @@
                         Manténgase informado sobre las últimas novedades que impactan su negocio.
                     </p>
                     
-                    <a href="noticias.html" class="btn-news">Leer más noticias &rarr;</a>
+                    <a href="noticias.html" class="btn-news" id="btn-destacado">Leer más noticias &rarr;</a>
                 </div>
             </div>
 
@@ -177,31 +177,55 @@
     </footer>
 
     <script>
-        // SCRIPT: CARGAR ÚLTIMA NOTICIA EN EL HOME
+        // SCRIPT: CARGAR ÚLTIMA NOTICIA EN EL HOME (VERSIÓN INTELIGENTE)
         window.addEventListener('load', function() {
             // 1. Buscamos si hay noticias guardadas
             let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia'));
 
-            // 2. Si hay noticias, tomamos la primera (la más reciente)
+            // 2. Si hay noticias, tomamos la primera
             if (noticiasGuardadas && noticiasGuardadas.length > 0) {
-                const ultimaNoticia = noticiasGuardadas[0]; // La posición 0 es la más nueva
+                const ultimaNoticia = noticiasGuardadas[0]; 
 
-                // 3. Formateamos la fecha
+                // A. Formateamos la fecha
                 const fechaObj = new Date(ultimaNoticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaTexto = fechaObj.toLocaleDateString('es-ES', opciones);
 
-                // 4. Reemplazamos el contenido del HTML
+                // B. Actualizamos textos e imagen
                 document.getElementById('cat-destacada').innerText = ultimaNoticia.categoria;
                 document.getElementById('fecha-destacada').innerText = fechaTexto;
                 document.getElementById('titulo-destacado').innerText = ultimaNoticia.titulo;
                 document.getElementById('resumen-destacado').innerText = ultimaNoticia.resumen;
-                document.getElementById('img-destacada').src = ultimaNoticia.imagen;
+                
+                // Si hay imagen personalizada la usa, si no, deja la que estaba
+                if (ultimaNoticia.imagen && ultimaNoticia.imagen !== 'logo.png') {
+                    document.getElementById('img-destacada').src = ultimaNoticia.imagen;
+                }
+
+                // C. LÓGICA DEL BOTÓN (Aquí está el cambio)
+                const btn = document.getElementById('btn-destacado');
+
+                if (ultimaNoticia.archivoAdjunto) {
+                    // Si es PDF
+                    btn.href = ultimaNoticia.archivoAdjunto;
+                    btn.setAttribute('download', ultimaNoticia.nombreArchivo || 'documento.pdf');
+                    btn.innerHTML = '<i class="fas fa-file-download"></i> Descargar Documento';
+                } else if (ultimaNoticia.enlace && ultimaNoticia.enlace !== '#') {
+                    // Si es Link externo
+                    btn.href = ultimaNoticia.enlace;
+                    btn.target = "_blank";
+                    btn.innerHTML = 'Leer artículo completo &rarr;';
+                } else {
+                    // Si no tiene nada, mandamos a la sección de noticias general
+                    btn.href = "noticias.html";
+                    btn.innerHTML = 'Ir a Noticias &rarr;';
+                }
             }
         });
     </script>
 </body>
 </html>
+
 
 
 
