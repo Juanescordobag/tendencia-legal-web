@@ -875,7 +875,7 @@ header nav ul li a.active {
     width: 100%; 
     height: 100%;
     background: rgba(0, 0, 0, 0.85); 
-    z-index: 9999; /* Pon un número muy alto para que esté encima de todo */
+    z-index: 20000; /* Pon un número muy alto para que esté encima de todo */
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -977,4 +977,5 @@ header nav ul li a.active {
     transition: background 0.3s;
 }
 .btn-modal:hover { background: #B68656; }
+
 
