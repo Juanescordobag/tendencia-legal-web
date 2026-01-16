@@ -177,7 +177,7 @@
     </footer>
 
     <script>
-        // SCRIPT: CARGAR ÚLTIMA NOTICIA EN EL HOME (VERSIÓN INTELIGENTE)
+        // SCRIPT: CARGAR ÚLTIMA NOTICIA EN EL HOME
         window.addEventListener('load', function() {
             // 1. Buscamos si hay noticias guardadas
             let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia'));
@@ -186,45 +186,32 @@
             if (noticiasGuardadas && noticiasGuardadas.length > 0) {
                 const ultimaNoticia = noticiasGuardadas[0]; 
 
-                // A. Formateamos la fecha
+                // A. Formateamos la fecha y datos visuales
                 const fechaObj = new Date(ultimaNoticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaTexto = fechaObj.toLocaleDateString('es-ES', opciones);
 
-                // B. Actualizamos textos e imagen
                 document.getElementById('cat-destacada').innerText = ultimaNoticia.categoria;
                 document.getElementById('fecha-destacada').innerText = fechaTexto;
                 document.getElementById('titulo-destacado').innerText = ultimaNoticia.titulo;
                 document.getElementById('resumen-destacado').innerText = ultimaNoticia.resumen;
                 
-                // Si hay imagen personalizada la usa, si no, deja la que estaba
                 if (ultimaNoticia.imagen && ultimaNoticia.imagen !== 'logo.png') {
                     document.getElementById('img-destacada').src = ultimaNoticia.imagen;
                 }
 
-                // C. LÓGICA DEL BOTÓN (Aquí está el cambio)
+                // B. CONFIGURACIÓN DEL BOTÓN (CAMBIO CLAVE)
                 const btn = document.getElementById('btn-destacado');
-
-                if (ultimaNoticia.archivoAdjunto) {
-                    // Si es PDF
-                    btn.href = ultimaNoticia.archivoAdjunto;
-                    btn.setAttribute('download', ultimaNoticia.nombreArchivo || 'documento.pdf');
-                    btn.innerHTML = '<i class="fas fa-file-download"></i> Descargar Documento';
-                } else if (ultimaNoticia.enlace && ultimaNoticia.enlace !== '#') {
-                    // Si es Link externo
-                    btn.href = ultimaNoticia.enlace;
-                    btn.target = "_blank";
-                    btn.innerHTML = 'Leer artículo completo &rarr;';
-                } else {
-                    // Si no tiene nada, mandamos a la sección de noticias general
-                    btn.href = "noticias.html";
-                    btn.innerHTML = 'Ir a Noticias &rarr;';
-                }
+                
+                // Siempre enviamos a la página de noticias, pidiendo abrir la #0 (la primera)
+                btn.href = "noticias.html?id=0"; 
+                btn.innerHTML = 'Lee el artículo completo acá &rarr;';
             }
         });
     </script>
 </body>
 </html>
+
 
 
 
