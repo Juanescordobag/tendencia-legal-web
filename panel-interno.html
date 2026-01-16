@@ -38,7 +38,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* FORMS & TABLES */
-        .data-table-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .data-table-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 30px; }
         .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .table-header-flex h3 { margin: 0; color: #162F45; }
         
@@ -53,6 +53,13 @@
         .file-name-display { display: none; align-items: center; gap: 10px; background: #e3f2fd; padding: 5px 10px; border-radius: 4px; font-size: 13px; color: #1565c0; border: 1px solid #bbdefb; }
         .btn-delete-file { background: none; border: none; color: #c62828; cursor: pointer; font-weight: bold; font-size: 14px; }
         .btn-delete-file:hover { color: red; }
+
+        /* ESTILOS BOTONES DE EDICIÓN/ELIMINAR */
+        .btn-icon { cursor: pointer; margin: 0 5px; font-size: 16px; border: none; background: none; }
+        .btn-edit { color: #f57f17; } /* Naranja */
+        .btn-delete { color: #c62828; } /* Rojo */
+        .btn-edit:hover { color: #ffca28; }
+        .btn-delete:hover { color: red; }
 
         /* KPI & TABLES */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
@@ -115,12 +122,16 @@
         </div> 
 
         <div id="gestion-noticias" class="section-view">
+            
             <div class="data-table-container">
                 <div class="table-header-flex">
-                    <h3>Redactar Nuevo Artículo</h3>
+                    <h3 id="tituloFormulario">Redactar Nuevo Artículo</h3>
+                    <button class="btn-action" onclick="resetearFormulario()" style="background:#888; display:none;" id="btnCancelarEdicion">Cancelar Edición</button>
                 </div>
                 
                 <form id="formNoticia" style="max-width: 600px;">
+                    <input type="hidden" id="indiceEdicion" value="-1">
+
                     <div>
                         <label>Título del Artículo</label>
                         <input type="text" id="tituloNoticia" placeholder="Ej: Nueva Ley de Emprendimiento" required>
@@ -172,14 +183,32 @@
                     <div>
                         <label><i class="fas fa-link"></i> Enlace Externo (Opcional)</label>
                         <input type="text" id="linkNoticia" placeholder="Ej: https://www.elespectador.com/noticia...">
-                        <small style="color:#888;">Si sube un PDF, el botón descargará el PDF. Si no, abrirá este enlace.</small>
                     </div>
 
-                    <button type="submit" class="btn-action" style="font-size:16px;">
+                    <button type="submit" class="btn-action" style="font-size:16px;" id="btnSubmitNoticia">
                         <i class="fas fa-paper-plane"></i> Publicar en la Web
                     </button>
                 </form>
             </div>
+
+            <div class="data-table-container">
+                <div class="table-header-flex">
+                    <h3>Historial de Publicaciones</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaNoticiasBody">
+                        </tbody>
+                </table>
+            </div>
+
         </div>
 
         <div id="clientes" class="section-view">
@@ -238,12 +267,99 @@
     </div>
 
     <script>
-        // VARIABLES GLOBALES PARA ARCHIVOS
+        // VARIABLES GLOBALES
         let imagenBase64 = 'logo.png'; 
         let documentoBase64 = null;    
         let documentoNombre = null;
 
-        // 1. NAVEGACIÓN
+        // 1. CARGAR NOTICIAS EN LA TABLA AL INICIAR
+        window.addEventListener('load', function() {
+            renderizarTablaNoticias();
+        });
+
+        // 2. FUNCIÓN PARA MOSTRAR LA LISTA DE NOTICIAS
+        function renderizarTablaNoticias() {
+            const tbody = document.getElementById('tablaNoticiasBody');
+            tbody.innerHTML = ''; // Limpiar tabla
+            
+            let noticias = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
+
+            noticias.forEach((noticia, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${noticia.fecha}</td>
+                    <td><strong>${noticia.titulo}</strong></td>
+                    <td><span class="status pending">${noticia.categoria}</span></td>
+                    <td>
+                        <button class="btn-icon btn-edit" onclick="cargarParaEditar(${index})" title="Editar"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon btn-delete" onclick="eliminarNoticia(${index})" title="Eliminar"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 3. ELIMINAR NOTICIA
+        function eliminarNoticia(index) {
+            if(confirm('¿Estás seguro de borrar esta noticia? No se puede deshacer.')) {
+                let noticias = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
+                noticias.splice(index, 1); // Borrar del array
+                localStorage.setItem('noticias_tendencia', JSON.stringify(noticias));
+                renderizarTablaNoticias(); // Actualizar tabla
+                alert('Noticia eliminada.');
+            }
+        }
+
+        // 4. CARGAR DATOS PARA EDITAR
+        function cargarParaEditar(index) {
+            let noticias = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
+            let noticia = noticias[index];
+
+            // Llenar inputs
+            document.getElementById('tituloNoticia').value = noticia.titulo;
+            document.getElementById('categoriaNoticia').value = noticia.categoria;
+            document.getElementById('fechaNoticia').value = noticia.fecha;
+            document.getElementById('resumenNoticia').value = noticia.resumen;
+            document.getElementById('linkNoticia').value = noticia.enlace || '';
+
+            // Recuperar variables globales de archivos (para no perder la foto si no la cambia)
+            imagenBase64 = noticia.imagen;
+            documentoBase64 = noticia.archivoAdjunto;
+            documentoNombre = noticia.nombreArchivo;
+
+            // Mostrar visualmente que hay archivos cargados
+            if (imagenBase64 && imagenBase64 !== 'logo.png') {
+                document.getElementById('displayImagen').style.display = 'inline-flex';
+                document.getElementById('nombreImagen').innerText = "Imagen actual cargada";
+            }
+            if (documentoBase64) {
+                document.getElementById('displayDoc').style.display = 'inline-flex';
+                document.getElementById('nombreDoc').innerText = noticia.nombreArchivo || "Documento actual";
+            }
+
+            // Cambiar modo del formulario a EDICIÓN
+            document.getElementById('indiceEdicion').value = index;
+            document.getElementById('tituloFormulario').innerText = "Editar Noticia";
+            document.getElementById('btnSubmitNoticia').innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+            document.getElementById('btnCancelarEdicion').style.display = 'block';
+
+            // Scroll arriba suave
+            document.querySelector('.main-content').scrollTop = 0;
+        }
+
+        // 5. CANCELAR EDICIÓN (Limpiar todo)
+        function resetearFormulario() {
+            document.getElementById('formNoticia').reset();
+            borrarArchivo('inputImagen', 'displayImagen');
+            borrarArchivo('inputDoc', 'displayDoc');
+            
+            document.getElementById('indiceEdicion').value = "-1"; // Volver a modo crear
+            document.getElementById('tituloFormulario').innerText = "Redactar Nuevo Artículo";
+            document.getElementById('btnSubmitNoticia').innerHTML = '<i class="fas fa-paper-plane"></i> Publicar en la Web';
+            document.getElementById('btnCancelarEdicion').style.display = 'none';
+        }
+
+        // 6. NAVEGACIÓN
         function showSection(sectionId, element) {
             document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
             document.getElementById(sectionId).classList.add('active-view');
@@ -255,7 +371,7 @@
             }
         }
 
-        // 2. MANEJAR ARCHIVOS (VISUAL + CONVERSIÓN)
+        // 7. MANEJAR ARCHIVOS (VISUAL + CONVERSIÓN)
         function manejarArchivo(inputId, nombreSpanId, displayId) {
             const input = document.getElementById(inputId);
             const display = document.getElementById(displayId);
@@ -266,7 +382,6 @@
                 nombreSpan.innerText = archivo.name;
                 display.style.display = 'inline-flex'; 
 
-                // Convertir a Base64
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     if (inputId === 'inputImagen') {
@@ -280,7 +395,7 @@
             }
         }
 
-        // 3. BORRAR ARCHIVO SELECCIONADO
+        // 8. BORRAR ARCHIVO SELECCIONADO
         function borrarArchivo(inputId, displayId) {
             document.getElementById(inputId).value = "";
             document.getElementById(displayId).style.display = 'none';
@@ -288,14 +403,14 @@
             if (inputId === 'inputDoc') { documentoBase64 = null; documentoNombre = null; }
         }
 
-        // 4. GUARDAR NOTICIA (LÓGICA FINAL)
+        // 9. GUARDAR O ACTUALIZAR NOTICIA
         document.getElementById('formNoticia').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Capturar datos
             const linkInput = document.getElementById('linkNoticia').value;
+            const indice = document.getElementById('indiceEdicion').value; // -1 = Nuevo, 0+ = Editar
 
-            const nuevaNoticia = {
+            const noticiaDatos = {
                 titulo: document.getElementById('tituloNoticia').value,
                 categoria: document.getElementById('categoriaNoticia').value,
                 fecha: document.getElementById('fechaNoticia').value,
@@ -303,20 +418,26 @@
                 imagen: imagenBase64,
                 archivoAdjunto: documentoBase64, 
                 nombreArchivo: documentoNombre,
-                // Si hay link, lo guardamos, si no, es '#'
                 enlace: linkInput !== "" ? linkInput : '#'
             };
 
             let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
-            noticiasGuardadas.unshift(nuevaNoticia);
-            localStorage.setItem('noticias_tendencia', JSON.stringify(noticiasGuardadas));
 
-            alert('¡Noticia publicada con éxito!');
-            document.getElementById('formNoticia').reset();
+            if (indice === "-1") {
+                // MODO CREAR: Agregar al inicio
+                noticiasGuardadas.unshift(noticiaDatos);
+                alert('¡Noticia publicada con éxito!');
+            } else {
+                // MODO EDITAR: Actualizar posición específica
+                noticiasGuardadas[indice] = noticiaDatos;
+                alert('¡Noticia actualizada correctamente!');
+            }
+
+            localStorage.setItem('noticias_tendencia', JSON.stringify(noticiasGuardadas));
             
-            // Reiniciar archivos
-            borrarArchivo('inputImagen', 'displayImagen');
-            borrarArchivo('inputDoc', 'displayDoc');
+            // Refrescar tabla y limpiar
+            renderizarTablaNoticias();
+            resetearFormulario();
         });
     </script>
 </body>
