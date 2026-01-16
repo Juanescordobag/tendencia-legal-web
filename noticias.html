@@ -99,41 +99,34 @@
     </div>
 
     <script>
+        // VARIABLE GLOBAL PARA GUARDAR LAS NOTICIAS EN MEMORIA
+        let noticiasMemoria = [];
+
         // 1. EFECTO DE SCROLL EN EL MENÚ
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
             header.classList.toggle("abajo", window.scrollY > 0);
         });
 
-        // 2. CARGAR NOTICIAS Y CONFIGURAR MODAL
+        // 2. CARGAR NOTICIAS AL INICIAR
         window.addEventListener('load', function() {
-            let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
+            // Cargamos las noticias en la variable global
+            noticiasMemoria = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
+            
             const contenedor = document.getElementById('grid-noticias');
+            contenedor.innerHTML = ""; // Limpiar tablero
 
-            // Limpiamos el contenedor para evitar duplicados si recargas
-            contenedor.innerHTML = "";
-
-            noticiasGuardadas.forEach(noticia => {
+            // Recorremos las noticias usando 'index' (el número de la noticia: 0, 1, 2...)
+            noticiasMemoria.forEach((noticia, index) => {
                 
-                // A. Formatear la fecha
+                // Formatear fecha
                 const fechaObj = new Date(noticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
                 const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
 
-                // B. PREPARACIÓN SEGURA DE DATOS (ESTO ES LO VITAL)
-                // Usamos variables intermedias para limpiar el texto antes de meterlo al HTML
-                const tituloSafe = noticia.titulo.replace(/'/g, "\\'"); 
-                const contenidoEncoded = encodeURIComponent(noticia.contenido || '');
-                const adjunto = noticia.archivoAdjunto || '';
-                const nombreAdjunto = noticia.nombreArchivo || '';
-                const enlace = noticia.enlace || '';
-
-                // C. CREAMOS LA ACCIÓN DEL BOTÓN EN UNA SOLA LÍNEA
-                // Esto evita que los saltos de línea rompan el código del navegador
-                const onclickAction = `abrirModal('${tituloSafe}', '${noticia.categoria}', '${fechaFormateada}', '${contenidoEncoded}', '${imagenSrc}', '${adjunto}', '${nombreAdjunto}', '${enlace}')`;
-
-                // D. CREAMOS LA TARJETA HTML
+                // CREAMOS LA TARJETA
+                // Fíjate en el onclick: solo pasamos el número 'index'
                 const tarjetaHTML = `
                     <article class="blog-card">
                         <div class="blog-image">
@@ -144,58 +137,64 @@
                             <h3>${noticia.titulo}</h3>
                             <p>${noticia.resumen}</p>
                             
-                            <button class="btn-read-more" style="background:none; border:none; cursor:pointer; padding:0; font-family:inherit; font-size:14px; font-weight:bold; color:#162F45;" onclick="${onclickAction}">
+                            <button class="btn-read-more" 
+                                style="background:none; border:none; cursor:pointer; padding:0; font-family:inherit; font-size:14px; font-weight:bold; color:#162F45;" 
+                                onclick="abrirModal(${index})">
                                 Leer artículo completo &rarr;
                             </button>
                         </div>
                     </article>
                 `;
 
-                contenedor.insertAdjacentHTML('afterbegin', tarjetaHTML);
+                contenedor.insertAdjacentHTML('beforeend', tarjetaHTML);
             });
         });
 
-        // 3. FUNCIONES DEL MODAL (ABRIR Y CERRAR)
-        function abrirModal(titulo, cat, fecha, contenidoEncoded, imagen, adjunto, nombreAdjunto, enlace) {
-            
-            // 1. Decodificar el contenido (Traerlo de vuelta a texto normal)
-            const contenido = decodeURIComponent(contenidoEncoded);
+        // 3. FUNCIÓN ABRIR MODAL (Ahora recibe el NÚMERO de la noticia)
+        function abrirModal(index) {
+            // Buscamos la noticia específica en la memoria usando el número
+            const noticia = noticiasMemoria[index];
 
-            // 2. Llenar los campos del Modal
-            document.getElementById('modalTitulo').innerText = titulo;
-            document.getElementById('modalCategoria').innerText = cat;
-            document.getElementById('modalFecha').innerText = fecha;
-            document.getElementById('modalImg').src = imagen;
-            document.getElementById('modalTexto').innerText = contenido; // El texto largo
+            if (!noticia) return; // Seguridad por si acaso
 
-            // 3. Configurar Botones Extra (Descarga o Link)
+            // Llenar datos visuales
+            const fechaObj = new Date(noticia.fecha + 'T00:00:00');
+            const fechaTexto = fechaObj.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            document.getElementById('modalTitulo').innerText = noticia.titulo;
+            document.getElementById('modalCategoria').innerText = noticia.categoria;
+            document.getElementById('modalFecha').innerText = fechaTexto;
+            document.getElementById('modalImg').src = noticia.imagen || 'logo.png';
+            document.getElementById('modalTexto').innerText = noticia.contenido || noticia.resumen;
+
+            // Configurar Botones (PDF o Link)
             const areaBotones = document.getElementById('modalBotones');
-            areaBotones.innerHTML = ""; // Limpiar botones de la noticia anterior
+            areaBotones.innerHTML = ""; 
 
-            // Si hay PDF adjunto (y no es texto vacío ni nulo)
-            if (adjunto && adjunto.length > 50) { 
+            // Verificar PDF
+            if (noticia.archivoAdjunto && noticia.archivoAdjunto.length > 50) {
                 areaBotones.innerHTML += `
-                    <a href="${adjunto}" download="${nombreAdjunto || 'documento'}" class="btn-modal">
+                    <a href="${noticia.archivoAdjunto}" download="${noticia.nombreArchivo || 'documento'}" class="btn-modal">
                         <i class="fas fa-file-download"></i> Descargar Documento
                     </a>`;
             }
 
-            // Si hay Link externo
-            if (enlace && enlace !== '#' && enlace.length > 5) {
+            // Verificar Link Externo
+            if (noticia.enlace && noticia.enlace !== '#' && noticia.enlace.length > 5) {
                 areaBotones.innerHTML += `
-                    <a href="${enlace}" target="_blank" class="btn-modal">
+                    <a href="${noticia.enlace}" target="_blank" class="btn-modal">
                         <i class="fas fa-external-link-alt"></i> Ir a la fuente original
                     </a>`;
             }
 
-            // 4. Mostrar el modal
+            // Mostrar
             document.getElementById('modalNoticia').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Bloquear scroll de fondo
+            document.body.style.overflow = 'hidden';
         }
 
         function cerrarModal() {
             document.getElementById('modalNoticia').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Reactivar scroll
+            document.body.style.overflow = 'auto';
         }
     </script>
 </body>
