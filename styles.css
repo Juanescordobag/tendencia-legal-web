@@ -866,17 +866,23 @@ header nav ul li a.active {
 }
 
 /* --- ESTILOS DEL MODAL DE NOTICIAS --- */
+/* --- ESTILOS DEL MODAL DE NOTICIAS --- */
 .modal-overlay {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* Fondo oscuro */
-    z-index: 2000; /* Por encima de todo */
+    display: none; /* ¡ESTO ES CRUCIAL! */
+    position: fixed; /* ¡ESTO TAMBIÉN! */
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); 
+    z-index: 9999; /* Pon un número muy alto para que esté encima de todo */
     justify-content: center;
     align-items: center;
     padding: 20px;
-    backdrop-filter: blur(5px); /* Efecto borroso de fondo moderno */
+    backdrop-filter: blur(5px);
 }
+
+/* ... (resto de los estilos del modal que te pasé antes) ... */
 
 .modal-content {
     background: white;
@@ -971,3 +977,4 @@ header nav ul li a.active {
     transition: background 0.3s;
 }
 .btn-modal:hover { background: #B68656; }
+
