@@ -158,18 +158,15 @@
                 const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
 
                 // B. PREPARACIÓN SEGURA DE DATOS (ESTO ES LO VITAL)
-                // 1. Escapamos las comillas simples (') del título para que no rompan el código
+                // Usamos variables intermedias para limpiar el texto antes de meterlo al HTML
                 const tituloSafe = noticia.titulo.replace(/'/g, "\\'"); 
-                // 2. Codificamos el texto largo para que viaje seguro (sin que importen los párrafos)
                 const contenidoEncoded = encodeURIComponent(noticia.contenido || '');
-                
-                // 3. Preparamos las variables opcionales
                 const adjunto = noticia.archivoAdjunto || '';
                 const nombreAdjunto = noticia.nombreArchivo || '';
                 const enlace = noticia.enlace || '';
 
-                // C. CREAMOS LA ACCIÓN DEL BOTÓN
-                // Esta cadena gigante es la instrucción exacta para el botón
+                // C. CREAMOS LA ACCIÓN DEL BOTÓN EN UNA SOLA LÍNEA
+                // Esto evita que los saltos de línea rompan el código del navegador
                 const onclickAction = `abrirModal('${tituloSafe}', '${noticia.categoria}', '${fechaFormateada}', '${contenidoEncoded}', '${imagenSrc}', '${adjunto}', '${nombreAdjunto}', '${enlace}')`;
 
                 // D. CREAMOS LA TARJETA HTML
@@ -211,8 +208,8 @@
             const areaBotones = document.getElementById('modalBotones');
             areaBotones.innerHTML = ""; // Limpiar botones de la noticia anterior
 
-            // Si hay PDF adjunto
-            if (adjunto && adjunto !== 'null' && adjunto !== 'undefined' && adjunto !== '') {
+            // Si hay PDF adjunto (y no es texto vacío ni nulo)
+            if (adjunto && adjunto.length > 50) { 
                 areaBotones.innerHTML += `
                     <a href="${adjunto}" download="${nombreAdjunto || 'documento'}" class="btn-modal">
                         <i class="fas fa-file-download"></i> Descargar Documento
@@ -220,7 +217,7 @@
             }
 
             // Si hay Link externo
-            if (enlace && enlace !== '#' && enlace !== 'null' && enlace !== '') {
+            if (enlace && enlace !== '#' && enlace.length > 5) {
                 areaBotones.innerHTML += `
                     <a href="${enlace}" target="_blank" class="btn-modal">
                         <i class="fas fa-external-link-alt"></i> Ir a la fuente original
@@ -229,15 +226,12 @@
 
             // 4. Mostrar el modal
             document.getElementById('modalNoticia').style.display = 'flex';
-            
-            // Bloquear el scroll de la página de fondo para que no se mueva
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden'; // Bloquear scroll de fondo
         }
 
         function cerrarModal() {
             document.getElementById('modalNoticia').style.display = 'none';
-            // Reactivar el scroll de la página
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = 'auto'; // Reactivar scroll
         }
     </script>
 </body>
