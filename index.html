@@ -6,6 +6,12 @@
     <title>Tendencia Legal | Asesores</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Agregamos esto para que el "salto" al bajar sea suave y no brusco */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 <body>
 
@@ -17,7 +23,8 @@
             <nav>
                 <ul>
                     <li><a href="index.html">Inicio</a></li>
-                    <li><a href="#" class="dropdown-toggle">Áreas y Servicios jurídicos</a>
+                    
+                    <li><a href="#areas-practica" class="dropdown-toggle">Áreas y Servicios jurídicos</a>
                     <ul class="dropdown-menu">
                         <li><a href="derecho-civil.html">Derecho Civil y de familia</a></li>
                         <li><a href="derecho-laboral.html">Derecho laboral</a></li>
@@ -25,6 +32,7 @@
                         <li><a href="derecho-administrativo.html">Derecho estatal y administrativo</a></li>
                     </ul>
                     </li>
+                    
                     <li><a href="recursos-humanos.html">Recursos humanos</a></li>
                     <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
                     <li><a href="index.html">Noticias</a></li>
@@ -47,29 +55,43 @@
         </div>
     </section>
 
-    <section class="services">
+    <section class="services" id="areas-practica">
         <div class="container">
             <h2>Nuestras Áreas de Práctica</h2>
             <div class="service-grid">
-                <div class="card">
-                    <h3>Derecho Corporativo</h3>
-                    <p>Estructuración de empresas y gobierno corporativo.</p>
-                </div>
-                <div class="card">
-                    <h3>Propiedad Intelectual</h3>
-                    <p>Protección de marcas, patentes y derechos de autor.</p>
-                </div>
-                <div class="card">
-                    <h3>Derecho Administrativo</h3>
-                    <p>Representación experta en demandas contra el Estado colombiano y sus entidades.</p>
-                </div>
-                <div class="card">
-                    <h3>Derecho Laboral</h3>
-                    <p>Asesoría y representación estratégica en temas laborales para empresas y trabajadores.</p>
-                </div>
+                
+                <a href="derecho-civil.html" style="text-decoration: none; color: inherit;">
+                    <div class="card">
+                        <h3>Derecho Civil y de familia</h3>
+                        <p>Protección del patrimonio, sucesiones y soluciones integrales para asuntos familiares.</p>
+                    </div>
+                </a>
+
+                <a href="derecho-laboral.html" style="text-decoration: none; color: inherit;">
+                    <div class="card">
+                        <h3>Derecho Laboral</h3>
+                        <p>Asesoría estratégica en gestión de talento, contratación y defensa empresarial.</p>
+                    </div>
+                </a>
+
+                <a href="derecho-comercial.html" style="text-decoration: none; color: inherit;">
+                    <div class="card">
+                        <h3>Derecho Comercial</h3>
+                        <p>Estructuración de negocios, gobierno corporativo y protección de la propiedad intelectual.</p>
+                    </div>
+                </a>
+
+                <a href="derecho-administrativo.html" style="text-decoration: none; color: inherit;">
+                    <div class="card">
+                        <h3>Derecho Estatal y Administrativo</h3>
+                        <p>Representación experta en contratación estatal y litigio contra entidades públicas.</p>
+                    </div>
+                </a>
+
             </div>
         </div>
     </section>
+
     <script>
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
@@ -77,7 +99,8 @@
             header.classList.toggle("abajo", window.scrollY > 0);
         });
     </script>
-<footer>
+    
+    <footer>
         <div class="container">
             
             <div class="footer-content">
@@ -117,8 +140,8 @@
         </div>
     </footer>   
 </body>
-
 </html>
+
 
 
 
