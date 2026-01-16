@@ -109,6 +109,7 @@
         });
 
         // 2. CARGAR NOTICIAS AL INICIAR
+        // 2. CARGAR NOTICIAS AL INICIAR
         window.addEventListener('load', function() {
             // Cargamos las noticias en la variable global
             noticiasMemoria = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
@@ -116,17 +117,13 @@
             const contenedor = document.getElementById('grid-noticias');
             contenedor.innerHTML = ""; // Limpiar tablero
 
-            // Recorremos las noticias usando 'index' (el número de la noticia: 0, 1, 2...)
+            // Recorremos las noticias para dibujar las tarjetas
             noticiasMemoria.forEach((noticia, index) => {
-                
-                // Formatear fecha
                 const fechaObj = new Date(noticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
                 const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
 
-                // CREAMOS LA TARJETA
-                // Fíjate en el onclick: solo pasamos el número 'index'
                 const tarjetaHTML = `
                     <article class="blog-card">
                         <div class="blog-image">
@@ -136,7 +133,6 @@
                             <span class="blog-date">${fechaFormateada} | ${noticia.categoria}</span>
                             <h3>${noticia.titulo}</h3>
                             <p>${noticia.resumen}</p>
-                            
                             <button class="btn-read-more" 
                                 style="background:none; border:none; cursor:pointer; padding:0; font-family:inherit; font-size:14px; font-weight:bold; color:#162F45;" 
                                 onclick="abrirModal(${index})">
@@ -145,9 +141,19 @@
                         </div>
                     </article>
                 `;
-
                 contenedor.insertAdjacentHTML('beforeend', tarjetaHTML);
             });
+
+            // --- BLOQUE NUEVO: AUTO-APERTURA DESDE EL HOME ---
+            // Leemos la dirección web para ver si trae una orden (ej: ?id=0)
+            const params = new URLSearchParams(window.location.search);
+            const idParaAbrir = params.get('id');
+
+            // Si existe un ID, abrimos ese modal automáticamente
+            if (idParaAbrir !== null) {
+                abrirModal(parseInt(idParaAbrir));
+            }
+            // ------------------------------------------------
         });
 
         // 3. FUNCIÓN ABRIR MODAL (Ahora recibe el NÚMERO de la noticia)
