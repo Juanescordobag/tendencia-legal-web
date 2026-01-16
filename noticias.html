@@ -115,7 +115,24 @@
                 <a href="politica-datos.html">Política de Tratamiento de Datos Personales</a>
             </div>
         </div>
-    </footer>   
+    </footer>
+    <div id="modalNoticia" class="modal-overlay" onclick="cerrarModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="cerrarModal()">&times;</span>
+            
+            <img id="modalImg" src="" class="modal-img">
+            
+            <div class="modal-body">
+                <span id="modalCategoria" class="modal-cat"></span>
+                <span id="modalFecha" class="modal-date"></span>
+                <h2 id="modalTitulo"></h2>
+                
+                <div id="modalTexto" class="modal-text"></div>
+                
+                <div id="modalBotones" class="modal-actions"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 1. EFECTO DE SCROLL EN EL MENÚ
@@ -124,65 +141,101 @@
             header.classList.toggle("abajo", window.scrollY > 0);
         });
 
-        // 2. SCRIPT PARA CARGAR LAS NOTICIAS DEL PANEL INTERNO
+        // 2. CARGAR NOTICIAS Y CONFIGURAR MODAL
         window.addEventListener('load', function() {
-            // A. Leer la memoria del navegador
             let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
             const contenedor = document.getElementById('grid-noticias');
 
-            // B. Recorrer y crear cada noticia
             noticiasGuardadas.forEach(noticia => {
                 
                 // A. Formatear la fecha
-            // Agregamos 'T00:00:00' para evitar que la fecha cambie por zona horaria
-            const fechaObj = new Date(noticia.fecha + 'T00:00:00'); 
-            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
+                const fechaObj = new Date(noticia.fecha + 'T00:00:00');
+                const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+                const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
+                const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
 
-            // B. Definir qué imagen mostrar (Si no hay, usa el logo)
-            const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
+                // B. PREPARAR DATOS PARA EL MODAL
+                // Usamos una técnica llamada 'Template String' dentro del onclick.
+                // encodeURIComponent es vital para que textos largos con comillas no rompan el código.
+                const datosParaModal = `
+                    onclick="abrirModal(
+                        '${noticia.titulo.replace(/'/g, "\\'")}', 
+                        '${noticia.categoria}', 
+                        '${fechaFormateada}', 
+                        '${encodeURIComponent(noticia.contenido || '')}', 
+                        '${imagenSrc}',
+                        '${noticia.archivoAdjunto || ''}',
+                        '${noticia.nombreArchivo || ''}',
+                        '${noticia.enlace || ''}'
+                    )"
+                `;
 
-            // C. LÓGICA INTELIGENTE DEL BOTÓN (Aquí está la magia)
-            let textoBoton = "Leer más &rarr;";
-            let linkDestino = "#";
-            let atributosExtra = ""; // Para descargas o abrir en nueva pestaña
+                // C. Crear la tarjeta (El botón ahora ejecuta la función abrirModal)
+                const tarjetaHTML = `
+                    <article class="blog-card">
+                        <div class="blog-image">
+                            <img src="${imagenSrc}" alt="${noticia.titulo}">
+                        </div>
+                        <div class="blog-content">
+                            <span class="blog-date">${fechaFormateada} | ${noticia.categoria}</span>
+                            <h3>${noticia.titulo}</h3>
+                            <p>${noticia.resumen}</p>
+                            
+                            <button class="btn-read-more" style="background:none; border:none; cursor:pointer; padding:0; font-family:inherit; font-size:14px; font-weight:bold; color:#162F45;" ${datosParaModal}>
+                                Leer artículo completo &rarr;
+                            </button>
+                        </div>
+                    </article>
+                `;
 
-            if (noticia.archivoAdjunto) {
-                // CASO 1: Es un archivo (PDF, Doc)
-                textoBoton = `<i class="fas fa-file-download"></i> Descargar Documento`;
-                linkDestino = noticia.archivoAdjunto;
-                // Este atributo fuerza la descarga con el nombre original
-                atributosExtra = `download="${noticia.nombreArchivo || 'documento.pdf'}"`;
-            
-            } else if (noticia.enlace && noticia.enlace !== '#') {
-                // CASO 2: Es un enlace a otra página (El Tiempo, etc.)
-                textoBoton = `Leer noticia completa &rarr;`;
-                linkDestino = noticia.enlace;
-                atributosExtra = 'target="_blank"'; // Abre en pestaña nueva
-            }
-
-            // D. Crear la tarjeta HTML
-            const tarjetaHTML = `
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <img src="${imagenSrc}" alt="${noticia.titulo}">
-                    </div>
-                    <div class="blog-content">
-                        <span class="blog-date">${fechaFormateada} | ${noticia.categoria}</span>
-                        <h3>${noticia.titulo}</h3>
-                        <p>${noticia.resumen}</p>
-                        <a href="${linkDestino}" class="btn-read-more" ${atributosExtra}>${textoBoton}</a>
-                    </div>
-                </article>
-            `;
-
-            // E. Insertar la noticia al principio de la lista
-            contenedor.insertAdjacentHTML('afterbegin', tarjetaHTML);
-
-                // C. Insertar al principio de la lista (antes de las fijas)
                 contenedor.insertAdjacentHTML('afterbegin', tarjetaHTML);
             });
         });
+
+        // 3. FUNCIONES DEL MODAL (ABRIR Y CERRAR)
+        function abrirModal(titulo, cat, fecha, contenidoEncoded, imagen, adjunto, nombreAdjunto, enlace) {
+            // Decodificar el contenido (porque viene "encriptado" para viajar seguro en el HTML)
+            const contenido = decodeURIComponent(contenidoEncoded);
+
+            // Llenar los campos del Modal
+            document.getElementById('modalTitulo').innerText = titulo;
+            document.getElementById('modalCategoria').innerText = cat;
+            document.getElementById('modalFecha').innerText = fecha;
+            document.getElementById('modalImg').src = imagen;
+            document.getElementById('modalTexto').innerText = contenido; // innerText respeta los saltos de línea
+
+            // Configurar Botones Extra (Descarga o Link)
+            const areaBotones = document.getElementById('modalBotones');
+            areaBotones.innerHTML = ""; // Limpiar botones anteriores
+
+            // Si hay PDF adjunto
+            if (adjunto && adjunto !== 'null' && adjunto !== 'undefined' && adjunto !== '') {
+                areaBotones.innerHTML += `
+                    <a href="${adjunto}" download="${nombreAdjunto || 'documento'}" class="btn-modal">
+                        <i class="fas fa-file-download"></i> Descargar Documento
+                    </a>`;
+            }
+
+            // Si hay Link externo
+            if (enlace && enlace !== '#' && enlace !== 'null' && enlace !== '') {
+                areaBotones.innerHTML += `
+                    <a href="${enlace}" target="_blank" class="btn-modal">
+                        <i class="fas fa-external-link-alt"></i> Ir a la fuente original
+                    </a>`;
+            }
+
+            // Mostrar el modal
+            document.getElementById('modalNoticia').style.display = 'flex';
+            
+            // Bloquear el scroll de la página de fondo
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalNoticia').style.display = 'none';
+            // Reactivar el scroll de la página de fondo
+            document.body.style.overflow = 'auto';
+        }
     </script>
 </body>
 </html>
