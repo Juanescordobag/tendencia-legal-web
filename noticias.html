@@ -100,23 +100,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script>
         // ==========================================
-        // DIAGNÓSTICO Y CONEXIÓN
+        // SCRIPT FINAL - CONECTADO Y VERIFICADO
         // ==========================================
         
-        console.log("1. Iniciando Script de Noticias...");
+        console.log("Iniciando conexión a Supabase...");
 
-        // Pega aquí tus llaves
-        const supabaseUrl = 'TU_PROJECT_URL';
-        const supabaseKey = 'TU_LLAVE_SB_PUBLISHABLE';
+        // TUS DATOS REALES (Verificados con tu pantallazo)
+        const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
+        const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ';
         
-        // Usamos 'clienteSupabase' para evitar conflictos
+        // Creamos el cliente 'clienteSupabase'
         const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-        console.log("2. Cliente Supabase creado.");
 
         // VARIABLE GLOBAL
         let noticiasMemoria = [];
@@ -124,55 +120,46 @@
         // EFECTO SCROLL MENÚ
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
-            header.classList.toggle("abajo", window.scrollY > 0);
+            if(header) header.classList.toggle("abajo", window.scrollY > 0);
         });
 
-        // CARGAR NOTICIAS
+        // CARGAR NOTICIAS AL ENTRAR
         window.addEventListener('load', async function() {
-            console.log("3. Cargando datos de la nube...");
             
             const contenedor = document.getElementById('grid-noticias');
-            contenedor.innerHTML = '<p style="text-align:center; width:100%; color:#888; margin-top:20px;">Conectando con la base de datos...</p>';
+            // Mensaje de carga
+            if(contenedor) contenedor.innerHTML = '<p style="text-align:center; width:100%; color:#888; margin-top:20px;">Cargando noticias de la nube...</p>';
 
-            // A. Pedir datos a Supabase
-            // NOTA: Verifica que el nombre de la tabla sea 'noticias' (todo minúscula)
+            // A. Pedir datos a Supabase (Tabla 'noticias')
             const { data, error } = await clienteSupabase
                 .from('noticias')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            // B. Análisis de resultados
+            // B. Si hay error
             if (error) {
-                console.error("❌ ERROR CRÍTICO DE SUPABASE:", error);
-                contenedor.innerHTML = `<div style="text-align:center; color:red; padding:20px;">
-                    <h3>Error de Conexión</h3>
-                    <p>Detalle: ${error.message}</p>
-                    <p>Revisa la consola (F12) para más detalles.</p>
-                </div>`;
+                console.error("❌ ERROR:", error);
+                if(contenedor) contenedor.innerHTML = `<p style="text-align:center; color:red;">Error de conexión: ${error.message}</p>`;
                 return;
             }
 
-            console.log("4. ¡Datos recibidos exitosamente!", data);
-
+            // C. Si no hay error, pero la lista está vacía
             if (!data || data.length === 0) {
-                console.warn("⚠️ La conexión fue exitosa, pero la tabla está vacía o RLS bloqueó la lectura.");
-                contenedor.innerHTML = '<p style="text-align:center; padding:20px;">No hay noticias publicadas todavía.</p>';
+                if(contenedor) contenedor.innerHTML = '<p style="text-align:center; padding:20px;">No hay noticias publicadas todavía.</p>';
                 return;
             }
 
-            // C. Guardar en memoria y limpiar
+            // D. Guardar y Dibujar
             noticiasMemoria = data;
-            contenedor.innerHTML = "";
+            if(contenedor) contenedor.innerHTML = ""; // Limpiar mensaje de carga
 
-            // D. Dibujar las tarjetas
-            console.log(`5. Dibujando ${noticiasMemoria.length} noticias...`);
-            
             noticiasMemoria.forEach((noticia, index) => {
                 // Formatear fecha
                 const fechaObj = new Date(noticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
                 
+                // Usamos 'imagen_url' (Así se llama en tu base de datos)
                 const imagenSrc = noticia.imagen_url ? noticia.imagen_url : 'logo.png';
 
                 const tarjetaHTML = `
@@ -195,7 +182,7 @@
                 contenedor.insertAdjacentHTML('beforeend', tarjetaHTML);
             });
 
-            // E. Auto-apertura
+            // E. Auto-apertura si vienen desde el Home (?id=0)
             const params = new URLSearchParams(window.location.search);
             const idParaAbrir = params.get('id');
             if (idParaAbrir !== null && noticiasMemoria.length > 0) {
@@ -221,6 +208,7 @@
             const areaBotones = document.getElementById('modalBotones');
             areaBotones.innerHTML = ""; 
 
+            // Botón de Descarga (Si hay archivo_url)
             if (noticia.archivo_url) {
                 areaBotones.innerHTML += `
                     <a href="${noticia.archivo_url}" download="${noticia.nombre_archivo || 'documento'}" target="_blank" class="btn-modal">
@@ -228,6 +216,7 @@
                     </a>`;
             }
 
+            // Botón de Enlace Externo (Si hay enlace)
             if (noticia.enlace && noticia.enlace.length > 5) {
                 areaBotones.innerHTML += `
                     <a href="${noticia.enlace}" target="_blank" class="btn-modal">
