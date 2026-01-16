@@ -178,58 +178,79 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // 2. CONEXIÓN (¡Pega aquí tus llaves!)
+        // ==========================================
+        // SCRIPT DEL HOME (INDEX) - CORREGIDO
+        // ==========================================
+
+        // 2. CONEXIÓN (Tus llaves reales)
         const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
         const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // CORRECCIÓN: Usamos 'clienteSupabase' para evitar el conflicto de nombres
+        const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // 3. EFECTO SCROLL MENÚ
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
-            header.classList.toggle("abajo", window.scrollY > 0);
+            if(header) header.classList.toggle("abajo", window.scrollY > 0);
         });
 
         // 4. CARGAR ÚLTIMA NOTICIA DE LA NUBE
         window.addEventListener('load', async function() {
-            
+            console.log("Cargando noticia destacada para el Home...");
+
             // A. Pedir solo LA ÚLTIMA noticia a Supabase
-            const { data, error } = await supabase
+            // Usamos 'clienteSupabase'
+            const { data, error } = await clienteSupabase
                 .from('noticias')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(1); // Solo traemos 1
 
+            // Si hay error, lo mostramos en consola
+            if (error) {
+                console.error("Error cargando noticia home:", error);
+                return;
+            }
+
             // B. Si hay datos, actualizamos el Home
             if (data && data.length > 0) {
                 const ultimaNoticia = data[0]; 
+                console.log("Noticia encontrada:", ultimaNoticia.titulo);
 
                 // Formatear fecha
-                // Nota: Supabase devuelve fecha YYYY-MM-DD. Agregamos hora para zona horaria.
                 const fechaObj = new Date(ultimaNoticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaTexto = fechaObj.toLocaleDateString('es-ES', opciones);
 
-                // Actualizar textos e imagen
+                // Actualizar textos
                 document.getElementById('cat-destacada').innerText = ultimaNoticia.categoria;
                 document.getElementById('fecha-destacada').innerText = fechaTexto;
                 document.getElementById('titulo-destacado').innerText = ultimaNoticia.titulo;
                 document.getElementById('resumen-destacado').innerText = ultimaNoticia.resumen;
                 
-                // Si tiene imagen, la cambiamos. Si no, dejamos la del logo.
+                // Actualizar imagen (usando 'imagen_url')
                 if (ultimaNoticia.imagen_url) {
                     document.getElementById('img-destacada').src = ultimaNoticia.imagen_url;
                 }
 
-                // Configurar el botón para que lleve a la noticia 0
+                // Configurar el botón para que lleve a la noticia 0 (la primera de la lista)
                 const btn = document.getElementById('btn-destacado');
                 btn.href = "noticias.html?id=0"; 
                 btn.innerHTML = 'Lee el artículo completo acá &rarr;';
+            } else {
+                console.log("No hay noticias en la base de datos para mostrar.");
             }
         });
     </script>
 </body>
 </html>
+</body>
+</html>
+
 
 
 
