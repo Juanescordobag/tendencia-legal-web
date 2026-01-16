@@ -450,6 +450,135 @@ header nav ul li a.active {
     color: #B68656; /* El mismo dorado del hover */
     border-bottom: 2px solid #B68656; /* Opcional: una rayita debajo para resaltar más */
 }
+/* --- ESTILOS DE LA PÁGINA SOBRE NOSOTROS (EQUIPO) --- */
+
+.team-section {
+    padding: 60px 0;
+    background-color: #ffffff;
+}
+
+.partner-profile {
+    display: flex;
+    gap: 50px; /* Espacio entre foto y texto */
+    margin-bottom: 60px;
+    align-items: flex-start; /* Alinea al inicio para que texto largo no estire la foto */
+}
+
+/* Estilo de las Fotos */
+.partner-image {
+    flex: 1; /* Ocupa 1 parte del espacio */
+    max-width: 400px; /* Ancho máximo de la foto */
+}
+
+.partner-image img {
+    width: 100%;
+    border-radius: 8px; /* Bordes suaves */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); /* Sombra elegante */
+    object-fit: cover; /* Evita que la foto se estire feo */
+}
+
+/* Estilo de la Información */
+.partner-info {
+    flex: 2; /* Ocupa 2 partes (más espacio para texto) */
+}
+
+.partner-info h2 {
+    color: #162F45; /* Azul oscuro */
+    font-size: 32px;
+    font-family: 'Times New Roman', Times, serif;
+    margin-bottom: 5px;
+}
+
+.partner-role {
+    font-size: 18px;
+    color: #B68656; /* Dorado */
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.partner-line {
+    border: 0;
+    height: 2px;
+    background: #162F45;
+    width: 60px; /* Línea cortita decorativa */
+    margin: 15px 0 25px 0;
+    opacity: 0.5;
+}
+
+/* Estilos de los párrafos y subtítulos del Bio */
+.partner-bio h3 {
+    color: #B68656; /* Subtítulos en Dorado */
+    font-size: 20px;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    border-left: 3px solid #162F45; /* Detalle de línea azul a la izquierda */
+    padding-left: 10px;
+}
+
+.partner-bio p {
+    color: #53565A;
+    margin-bottom: 15px;
+    text-align: justify; /* Texto justificado para elegancia */
+    line-height: 1.7;
+}
+
+/* Lista de Expertise (Puntos) */
+.expertise-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.expertise-list li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+    color: #53565A;
+}
+
+.expertise-list li::before {
+    content: "•";
+    color: #B68656; /* Puntos dorados */
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.languages {
+    font-weight: bold;
+    color: #162F45 !important;
+}
+
+/* Separador entre socios */
+.divider-partners {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 60px 0;
+}
+
+/* RESPONSIVE: Celulares */
+@media (max-width: 900px) {
+    .partner-profile {
+        flex-direction: column; /* Pone la foto arriba y texto abajo */
+        align-items: center;
+    }
+
+    .partner-image {
+        max-width: 100%; /* Foto ancho completo */
+        margin-bottom: 30px;
+    }
+    
+    .partner-info h2 {
+        text-align: center;
+    }
+    
+    .partner-role, .partner-line {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+}
 
 
 
