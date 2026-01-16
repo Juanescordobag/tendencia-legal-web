@@ -579,6 +579,43 @@ header nav ul li a.active {
         text-align: center;
     }
 }
+/* --- BOTÓN FLOTANTE DE WHATSAPP --- */
+.btn-wsp {
+    position: fixed; /* Se queda pegado a la pantalla aunque bajes */
+    width: 60px;
+    height: 60px;
+    line-height: 60px; /* Centra el ícono verticalmente */
+    bottom: 30px; /* Distancia desde abajo */
+    right: 30px; /* Distancia desde la derecha */
+    background: #25d366; /* Verde oficial de WhatsApp */
+    color: #fff;
+    border-radius: 50%; /* Lo hace redondo */
+    text-align: center;
+    font-size: 35px; /* Tamaño del ícono */
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3); /* Sombra para que resalte */
+    z-index: 9999; /* Asegura que esté por encima de todo */
+    transition: all 0.3s ease; /* Animación suave al pasar el mouse */
+}
+
+.btn-wsp:hover {
+    background: #20ba5a; /* Un verde un poco más oscuro al tocarlo */
+    transform: scale(1.1); /* Se agranda un poquito (efecto latido) */
+    text-decoration: none; /* Quita subrayados raros */
+    color: #fff;
+}
+
+/* Ajuste para celulares (un poco más pequeño para no estorbar) */
+@media (max-width: 768px) {
+    .btn-wsp {
+        width: 55px;
+        height: 55px;
+        line-height: 55px;
+        font-size: 30px;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
 
 
 
