@@ -99,6 +99,33 @@
         </div>
     </section>
 
+    <section class="latest-news-section">
+        <div class="container">
+            <h2>Actualidad Tendencia Legal</h2>
+            
+            <div class="featured-news-card" id="tarjeta-destacada">
+                
+                <div class="featured-image">
+                    <img src="logo.png" id="img-destacada" alt="Noticia Destacada">
+                </div>
+                
+                <div class="featured-content">
+                    <span class="news-badge" id="cat-destacada">Actualidad</span>
+                    <span class="news-date" id="fecha-destacada">Al día</span>
+                    
+                    <h3 id="titulo-destacado">Innovación y Estrategia Legal</h3>
+                    <p id="resumen-destacado">
+                        En Tendencia Legal analizamos constantemente el entorno jurídico colombiano para brindar soluciones preventivas. 
+                        Manténgase informado sobre las últimas novedades que impactan su negocio.
+                    </p>
+                    
+                    <a href="noticias.html" class="btn-news">Leer más noticias &rarr;</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
     <script>
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
@@ -147,9 +174,35 @@
             </div>
 
         </div>
-    </footer>   
+    </footer>
+
+    <script>
+        // SCRIPT: CARGAR ÚLTIMA NOTICIA EN EL HOME
+        window.addEventListener('load', function() {
+            // 1. Buscamos si hay noticias guardadas
+            let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia'));
+
+            // 2. Si hay noticias, tomamos la primera (la más reciente)
+            if (noticiasGuardadas && noticiasGuardadas.length > 0) {
+                const ultimaNoticia = noticiasGuardadas[0]; // La posición 0 es la más nueva
+
+                // 3. Formateamos la fecha
+                const fechaObj = new Date(ultimaNoticia.fecha + 'T00:00:00');
+                const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+                const fechaTexto = fechaObj.toLocaleDateString('es-ES', opciones);
+
+                // 4. Reemplazamos el contenido del HTML
+                document.getElementById('cat-destacada').innerText = ultimaNoticia.categoria;
+                document.getElementById('fecha-destacada').innerText = fechaTexto;
+                document.getElementById('titulo-destacado').innerText = ultimaNoticia.titulo;
+                document.getElementById('resumen-destacado').innerText = ultimaNoticia.resumen;
+                document.getElementById('img-destacada').src = ultimaNoticia.imagen;
+            }
+        });
+    </script>
 </body>
 </html>
+
 
 
 
