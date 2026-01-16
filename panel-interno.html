@@ -271,6 +271,9 @@
         <div class="menu-item" onclick="showSection('finanzas', this)">
             <i class="fas fa-chart-line"></i> Finanzas
         </div>
+        <div class="menu-item" onclick="showSection('gestion-noticias', this)">
+            <i class="fas fa-newspaper"></i> Publicar Noticias
+        </div>
 
         <a href="login.html" class="menu-item logout-btn">
             <i class="fas fa-power-off"></i> Salir
@@ -341,6 +344,52 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div id="gestion-noticias" class="section-view">
+                <div class="data-table-container">
+                    <div class="table-header-flex">
+                        <h3>Redactar Nuevo Artículo</h3>
+                    </div>
+            
+                    <form id="formNoticia" style="max-width: 600px;">
+            
+                        <div style="margin-bottom: 20px;">
+                            <label style="display:block; font-weight:bold; margin-bottom:5px; color:#162F45;">Título del Artículo</label>
+                            <input type="text" id="tituloNoticia" placeholder="Ej: Nueva Ley de Emprendimiento" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;" required>
+                        </div>
+            
+                        <div style="display:flex; gap:20px; margin-bottom:20px;">
+                            <div style="flex:1;">
+                                <label style="display:block; font-weight:bold; margin-bottom:5px; color:#162F45;">Categoría</label>
+                                <select id="categoriaNoticia" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
+                                    <option value="Derecho Laboral">Derecho Laboral</option>
+                                    <option value="Derecho Comercial">Derecho Comercial</option>
+                                    <option value="Derecho Civil">Derecho Civil</option>
+                                    <option value="Actualidad">Actualidad</option>
+                                </select>
+                            </div>
+                            <div style="flex:1;">
+                                <label style="display:block; font-weight:bold; margin-bottom:5px; color:#162F45;">Fecha</label>
+                                <input type="date" id="fechaNoticia" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;" required>
+                            </div>
+                        </div>
+            
+                        <div style="margin-bottom: 20px;">
+                            <label style="display:block; font-weight:bold; margin-bottom:5px; color:#162F45;">Resumen (Intro)</label>
+                            <textarea id="resumenNoticia" rows="3" placeholder="Breve descripción que aparecerá en la tarjeta..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;" required></textarea>
+                        </div>
+            
+                        <div style="margin-bottom: 20px; padding:15px; background:#f4f6f8; border-radius:5px;">
+                            <label style="font-weight:bold; color:#555;"><i class="fas fa-image"></i> Imagen Destacada:</label>
+                            <span style="font-size:13px; color:#888; margin-left:10px;">Por defecto se usará 'logo.png' (Prototipo)</span>
+                        </div>
+            
+                        <button type="submit" class="btn-action" style="font-size:16px;">
+                            <i class="fas fa-paper-plane"></i> Publicar en la Web
+                        </button>
+            
+                    </form>
+                </div>
             </div>
         </div>
 
