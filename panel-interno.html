@@ -278,17 +278,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // 2. CONEXIÓN A LA NUBE (¡PEGA TUS DATOS AQUÍ!)
+        // 2. CONEXIÓN A LA NUBE (Ya puse tus datos aquí)
         const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
-        const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ'; // La que empieza con sb_publishable...
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ'; 
+        
+        // CORRECCIÓN: Usamos 'clienteSupabase' para no causar conflicto de nombres
+        const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // VARIABLES GLOBALES
         let archivoImagen = null;    
         let archivoDocumento = null;
-        let imagenVistaPrevia = 'logo.png'; // Para mostrar mientras editas
+        let imagenVistaPrevia = 'logo.png'; 
 
-        // 3. NAVEGACIÓN (Igual que antes)
+        // 3. NAVEGACIÓN
         function showSection(sectionId, element) {
             document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
             document.getElementById(sectionId).classList.add('active-view');
@@ -305,7 +307,7 @@
             }
         }
 
-        // 4. MANEJAR ARCHIVOS (Preparamos para subir)
+        // 4. MANEJAR ARCHIVOS
         function manejarArchivo(inputId, nombreSpanId, displayId) {
             const input = document.getElementById(inputId);
             const display = document.getElementById(displayId);
@@ -316,10 +318,8 @@
                 nombreSpan.innerText = archivo.name;
                 display.style.display = 'inline-flex'; 
 
-                // Guardamos el archivo "crudo" para subirlo luego a Supabase
                 if (inputId === 'inputImagen') {
                     archivoImagen = archivo;
-                    // Crear vista previa local solo para verla ahí mismo
                     imagenVistaPrevia = URL.createObjectURL(archivo);
                 } else if (inputId === 'inputDoc') {
                     archivoDocumento = archivo;
@@ -334,15 +334,14 @@
             if (inputId === 'inputDoc') { archivoDocumento = null; }
         }
 
-        // 5. SUBIR ARCHIVO A SUPABASE (La parte difícil hecha fácil)
+        // 5. SUBIR ARCHIVO A SUPABASE
         async function subirArchivoNube(archivo, carpeta) {
-            if (!archivo) return null; // Si no hay archivo, devolvemos null
+            if (!archivo) return null; 
 
-            // Crear un nombre único para que no se sobrescriban (ej: imagen-123456789.jpg)
             const nombreUnico = `${carpeta}-${Date.now()}-${archivo.name}`;
             
-            // Subir al bucket 'archivos_tendencia'
-            const { data, error } = await supabase.storage
+            // CORRECCIÓN: Usamos 'clienteSupabase'
+            const { data, error } = await clienteSupabase.storage
                 .from('archivos_tendencia')
                 .upload(nombreUnico, archivo);
 
@@ -352,38 +351,33 @@
                 return null;
             }
 
-            // Obtener la URL pública para guardarla en la base de datos
-            const { data: publicUrlData } = supabase.storage
+            const { data: publicUrlData } = clienteSupabase.storage
                 .from('archivos_tendencia')
                 .getPublicUrl(nombreUnico);
 
             return publicUrlData.publicUrl;
         }
 
-        // 6. GUARDAR NOTICIA EN LA NUBE (INSERT)
+        // 6. GUARDAR NOTICIA EN LA NUBE
         document.getElementById('formNoticia').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Mostrar estado de carga (Feedback al usuario)
             const btn = document.getElementById('btnSubmitNoticia');
             const textoOriginal = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo a la nube...';
             btn.disabled = true;
 
             try {
-                // A. Subir Imagen (si hay)
                 let urlImagenFinal = null;
                 if (archivoImagen) {
                     urlImagenFinal = await subirArchivoNube(archivoImagen, 'img');
                 }
 
-                // B. Subir Documento (si hay)
                 let urlDocFinal = null;
                 if (archivoDocumento) {
                     urlDocFinal = await subirArchivoNube(archivoDocumento, 'doc');
                 }
 
-                // C. Recolectar datos del formulario
                 const titulo = document.getElementById('tituloNoticia').value;
                 const categoria = document.getElementById('categoriaNoticia').value;
                 const fecha = document.getElementById('fechaNoticia').value;
@@ -393,8 +387,8 @@
                 
                 const nombreDoc = archivoDocumento ? archivoDocumento.name : null;
 
-                // D. Guardar en la Base de Datos (Tabla 'noticias')
-                const { error } = await supabase
+                // CORRECCIÓN: Usamos 'clienteSupabase'
+                const { error } = await clienteSupabase
                     .from('noticias')
                     .insert([
                         { 
@@ -403,8 +397,8 @@
                             fecha: fecha,
                             resumen: resumen,
                             contenido: contenido,
-                            imagen_url: urlImagenFinal, // Guardamos el Link de Supabase
-                            archivo_url: urlDocFinal,   // Guardamos el Link de Supabase
+                            imagen_url: urlImagenFinal,
+                            archivo_url: urlDocFinal,
                             nombre_archivo: nombreDoc,
                             enlace: enlace
                         }
@@ -414,7 +408,7 @@
 
                 alert('¡Noticia publicada en la NUBE con éxito!');
                 resetearFormulario();
-                cargarNoticiasDesdeNube(); // Actualizar la tabla de abajo
+                cargarNoticiasDesdeNube();
 
             } catch (error) {
                 console.error(error);
@@ -425,23 +419,29 @@
             }
         });
 
-        // 7. LEER NOTICIAS DE LA NUBE (SELECT)
+        // 7. LEER NOTICIAS DE LA NUBE
         async function cargarNoticiasDesdeNube() {
             const tbody = document.getElementById('tablaNoticiasBody');
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Cargando datos...</td></tr>';
 
-            // Pedir datos a Supabase (ordenados por fecha más reciente)
-            const { data: noticias, error } = await supabase
+            // CORRECCIÓN: Usamos 'clienteSupabase'
+            const { data: noticias, error } = await clienteSupabase
                 .from('noticias')
                 .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) {
-                tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Error cargando noticias</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Error cargando noticias. Revisa la consola (F12).</td></tr>';
+                console.error(error);
                 return;
             }
 
-            tbody.innerHTML = ''; // Limpiar
+            tbody.innerHTML = ''; 
+
+            if(noticias.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No hay noticias publicadas aún.</td></tr>';
+                return;
+            }
 
             noticias.forEach((noticia) => {
                 const tr = document.createElement('tr');
@@ -457,10 +457,11 @@
             });
         }
 
-        // 8. BORRAR NOTICIA DE LA NUBE (DELETE)
+        // 8. BORRAR NOTICIA
         async function borrarNoticiaNube(id) {
             if(confirm('¿Seguro que quieres borrar esta noticia de la base de datos?')) {
-                const { error } = await supabase
+                // CORRECCIÓN: Usamos 'clienteSupabase'
+                const { error } = await clienteSupabase
                     .from('noticias')
                     .delete()
                     .eq('id', id);
@@ -480,7 +481,7 @@
             borrarArchivo('inputDoc', 'displayDoc');
         }
         
-        // Cargar noticias al inicio por si acaso
+        // Cargar noticias al inicio si ya estamos en la vista
         window.addEventListener('load', () => {
              if(document.getElementById('gestion-noticias').classList.contains('active-view')){
                  cargarNoticiasDesdeNube();
