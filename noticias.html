@@ -98,31 +98,54 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // VARIABLE GLOBAL PARA GUARDAR LAS NOTICIAS EN MEMORIA
+        // 2. CONEXIÓN (Pega aquí tus llaves de Supabase)
+        const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
+        const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // VARIABLE GLOBAL
         let noticiasMemoria = [];
 
-        // 1. EFECTO DE SCROLL EN EL MENÚ
+        // 3. EFECTO SCROLL MENÚ
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
             header.classList.toggle("abajo", window.scrollY > 0);
         });
 
-        // 2. CARGAR NOTICIAS AL INICIAR
-        // 2. CARGAR NOTICIAS AL INICIAR
-        window.addEventListener('load', function() {
-            // Cargamos las noticias en la variable global
-            noticiasMemoria = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
-            
+        // 4. CARGAR NOTICIAS DESDE LA NUBE
+        window.addEventListener('load', async function() {
             const contenedor = document.getElementById('grid-noticias');
-            contenedor.innerHTML = ""; // Limpiar tablero
+            contenedor.innerHTML = '<p style="text-align:center; width:100%; color:#888;">Cargando noticias...</p>';
 
-            // Recorremos las noticias para dibujar las tarjetas
+            // A. Pedir datos a Supabase
+            const { data, error } = await supabase
+                .from('noticias')
+                .select('*')
+                .order('created_at', { ascending: false }); // Las más nuevas primero
+
+            if (error) {
+                console.error(error);
+                contenedor.innerHTML = '<p style="text-align:center; color:red;">Error cargando noticias.</p>';
+                return;
+            }
+
+            // B. Guardar en memoria y limpiar
+            noticiasMemoria = data || [];
+            contenedor.innerHTML = "";
+
+            // C. Dibujar las tarjetas
             noticiasMemoria.forEach((noticia, index) => {
+                // Formatear fecha
+                // Nota: Supabase devuelve fecha en formato YYYY-MM-DD, funciona directo con new Date
                 const fechaObj = new Date(noticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
-                const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
+                
+                // NOTA: En Supabase la columna se llama 'imagen_url', no 'imagen'
+                const imagenSrc = noticia.imagen_url ? noticia.imagen_url : 'logo.png';
 
                 const tarjetaHTML = `
                     <article class="blog-card">
@@ -144,56 +167,51 @@
                 contenedor.insertAdjacentHTML('beforeend', tarjetaHTML);
             });
 
-            // --- BLOQUE NUEVO: AUTO-APERTURA DESDE EL HOME ---
-            // Leemos la dirección web para ver si trae una orden (ej: ?id=0)
+            // D. Auto-apertura desde el Home (?id=0)
             const params = new URLSearchParams(window.location.search);
             const idParaAbrir = params.get('id');
-
-            // Si existe un ID, abrimos ese modal automáticamente
-            if (idParaAbrir !== null) {
-                abrirModal(parseInt(idParaAbrir));
+            if (idParaAbrir !== null && noticiasMemoria.length > 0) {
+                // Si piden la 0, abrimos la 0
+                const indice = parseInt(idParaAbrir);
+                if(noticiasMemoria[indice]) abrirModal(indice);
             }
-            // ------------------------------------------------
         });
 
-        // 3. FUNCIÓN ABRIR MODAL (Ahora recibe el NÚMERO de la noticia)
+        // 5. FUNCIÓN ABRIR MODAL
         function abrirModal(index) {
-            // Buscamos la noticia específica en la memoria usando el número
             const noticia = noticiasMemoria[index];
+            if (!noticia) return;
 
-            if (!noticia) return; // Seguridad por si acaso
-
-            // Llenar datos visuales
+            // Datos visuales
             const fechaObj = new Date(noticia.fecha + 'T00:00:00');
             const fechaTexto = fechaObj.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 
             document.getElementById('modalTitulo').innerText = noticia.titulo;
             document.getElementById('modalCategoria').innerText = noticia.categoria;
             document.getElementById('modalFecha').innerText = fechaTexto;
-            document.getElementById('modalImg').src = noticia.imagen || 'logo.png';
+            // Ojo: usamos imagen_url
+            document.getElementById('modalImg').src = noticia.imagen_url || 'logo.png';
             document.getElementById('modalTexto').innerText = noticia.contenido || noticia.resumen;
 
-            // Configurar Botones (PDF o Link)
+            // Botones
             const areaBotones = document.getElementById('modalBotones');
             areaBotones.innerHTML = ""; 
 
-            // Verificar PDF
-            if (noticia.archivoAdjunto && noticia.archivoAdjunto.length > 50) {
+            // Ojo: usamos archivo_url y nombre_archivo
+            if (noticia.archivo_url) {
                 areaBotones.innerHTML += `
-                    <a href="${noticia.archivoAdjunto}" download="${noticia.nombreArchivo || 'documento'}" class="btn-modal">
+                    <a href="${noticia.archivo_url}" download="${noticia.nombre_archivo || 'documento'}" target="_blank" class="btn-modal">
                         <i class="fas fa-file-download"></i> Descargar Documento
                     </a>`;
             }
 
-            // Verificar Link Externo
-            if (noticia.enlace && noticia.enlace !== '#' && noticia.enlace.length > 5) {
+            if (noticia.enlace && noticia.enlace.length > 5) {
                 areaBotones.innerHTML += `
                     <a href="${noticia.enlace}" target="_blank" class="btn-modal">
                         <i class="fas fa-external-link-alt"></i> Ir a la fuente original
                     </a>`;
             }
 
-            // Mostrar
             document.getElementById('modalNoticia').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
