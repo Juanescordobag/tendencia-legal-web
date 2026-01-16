@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticias y Actualidad | Tendencia Legal</title>
+    <link rel="icon" type="image/png" href="pilar.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html"><img src="logo.png" alt="Logo Tendencia Legal"></a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="index.html#areas-practica">Áreas y servicios jurídicos</a></li>
+                    <li><a href="recursos-humanos.html">Recursos humanos</a></li>
+                    <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                    
+                    <li><a href="noticias.html" class="active">Noticias</a></li>
+                    
+                    <li>
+                        <a href="login.html" style="color: #B68656; font-weight: bold;">
+                            <i class="fas fa-lock"></i> Intranet
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Actualidad Jurídica</h1>
+            <p>Análisis, novedades legislativas y opinión experta sobre el entorno legal y empresarial en Colombia.</p>
+        </div>
+    </section>
+
+    <section class="blog-section">
+        <div class="container">
+            
+            <div class="blog-grid" id="grid-noticias">
+
+                <article class="blog-card">
+                    <div class="blog-image">
+                        <img src="logo.png" alt="Reforma Laboral"> 
+                    </div>
+                    <div class="blog-content">
+                        <span class="blog-date">15 de Enero, 2026 | Derecho Laboral</span>
+                        <h3>Reforma Laboral 2026: Impacto en las PYMES</h3>
+                        <p>Analizamos los principales cambios en la jornada laboral y los costos de contratación que todo empresario debe prever para este año fiscal.</p>
+                        <a href="#" class="btn-read-more">Leer artículo completo &rarr;</a>
+                    </div>
+                </article>
+
+                <article class="blog-card">
+                    <div class="blog-image">
+                        <img src="logo.png" alt="Protección de Datos">
+                    </div>
+                    <div class="blog-content">
+                        <span class="blog-date">10 de Enero, 2026 | Protección de Datos</span>
+                        <h3>Sanciones de la SIC: ¿Está su empresa protegida?</h3>
+                        <p>La Superintendencia ha intensificado las visitas. Revise si su política de tratamiento de datos cumple con los nuevos estándares de cumplimiento.</p>
+                        <a href="#" class="btn-read-more">Leer artículo completo &rarr;</a>
+                    </div>
+                </article>
+
+                <article class="blog-card">
+                    <div class="blog-image">
+                        <img src="logo.png" alt="Derecho Corporativo">
+                    </div>
+                    <div class="blog-content">
+                        <span class="blog-date">20 de Diciembre, 2025 | Corporativo</span>
+                        <h3>Gobierno Corporativo en Empresas Familiares</h3>
+                        <p>Estrategias legales para garantizar la sucesión exitosa y evitar conflictos entre socios fundadores y nuevas generaciones.</p>
+                        <a href="#" class="btn-read-more">Leer artículo completo &rarr;</a>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <a href="https://wa.me/573218310550?text=Hola,%20quisiera%20más%20información%20sobre%20un%20artículo%20que%20leí" class="btn-wsp" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <img src="logo.png" alt="Logo Tendencia Legal" class="footer-logo">
+                    <p>
+                        Somos una firma de abogados que combina la experiencia jurídica con la innovación tecnológica. 
+                        Creemos en la gestión estratégica de riesgos para proteger el patrimonio y el futuro de nuestros clientes.
+                    </p>
+                </div>
+                <div class="footer-social">
+                    <h3>Síguenos</h3>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/tendencialegal1?igsh=MWl1eGc2a2phaTg2eA==" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/company/tendencialegal" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=61577968206715" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="footer-bottom">
+                <p>Copyright © 2026 Tendencia Legal | Todos los derechos reservados</p>
+                <a href="politica-datos.html">Política de Tratamiento de Datos Personales</a>
+            </div>
+        </div>
+    </footer>   
+
+    <script>
+        // 1. EFECTO DE SCROLL EN EL MENÚ
+        window.addEventListener("scroll", function(){
+            var header = document.querySelector("header");
+            header.classList.toggle("abajo", window.scrollY > 0);
+        });
+
+        // 2. SCRIPT PARA CARGAR LAS NOTICIAS DEL PANEL INTERNO
+        window.addEventListener('load', function() {
+            // A. Leer la memoria del navegador
+            let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
+            const contenedor = document.getElementById('grid-noticias');
+
+            // B. Recorrer y crear cada noticia
+            noticiasGuardadas.forEach(noticia => {
+                
+                // Formatear la fecha (Le agregamos T00:00:00 para evitar errores de zona horaria)
+                const fechaObj = new Date(noticia.fecha + 'T00:00:00'); 
+                const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+                const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
+
+                // Plantilla HTML de la tarjeta
+                const tarjetaHTML = `
+                    <article class="blog-card">
+                        <div class="blog-image">
+                            <img src="${noticia.imagen}" alt="${noticia.titulo}">
+                        </div>
+                        <div class="blog-content">
+                            <span class="blog-date">${fechaFormateada} | ${noticia.categoria}</span>
+                            <h3>${noticia.titulo}</h3>
+                            <p>${noticia.resumen}</p>
+                            <a href="#" class="btn-read-more">Leer artículo completo &rarr;</a>
+                        </div>
+                    </article>
+                `;
+
+                // C. Insertar al principio de la lista (antes de las fijas)
+                contenedor.insertAdjacentHTML('afterbegin', tarjetaHTML);
+            });
+        });
+    </script>
+</body>
+</html>
