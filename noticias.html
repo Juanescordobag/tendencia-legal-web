@@ -100,57 +100,85 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // 2. CONEXIÓN (Pega aquí tus llaves de Supabase)
-        const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
-        const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // ==========================================
+        // DIAGNÓSTICO Y CONEXIÓN
+        // ==========================================
+        
+        console.log("1. Iniciando Script de Noticias...");
+
+        // Pega aquí tus llaves
+        const supabaseUrl = 'TU_PROJECT_URL';
+        const supabaseKey = 'TU_LLAVE_SB_PUBLISHABLE';
+        
+        // Usamos 'clienteSupabase' para evitar conflictos
+        const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        console.log("2. Cliente Supabase creado.");
 
         // VARIABLE GLOBAL
         let noticiasMemoria = [];
 
-        // 3. EFECTO SCROLL MENÚ
+        // EFECTO SCROLL MENÚ
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
             header.classList.toggle("abajo", window.scrollY > 0);
         });
 
-        // 4. CARGAR NOTICIAS DESDE LA NUBE
+        // CARGAR NOTICIAS
         window.addEventListener('load', async function() {
+            console.log("3. Cargando datos de la nube...");
+            
             const contenedor = document.getElementById('grid-noticias');
-            contenedor.innerHTML = '<p style="text-align:center; width:100%; color:#888;">Cargando noticias...</p>';
+            contenedor.innerHTML = '<p style="text-align:center; width:100%; color:#888; margin-top:20px;">Conectando con la base de datos...</p>';
 
             // A. Pedir datos a Supabase
-            const { data, error } = await supabase
+            // NOTA: Verifica que el nombre de la tabla sea 'noticias' (todo minúscula)
+            const { data, error } = await clienteSupabase
                 .from('noticias')
                 .select('*')
-                .order('created_at', { ascending: false }); // Las más nuevas primero
+                .order('created_at', { ascending: false });
 
+            // B. Análisis de resultados
             if (error) {
-                console.error(error);
-                contenedor.innerHTML = '<p style="text-align:center; color:red;">Error cargando noticias.</p>';
+                console.error("❌ ERROR CRÍTICO DE SUPABASE:", error);
+                contenedor.innerHTML = `<div style="text-align:center; color:red; padding:20px;">
+                    <h3>Error de Conexión</h3>
+                    <p>Detalle: ${error.message}</p>
+                    <p>Revisa la consola (F12) para más detalles.</p>
+                </div>`;
                 return;
             }
 
-            // B. Guardar en memoria y limpiar
-            noticiasMemoria = data || [];
+            console.log("4. ¡Datos recibidos exitosamente!", data);
+
+            if (!data || data.length === 0) {
+                console.warn("⚠️ La conexión fue exitosa, pero la tabla está vacía o RLS bloqueó la lectura.");
+                contenedor.innerHTML = '<p style="text-align:center; padding:20px;">No hay noticias publicadas todavía.</p>';
+                return;
+            }
+
+            // C. Guardar en memoria y limpiar
+            noticiasMemoria = data;
             contenedor.innerHTML = "";
 
-            // C. Dibujar las tarjetas
+            // D. Dibujar las tarjetas
+            console.log(`5. Dibujando ${noticiasMemoria.length} noticias...`);
+            
             noticiasMemoria.forEach((noticia, index) => {
                 // Formatear fecha
-                // Nota: Supabase devuelve fecha en formato YYYY-MM-DD, funciona directo con new Date
                 const fechaObj = new Date(noticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
                 
-                // NOTA: En Supabase la columna se llama 'imagen_url', no 'imagen'
                 const imagenSrc = noticia.imagen_url ? noticia.imagen_url : 'logo.png';
 
                 const tarjetaHTML = `
                     <article class="blog-card">
                         <div class="blog-image">
-                            <img src="${imagenSrc}" alt="${noticia.titulo}">
+                            <img src="${imagenSrc}" alt="${noticia.titulo}" onerror="this.src='logo.png'">
                         </div>
                         <div class="blog-content">
                             <span class="blog-date">${fechaFormateada} | ${noticia.categoria}</span>
@@ -167,37 +195,32 @@
                 contenedor.insertAdjacentHTML('beforeend', tarjetaHTML);
             });
 
-            // D. Auto-apertura desde el Home (?id=0)
+            // E. Auto-apertura
             const params = new URLSearchParams(window.location.search);
             const idParaAbrir = params.get('id');
             if (idParaAbrir !== null && noticiasMemoria.length > 0) {
-                // Si piden la 0, abrimos la 0
                 const indice = parseInt(idParaAbrir);
                 if(noticiasMemoria[indice]) abrirModal(indice);
             }
         });
 
-        // 5. FUNCIÓN ABRIR MODAL
+        // FUNCIONES DEL MODAL
         function abrirModal(index) {
             const noticia = noticiasMemoria[index];
             if (!noticia) return;
 
-            // Datos visuales
             const fechaObj = new Date(noticia.fecha + 'T00:00:00');
             const fechaTexto = fechaObj.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 
             document.getElementById('modalTitulo').innerText = noticia.titulo;
             document.getElementById('modalCategoria').innerText = noticia.categoria;
             document.getElementById('modalFecha').innerText = fechaTexto;
-            // Ojo: usamos imagen_url
             document.getElementById('modalImg').src = noticia.imagen_url || 'logo.png';
             document.getElementById('modalTexto').innerText = noticia.contenido || noticia.resumen;
 
-            // Botones
             const areaBotones = document.getElementById('modalBotones');
             areaBotones.innerHTML = ""; 
 
-            // Ojo: usamos archivo_url y nombre_archivo
             if (noticia.archivo_url) {
                 areaBotones.innerHTML += `
                     <a href="${noticia.archivo_url}" download="${noticia.nombre_archivo || 'documento'}" target="_blank" class="btn-modal">
