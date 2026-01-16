@@ -176,34 +176,53 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // SCRIPT: CARGAR ÚLTIMA NOTICIA EN EL HOME
-        window.addEventListener('load', function() {
-            // 1. Buscamos si hay noticias guardadas
-            let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia'));
+        // 2. CONEXIÓN (¡Pega aquí tus llaves!)
+        const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
+        const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-            // 2. Si hay noticias, tomamos la primera
-            if (noticiasGuardadas && noticiasGuardadas.length > 0) {
-                const ultimaNoticia = noticiasGuardadas[0]; 
+        // 3. EFECTO SCROLL MENÚ
+        window.addEventListener("scroll", function(){
+            var header = document.querySelector("header");
+            header.classList.toggle("abajo", window.scrollY > 0);
+        });
 
-                // A. Formateamos la fecha y datos visuales
+        // 4. CARGAR ÚLTIMA NOTICIA DE LA NUBE
+        window.addEventListener('load', async function() {
+            
+            // A. Pedir solo LA ÚLTIMA noticia a Supabase
+            const { data, error } = await supabase
+                .from('noticias')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1); // Solo traemos 1
+
+            // B. Si hay datos, actualizamos el Home
+            if (data && data.length > 0) {
+                const ultimaNoticia = data[0]; 
+
+                // Formatear fecha
+                // Nota: Supabase devuelve fecha YYYY-MM-DD. Agregamos hora para zona horaria.
                 const fechaObj = new Date(ultimaNoticia.fecha + 'T00:00:00');
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
                 const fechaTexto = fechaObj.toLocaleDateString('es-ES', opciones);
 
+                // Actualizar textos e imagen
                 document.getElementById('cat-destacada').innerText = ultimaNoticia.categoria;
                 document.getElementById('fecha-destacada').innerText = fechaTexto;
                 document.getElementById('titulo-destacado').innerText = ultimaNoticia.titulo;
                 document.getElementById('resumen-destacado').innerText = ultimaNoticia.resumen;
                 
-                if (ultimaNoticia.imagen && ultimaNoticia.imagen !== 'logo.png') {
-                    document.getElementById('img-destacada').src = ultimaNoticia.imagen;
+                // Si tiene imagen, la cambiamos. Si no, dejamos la del logo.
+                if (ultimaNoticia.imagen_url) {
+                    document.getElementById('img-destacada').src = ultimaNoticia.imagen_url;
                 }
 
-                // B. CONFIGURACIÓN DEL BOTÓN (CAMBIO CLAVE)
+                // Configurar el botón para que lleve a la noticia 0
                 const btn = document.getElementById('btn-destacado');
-                
-                // Siempre enviamos a la página de noticias, pidiendo abrir la #0 (la primera)
                 btn.href = "noticias.html?id=0"; 
                 btn.innerHTML = 'Lee el artículo completo acá &rarr;';
             }
@@ -211,6 +230,7 @@
     </script>
 </body>
 </html>
+
 
 
 
