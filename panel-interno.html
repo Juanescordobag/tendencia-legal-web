@@ -512,6 +512,7 @@
     </div>
 
     <script>
+        // 1. FUNCIÓN DE NAVEGACIÓN (CAMBIAR DE PESTAÑAS)
         function showSection(sectionId, element) {
             // Ocultar todo
             document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
@@ -519,12 +520,13 @@
             // Mostrar selección
             document.getElementById(sectionId).classList.add('active-view');
 
-            // Actualizar Título
+            // Actualizar Título (AQUÍ AGREGAMOS LA LÍNEA QUE FALTABA)
             const titles = {
                 'dashboard': 'Resumen Ejecutivo',
                 'clientes': 'Gestión de Clientes',
                 'procesos': 'Control de Procesos',
-                'finanzas': 'Información Financiera'
+                'finanzas': 'Información Financiera',
+                'gestion-noticias': 'Gestor de Contenidos (CMS)' // <--- ESTA FALTABA
             };
             document.getElementById('page-title').innerText = titles[sectionId];
 
@@ -534,7 +536,33 @@
                 element.classList.add('active');
             }
         }
-    </script>
 
+        // 2. LÓGICA PARA GUARDAR NOTICIAS (ESTO ERA LO QUE FALTABA)
+        document.getElementById('formNoticia').addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que la página se recargue sola
+
+            // A. Capturar datos del formulario
+            const nuevaNoticia = {
+                titulo: document.getElementById('tituloNoticia').value,
+                categoria: document.getElementById('categoriaNoticia').value,
+                fecha: document.getElementById('fechaNoticia').value,
+                resumen: document.getElementById('resumenNoticia').value,
+                imagen: 'logo.png' // Imagen fija para el prototipo
+            };
+
+            // B. Obtener noticias antiguas (si existen) de la memoria
+            let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
+
+            // C. Agregar la nueva al principio de la lista
+            noticiasGuardadas.unshift(nuevaNoticia);
+
+            // D. Guardar de nuevo en la memoria del navegador
+            localStorage.setItem('noticias_tendencia', JSON.stringify(noticiasGuardadas));
+
+            // E. Confirmación y limpieza
+            alert('¡Noticia publicada con éxito! Ahora aparecerá en la sección de Noticias.');
+            document.getElementById('formNoticia').reset(); // Borrar los campos
+        });
+    </script>
 </body>
 </html>
