@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vora Legal SMG | Panel de Control</title>
+    <link rel="icon" type="image/png" href="pilar.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS EXCLUSIVOS DEL SOFTWARE (VORA) --- */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            height: 100vh;
+            overflow: hidden; /* Evita scroll doble */
+        }
+
+        /* BARRA LATERAL (SIDEBAR) */
+        .sidebar {
+            width: 260px;
+            background-color: #162F45; /* Azul Tendencia Legal */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo img {
+            width: 40px;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 18px;
+            margin: 0;
+            color: white;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #ccc;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: #B68656; /* Dorado */
+            color: white;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            margin-top: auto; /* Empuja el botón al final */
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #d9534f;
+        }
+
+        /* ÁREA PRINCIPAL */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto; /* Scroll solo en el contenido */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #162F45;
+            margin: 0;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* TARJETAS DE MÉTRICAS (KPIs) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #162F45;
+        }
+
+        .kpi-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .kpi-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #162F45;
+        }
+
+        /* TABLAS DE DATOS */
+        .data-table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background-color: #f8f9fa;
+            color: #162F45;
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.active { background-color: #e8f5e9; color: #2e7d32; } /* Verde */
+        .status.pending { background-color: #fff3e0; color: #ef6c00; } /* Naranja */
+        .status.closed { background-color: #ffebee; color: #c62828; } /* Rojo */
+
+        /* OCULTAR/MOSTRAR SECCIONES */
+        .section-view {
+            display: none; /* Oculto por defecto */
+            animation: fadeIn 0.3s;
+        }
+
+        .section-view.active-view {
+            display: block; /* Solo mostramos el activo */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BOTONES DE ACCIÓN */
+        .btn-action {
+            background-color: #162F45;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-action:hover {
+            background-color: #B68656;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.png" alt="Vora Legal">
+            <div>
+                <h2>Vora Legal</h2>
+                <span style="font-size: 10px; opacity: 0.7;">v1.0 Beta</span>
+            </div>
+        </div>
+
+        <div class="menu-item active" onclick="showSection('dashboard', this)">
+            <i class="fas fa-chart-pie"></i> Resumen
+        </div>
+        <div class="menu-item" onclick="showSection('clientes', this)">
+            <i class="fas fa-users"></i> Gestión Clientes
+        </div>
+        <div class="menu-item" onclick="showSection('procesos', this)">
+            <i class="fas fa-gavel"></i> Procesos
+        </div>
+        <div class="menu-item" onclick="showSection('finanzas', this)">
+            <i class="fas fa-file-invoice-dollar"></i> Finanzas
+        </div>
+
+        <a href="index.html" class="menu-item logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </a>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="header">
+            <h1 id="page-title">Panel de Control</h1>
+            <div class="user-profile">
+                <i class="fas fa-user-circle fa-lg"></i>
+                <span>Juan Esteban Córdoba</span>
+            </div>
+        </div>
+
+        <div id="dashboard" class="section-view active-view">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <h3>Procesos Activos</h3>
+                    <div class="number">12</div>
+                </div>
+                <div class="kpi-card" style="border-color: #B68656;">
+                    <h3>Clientes Nuevos (Mes)</h3>
+                    <div class="number">4</div>
+                </div>
+                <div class="kpi-card" style="border-color: #2e7d32;">
+                    <h3>Ingresos Enero</h3>
+                    <div class="number">$ 15.2M</div>
+                </div>
+                <div class="kpi-card" style="border-color: #c62828;">
+                    <h3>Tareas Pendientes</h3>
+                    <div class="number">7</div>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <h3><i class="fas fa-clock"></i> Actividad Reciente</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Actividad</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>15 Ene 2026</td>
+                            <td>Scotiabank</td>
+                            <td>Revisión contractual laboral</td>
+                            <td><span class="status active">En Progreso</span></td>
+                        </tr>
+                        <tr>
+                            <td>14 Ene 2026</td>
+                            <td>Peludencios S.A.S</td>
+                            <td>Registro de marca</td>
+                            <td><span class="status active">En Progreso</span></td>
+                        </tr>
+                        <tr>
+                            <td>12 Ene 2026</td>
+                            <td>Carlos Pérez</td>
+                            <td>Demanda Administrativa</td>
+                            <td><span class="status pending">Pendiente Radicación</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="clientes" class="section-view">
+            <div class="data-table-container">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Base de Datos de Clientes</h3>
+                    <button class="btn-action">+ Nuevo Cliente</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre / Empresa</th>
+                            <th>Contacto</th>
+                            <th>Teléfono</th>
+                            <th>Tipo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Peludencios S.A.S</strong></td>
+                            <td>Juan José (Ops)</td>
+                            <td>300 123 4567</td>
+                            <td>Corporativo</td>
+                            <td><i class="fas fa-edit" style="cursor:pointer;"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Martina López</strong></td>
+                            <td>Martina López</td>
+                            <td>310 987 6543</td>
+                            <td>Persona Natural</td>
+                            <td><i class="fas fa-edit" style="cursor:pointer;"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transportes del Norte</strong></td>
+                            <td>Gerencia RRHH</td>
+                            <td>320 555 1122</td>
+                            <td>Corporativo</td>
+                            <td><i class="fas fa-edit" style="cursor:pointer;"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="procesos" class="section-view">
+            <div class="data-table-container">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Gestión de Procesos y Casos</h3>
+                    <button class="btn-action">+ Nuevo Caso</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Radicado / ID</th>
+                            <th>Cliente</th>
+                            <th>Asunto</th>
+                            <th>Etapa</th>
+                            <th>Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TL-2026-001</td>
+                            <td>Peludencios S.A.S</td>
+                            <td>Constitución de Sociedad</td>
+                            <td><span class="status closed">Finalizado</span></td>
+                            <td>Juan Esteban C.</td>
+                        </tr>
+                        <tr>
+                            <td>TL-2026-005</td>
+                            <td>Scotiabank</td>
+                            <td>Auditoría Laboral</td>
+                            <td><span class="status active">Ejecución</span></td>
+                            <td>Juan Esteban C.</td>
+                        </tr>
+                        <tr>
+                            <td>CIV-092-22</td>
+                            <td>Familia Ramírez</td>
+                            <td>Sucesión Intestada</td>
+                            <td><span class="status pending">Esperando Fallo</span></td>
+                            <td>Manuela Correa</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="finanzas" class="section-view">
+            <div class="kpi-grid">
+                <div class="kpi-card" style="border-left: 5px solid #2e7d32;">
+                    <h3>Facturado este mes</h3>
+                    <div class="number">$ 15,200,000</div>
+                </div>
+                <div class="kpi-card" style="border-left: 5px solid #c62828;">
+                    <h3>Gastos Operativos</h3>
+                    <div class="number">$ 4,500,000</div>
+                </div>
+                <div class="kpi-card" style="border-left: 5px solid #B68656;">
+                    <h3>Utilidad Neta</h3>
+                    <div class="number">$ 10,700,000</div>
+                </div>
+            </div>
+            
+            <div class="data-table-container">
+                <h3>Facturas Pendientes de Cobro</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th># Factura</th>
+                            <th>Cliente</th>
+                            <th>Vencimiento</th>
+                            <th>Valor</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>FAC-055</td>
+                            <td>Transportes del Norte</td>
+                            <td>30 Ene 2026</td>
+                            <td>$ 2,500,000</td>
+                            <td><span class="status pending">Pendiente</span></td>
+                        </tr>
+                        <tr>
+                            <td>FAC-056</td>
+                            <td>Carlos Pérez</td>
+                            <td>15 Feb 2026</td>
+                            <td>$ 1,200,000</td>
+                            <td><span class="status pending">Pendiente</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showSection(sectionId, element) {
+            // 1. Ocultar todas las secciones
+            const sections = document.querySelectorAll('.section-view');
+            sections.forEach(section => {
+                section.classList.remove('active-view');
+            });
+
+            // 2. Mostrar la sección seleccionada
+            document.getElementById(sectionId).classList.add('active-view');
+
+            // 3. Actualizar el título de la página
+            const titles = {
+                'dashboard': 'Panel de Control',
+                'clientes': 'Gestión de Clientes',
+                'procesos': 'Procesos Jurídicos',
+                'finanzas': 'Gestión Financiera'
+            };
+            document.getElementById('page-title').innerText = titles[sectionId];
+
+            // 4. Actualizar el botón activo en el menú (si se hizo clic en uno)
+            if (element) {
+                const menuItems = document.querySelectorAll('.menu-item');
+                menuItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                element.classList.add('active');
+            }
+        }
+    </script>
+
+</body>
+</html>
