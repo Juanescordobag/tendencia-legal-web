@@ -735,6 +735,136 @@ header nav ul li a.active {
     color: #B68656; /* Cambia a dorado */
     text-decoration: underline;
 }
+/* --- SECCIÓN ÚLTIMA NOTICIA (HOME) --- */
+
+.latest-news-section {
+    padding: 80px 0;
+    background-color: #f4f6f8; /* Un gris muy sutil para separar secciones */
+}
+
+.latest-news-section h2 {
+    text-align: center;
+    color: #162F45;
+    margin-bottom: 40px;
+    font-size: 32px;
+    font-family: 'Times New Roman', serif;
+}
+
+/* Tarjeta Horizontal Destacada */
+.featured-news-card {
+    display: flex;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    max-width: 1000px;
+    margin: 0 auto; /* Centrar la tarjeta */
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.featured-news-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Imagen (Izquierda) */
+.featured-image {
+    flex: 1; /* Ocupa la mitad */
+    min-height: 350px;
+    background-color: #162F45;
+    position: relative;
+    overflow: hidden;
+}
+
+.featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+    transition: transform 0.5s ease;
+}
+
+.featured-news-card:hover .featured-image img {
+    transform: scale(1.05); /* Zoom suave al pasar mouse */
+}
+
+/* Contenido (Derecha) */
+.featured-content {
+    flex: 1; /* Ocupa la otra mitad */
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.news-badge {
+    display: inline-block;
+    background-color: #B68656; /* Dorado */
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+
+.news-date {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.featured-content h3 {
+    font-size: 28px;
+    color: #162F45;
+    margin-bottom: 20px;
+    line-height: 1.3;
+    font-family: 'Times New Roman', serif;
+}
+
+.featured-content p {
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.btn-news {
+    color: #162F45;
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom: 2px solid #B68656;
+    width: fit-content;
+    padding-bottom: 2px;
+    transition: color 0.3s;
+}
+
+.btn-news:hover {
+    color: #B68656;
+}
+
+/* RESPONSIVE (Celulares) */
+@media (max-width: 768px) {
+    .featured-news-card {
+        flex-direction: column; /* Pone la imagen arriba y texto abajo */
+    }
+    
+    .featured-image {
+        min-height: 250px;
+    }
+    
+    .featured-content {
+        padding: 30px;
+    }
+
+    .featured-content h3 {
+        font-size: 22px;
+    }
+}
+
 
 
 
