@@ -146,6 +146,9 @@
             let noticiasGuardadas = JSON.parse(localStorage.getItem('noticias_tendencia')) || [];
             const contenedor = document.getElementById('grid-noticias');
 
+            // Limpiamos el contenedor para evitar duplicados si recargas
+            contenedor.innerHTML = "";
+
             noticiasGuardadas.forEach(noticia => {
                 
                 // A. Formatear la fecha
@@ -154,23 +157,22 @@
                 const fechaFormateada = fechaObj.toLocaleDateString('es-ES', opciones);
                 const imagenSrc = noticia.imagen ? noticia.imagen : 'logo.png';
 
-                // B. PREPARAR DATOS PARA EL MODAL
-                // Usamos una técnica llamada 'Template String' dentro del onclick.
-                // encodeURIComponent es vital para que textos largos con comillas no rompan el código.
-                const datosParaModal = `
-                    onclick="abrirModal(
-                        '${noticia.titulo.replace(/'/g, "\\'")}', 
-                        '${noticia.categoria}', 
-                        '${fechaFormateada}', 
-                        '${encodeURIComponent(noticia.contenido || '')}', 
-                        '${imagenSrc}',
-                        '${noticia.archivoAdjunto || ''}',
-                        '${noticia.nombreArchivo || ''}',
-                        '${noticia.enlace || ''}'
-                    )"
-                `;
+                // B. PREPARACIÓN SEGURA DE DATOS (ESTO ES LO VITAL)
+                // 1. Escapamos las comillas simples (') del título para que no rompan el código
+                const tituloSafe = noticia.titulo.replace(/'/g, "\\'"); 
+                // 2. Codificamos el texto largo para que viaje seguro (sin que importen los párrafos)
+                const contenidoEncoded = encodeURIComponent(noticia.contenido || '');
+                
+                // 3. Preparamos las variables opcionales
+                const adjunto = noticia.archivoAdjunto || '';
+                const nombreAdjunto = noticia.nombreArchivo || '';
+                const enlace = noticia.enlace || '';
 
-                // C. Crear la tarjeta (El botón ahora ejecuta la función abrirModal)
+                // C. CREAMOS LA ACCIÓN DEL BOTÓN
+                // Esta cadena gigante es la instrucción exacta para el botón
+                const onclickAction = `abrirModal('${tituloSafe}', '${noticia.categoria}', '${fechaFormateada}', '${contenidoEncoded}', '${imagenSrc}', '${adjunto}', '${nombreAdjunto}', '${enlace}')`;
+
+                // D. CREAMOS LA TARJETA HTML
                 const tarjetaHTML = `
                     <article class="blog-card">
                         <div class="blog-image">
@@ -181,7 +183,7 @@
                             <h3>${noticia.titulo}</h3>
                             <p>${noticia.resumen}</p>
                             
-                            <button class="btn-read-more" style="background:none; border:none; cursor:pointer; padding:0; font-family:inherit; font-size:14px; font-weight:bold; color:#162F45;" ${datosParaModal}>
+                            <button class="btn-read-more" style="background:none; border:none; cursor:pointer; padding:0; font-family:inherit; font-size:14px; font-weight:bold; color:#162F45;" onclick="${onclickAction}">
                                 Leer artículo completo &rarr;
                             </button>
                         </div>
@@ -194,19 +196,20 @@
 
         // 3. FUNCIONES DEL MODAL (ABRIR Y CERRAR)
         function abrirModal(titulo, cat, fecha, contenidoEncoded, imagen, adjunto, nombreAdjunto, enlace) {
-            // Decodificar el contenido (porque viene "encriptado" para viajar seguro en el HTML)
+            
+            // 1. Decodificar el contenido (Traerlo de vuelta a texto normal)
             const contenido = decodeURIComponent(contenidoEncoded);
 
-            // Llenar los campos del Modal
+            // 2. Llenar los campos del Modal
             document.getElementById('modalTitulo').innerText = titulo;
             document.getElementById('modalCategoria').innerText = cat;
             document.getElementById('modalFecha').innerText = fecha;
             document.getElementById('modalImg').src = imagen;
-            document.getElementById('modalTexto').innerText = contenido; // innerText respeta los saltos de línea
+            document.getElementById('modalTexto').innerText = contenido; // El texto largo
 
-            // Configurar Botones Extra (Descarga o Link)
+            // 3. Configurar Botones Extra (Descarga o Link)
             const areaBotones = document.getElementById('modalBotones');
-            areaBotones.innerHTML = ""; // Limpiar botones anteriores
+            areaBotones.innerHTML = ""; // Limpiar botones de la noticia anterior
 
             // Si hay PDF adjunto
             if (adjunto && adjunto !== 'null' && adjunto !== 'undefined' && adjunto !== '') {
@@ -224,16 +227,16 @@
                     </a>`;
             }
 
-            // Mostrar el modal
+            // 4. Mostrar el modal
             document.getElementById('modalNoticia').style.display = 'flex';
             
-            // Bloquear el scroll de la página de fondo
+            // Bloquear el scroll de la página de fondo para que no se mueva
             document.body.style.overflow = 'hidden';
         }
 
         function cerrarModal() {
             document.getElementById('modalNoticia').style.display = 'none';
-            // Reactivar el scroll de la página de fondo
+            // Reactivar el scroll de la página
             document.body.style.overflow = 'auto';
         }
     </script>
