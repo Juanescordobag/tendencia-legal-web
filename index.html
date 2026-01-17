@@ -249,11 +249,82 @@
                 console.log("No hay noticias en la base de datos para mostrar.");
             }
         });
+        // ==========================================
+        // 1. LÓGICA DEL MENÚ MÓVIL (HAMBURGUESA)
+        // ==========================================
+        function toggleMenu() {
+            var menu = document.querySelector("header nav");
+            menu.classList.toggle("desplegado");
+        }
+
+        // ==========================================
+        // 2. CONEXIÓN A SUPABASE
+        // ==========================================
+        const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
+        const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ';
+        
+        // Usamos 'clienteSupabase' para evitar conflicto de nombres
+        const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // ==========================================
+        // 3. EFECTOS VISUALES Y DATOS
+        // ==========================================
+        
+        // Efecto Scroll en el Header
+        window.addEventListener("scroll", function(){
+            var header = document.querySelector("header");
+            if(header) header.classList.toggle("abajo", window.scrollY > 0);
+        });
+
+        // Cargar Última Noticia
+        window.addEventListener('load', async function() {
+            console.log("Cargando noticia destacada para el Home...");
+
+            // A. Pedir solo LA ÚLTIMA noticia a Supabase
+            const { data, error } = await clienteSupabase
+                .from('noticias')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1); // Solo traemos 1
+
+            // B. Si hay error
+            if (error) {
+                console.error("Error cargando noticia home:", error);
+                return;
+            }
+
+            // C. Si hay datos, actualizamos el Home
+            if (data && data.length > 0) {
+                const ultimaNoticia = data[0]; 
+
+                // Formatear fecha
+                const fechaObj = new Date(ultimaNoticia.fecha + 'T00:00:00');
+                const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+                const fechaTexto = fechaObj.toLocaleDateString('es-ES', opciones);
+
+                // Actualizar textos
+                document.getElementById('cat-destacada').innerText = ultimaNoticia.categoria;
+                document.getElementById('fecha-destacada').innerText = fechaTexto;
+                document.getElementById('titulo-destacado').innerText = ultimaNoticia.titulo;
+                document.getElementById('resumen-destacado').innerText = ultimaNoticia.resumen;
+                
+                // Actualizar imagen
+                if (ultimaNoticia.imagen_url) {
+                    document.getElementById('img-destacada').src = ultimaNoticia.imagen_url;
+                }
+
+                // Configurar botón
+                const btn = document.getElementById('btn-destacado');
+                btn.href = "noticias.html?id=0"; 
+                btn.innerHTML = 'Lee el artículo completo acá &rarr;';
+            }
+        });
     </script>
 </body>
 </html>
 </body>
 </html>
+
 
 
 
