@@ -531,120 +531,87 @@ footer {
     font-weight: bold;
 }
 
-/* =======================================================
-   10. VERSIÓN MÓVIL (RESPONSIVE) - ¡ESTO SOLUCIONA TODO!
-   ======================================================= */
+/* =========================================
+   VERSIÓN MÓVIL CON MENÚ HAMBURGUESA
+   ========================================= */
+/* Ocultar botón hamburguesa en escritorio */
+.menu-toggle {
+    display: none;
+}
+
 @media (max-width: 768px) {
     
-    /* RESET DE CUERPO */
-    html, body {
-        overflow-x: hidden; /* Evita que la página baile a los lados */
-        width: 100%;
-    }
-
-    body {
-        padding-top: 160px; /* Empuja el contenido para que no lo tape el menú */
-    }
-
-    .container {
-        width: 100%;
-        padding: 0 20px;
-    }
-
-    /* HEADER Y MENÚ */
+    /* 1. Ajustes del Header */
     header {
-        height: auto !important; /* Permite que el header crezca */
-        position: fixed;
-        padding: 10px 0;
-        background: #fff;
+        height: 80px; /* Header más compacto en celular */
+        padding: 0;
     }
 
     header .container {
-        flex-direction: column; /* Pone logo arriba y menú abajo */
-        height: auto;
+        flex-direction: row; /* Mantener logo y botón en la misma línea */
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        height: 100%;
     }
 
     .logo img {
-        height: 50px; /* Logo más pequeño */
-        margin-bottom: 10px;
+        height: 50px; /* Logo ajustado */
+        margin: 0;
     }
 
+    /* 2. El Botón Hamburguesa */
+    .menu-toggle {
+        display: block; /* ¡Ahora sí se ve! */
+        font-size: 28px;
+        color: #162F45;
+        cursor: pointer;
+    }
+
+    /* 3. El Menú (Oculto por defecto) */
     header nav {
+        position: absolute;
+        top: 80px; /* Justo debajo del header */
+        left: 0;
         width: 100%;
+        background-color: #ffffff;
+        border-top: 3px solid #B68656;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        
+        /* LA CLAVE: Oculto y animado */
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out; 
+    }
+
+    /* 4. El Menú (Cuando está abierto) */
+    header nav.desplegado {
+        max-height: 500px; /* Altura suficiente para que quepan todos los items */
     }
 
     header nav ul {
-        flex-direction: column; /* Menú vertical */
-        width: 100%;
-        background-color: #f8f9fa;
-        border: 1px solid #eee;
-        border-radius: 8px;
+        flex-direction: column;
+        padding: 0;
+        margin: 0;
     }
 
     header nav ul li {
         width: 100%;
         margin: 0;
         text-align: center;
+        border-bottom: 1px solid #f0f0f0;
     }
 
     header nav ul li a {
         display: block;
-        padding: 12px;
-        border-bottom: 1px solid #ddd;
-        font-size: 15px;
+        padding: 15px;
+        font-size: 16px;
     }
-
-    /* Quitar estilos especiales del último item en móvil */
-    header nav > ul > li:last-child {
-        margin-left: 0;
-        padding-left: 0;
-        border-left: none;
-    }
-
-    /* Ocultar dropdown en móvil (simplificación) */
-    .dropdown-menu {
-        display: none !important;
-    }
-
-    /* AJUSTES GENERALES DE TEXTO */
-    .hero h1 { font-size: 30px; }
-    section h2 { font-size: 26px; }
-
-    /* GRILLAS A 1 COLUMNA */
-    .service-grid, 
-    .services-grid, 
-    .blog-grid {
-        display: grid; /* Asegura grid */
-        grid-template-columns: 1fr; /* 1 columna */
-        flex-direction: column; /* Si usaba flex */
-        gap: 30px;
-    }
-
-    /* TARJETA DESTACADA HOME */
-    .featured-news-card {
-        flex-direction: column;
-    }
-    .featured-image { height: 250px; }
-
-    /* EQUIPO */
-    .partner-profile {
-        flex-direction: column;
-        align-items: center;
-    }
-    .partner-image { max-width: 100%; }
-
-    /* FOOTER */
-    .footer-content, .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-        gap: 30px;
-    }
-    .footer-social { text-align: center; width: 100%; }
-
-    /* MODAL */
-    .modal-content {
-        width: 95%;
-        margin: 10% auto;
-    }
-    .modal-img { height: 200px; }
+    
+    /* Ajustes generales de cuerpo */
+    body { padding-top: 80px; }
+    
+    /* Ocultar dropdowns internos en móvil para simplificar */
+    .dropdown-menu { display: none !important; }
 }
+
