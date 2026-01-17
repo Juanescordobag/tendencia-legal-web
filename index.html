@@ -8,10 +8,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Agregamos esto para que el "salto" al bajar sea suave y no brusco */
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body>
@@ -31,12 +28,12 @@
                     <li><a href="index.html">Inicio</a></li>
                     
                     <li><a href="#areas-practica" class="dropdown-toggle">Áreas y servicios jurídicos</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="derecho-civil.html">Derecho civil y de familia</a></li>
-                        <li><a href="derecho-laboral.html">Derecho laboral</a></li>
-                        <li><a href="derecho-comercial.html">Derecho comercial</a></li>
-                        <li><a href="derecho-administrativo.html">Derecho estatal y administrativo</a></li>
-                    </ul>
+                        <ul class="dropdown-menu">
+                            <li><a href="derecho-civil.html">Derecho civil y de familia</a></li>
+                            <li><a href="derecho-laboral.html">Derecho laboral</a></li>
+                            <li><a href="derecho-comercial.html">Derecho comercial</a></li>
+                            <li><a href="derecho-administrativo.html">Derecho estatal y administrativo</a></li>
+                        </ul>
                     </li>
                     
                     <li><a href="recursos-humanos.html">Recursos humanos</a></li>
@@ -48,7 +45,6 @@
                             <i class="fas fa-lock"></i> Intranet
                         </a>
                     </li>
-
                 </ul>
             </nav>
         </div>
@@ -137,9 +133,7 @@
 
     <footer>
         <div class="container">
-            
             <div class="footer-content">
-                
                 <div class="footer-info">
                     <img src="logo.png" alt="Logo Tendencia Legal" class="footer-logo">
                     <p>
@@ -151,131 +145,87 @@
                 <div class="footer-social">
                     <h3>Síguenos en nuestras redes sociales:</h3>
                     <div class="social-icons">
-                        <a href="https://www.instagram.com/tendencialegal1?igsh=MWl1eGc2a2phaTg2eA==" target="_blank">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="https://www.linkedin.com/company/tendencialegal" target="_blank">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="https://www.facebook.com/profile.php?id=61577968206715" target="_blank">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
+                        <a href="https://www.instagram.com/tendencialegal1?igsh=MWl1eGc2a2phaTg2eA==" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/company/tendencialegal" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=61577968206715" target="_blank"><i class="fab fa-facebook-f"></i></a>
                     </div>
                 </div>
-
             </div>
-
             <hr>
-
             <div class="footer-bottom">
                 <p>Copyright © 2026 Tendencia Legal | Todos los derechos reservados</p>
                 <a href="politica-datos.html">Política de Tratamiento de Datos Personales</a>
             </div>
-
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ==========================================
-        // 1. LÓGICA DEL MENÚ MÓVIL (¡ESTO FALTABA!)
-        // ==========================================
+        // --- A. FUNCIÓN DEL MENÚ (Debe estar definida antes de usarse) ---
         function toggleMenu() {
             var menu = document.querySelector("header nav");
-            menu.classList.toggle("desplegado");
+            if(menu) {
+                menu.classList.toggle("desplegado");
+            }
         }
 
-        // ==========================================
-        // 2. CONEXIÓN A SUPABASE
-        // ==========================================
+        // --- B. CONEXIÓN SUPABASE ---
         const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
         const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ';
         
-        // Usamos 'clienteSupabase' para evitar el conflicto de nombres
-        const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // Creamos la conexión de forma segura
+        let clienteSupabase = null;
+        try {
+            clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
+        } catch(e) {
+            console.error("Error iniciando Supabase:", e);
+        }
 
-        // ==========================================
-        // 3. EFECTOS VISUALES Y DATOS
-        // ==========================================
-
-        // EFECTO SCROLL MENÚ
+        // --- C. EFECTO SCROLL HEADER ---
         window.addEventListener("scroll", function(){
             var header = document.querySelector("header");
             if(header) header.classList.toggle("abajo", window.scrollY > 0);
         });
 
-        // 4. CARGAR ÚLTIMA NOTICIA DE LA NUBE
+        // --- D. CARGAR NOTICIA DESTACADA ---
         window.addEventListener('load', async function() {
-            console.log("Cargando noticia destacada para el Home...");
+            if (!clienteSupabase) return; // Si no hay conexión, paramos
 
-            // A. Pedir solo LA ÚLTIMA noticia a Supabase
+            console.log("Cargando noticia para el Home...");
+            
             const { data, error } = await clienteSupabase
                 .from('noticias')
                 .select('*')
                 .order('created_at', { ascending: false })
-                .limit(1); // Solo traemos 1
+                .limit(1);
 
-            // Si hay error, lo mostramos en consola
-            if (error) {
-                console.error("Error cargando noticia home:", error);
-                return;
-            }
-
-            // B. Si hay datos, actualizamos el Home
             if (data && data.length > 0) {
-                const ultimaNoticia = data[0]; 
-                console.log("Noticia encontrada:", ultimaNoticia.titulo);
-
-                // Formatear fecha
-                const fechaObj = new Date(ultimaNoticia.fecha + 'T00:00:00');
-                const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-                const fechaTexto = fechaObj.toLocaleDateString('es-ES', opciones);
-
-                // Actualizar textos
-                document.getElementById('cat-destacada').innerText = ultimaNoticia.categoria;
-                document.getElementById('fecha-destacada').innerText = fechaTexto;
-                document.getElementById('titulo-destacado').innerText = ultimaNoticia.titulo;
-                document.getElementById('resumen-destacado').innerText = ultimaNoticia.resumen;
+                const noticia = data[0];
                 
-                // Actualizar imagen (usando 'imagen_url')
-                if (ultimaNoticia.imagen_url) {
-                    document.getElementById('img-destacada').src = ultimaNoticia.imagen_url;
+                // Texto
+                document.getElementById('cat-destacada').innerText = noticia.categoria;
+                document.getElementById('titulo-destacado').innerText = noticia.titulo;
+                document.getElementById('resumen-destacado').innerText = noticia.resumen;
+                
+                // Fecha
+                const fechaObj = new Date(noticia.fecha + 'T00:00:00');
+                const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('fecha-destacada').innerText = fechaObj.toLocaleDateString('es-ES', opciones);
+
+                // Imagen
+                if (noticia.imagen_url) {
+                    document.getElementById('img-destacada').src = noticia.imagen_url;
                 }
 
-                // Configurar el botón para que lleve a la noticia 0 (la primera de la lista)
+                // Enlace
                 const btn = document.getElementById('btn-destacado');
                 btn.href = "noticias.html?id=0"; 
                 btn.innerHTML = 'Lee el artículo completo acá &rarr;';
-            } else {
-                console.log("No hay noticias en la base de datos para mostrar.");
             }
         });
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
