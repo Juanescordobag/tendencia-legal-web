@@ -977,5 +977,108 @@ header nav ul li a.active {
     transition: background 0.3s;
 }
 .btn-modal:hover { background: #B68656; }
+/* =========================================
+   VERSIÓN MÓVIL (RESPONSIVE DESIGN)
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    /* 1. Ajustes Generales */
+    body {
+        font-size: 16px; /* Letra legible */
+    }
+    
+    .container {
+        width: 90%; /* Más espacio a los lados */
+        padding: 0 15px;
+    }
+
+    /* 2. Cabecera y Menú */
+    header .container {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px 0;
+    }
+
+    header nav ul {
+        flex-direction: column; /* Menú vertical */
+        gap: 15px;
+        padding: 0;
+        margin-top: 15px;
+    }
+
+    header nav ul li {
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 5px;
+    }
+
+    /* 3. Hero Section (Portada) */
+    .hero h1 {
+        font-size: 32px; /* Título más pequeño */
+    }
+    
+    .hero p {
+        font-size: 18px;
+    }
+
+    /* 4. Tarjetas (Servicios y Noticias) */
+    .service-grid, 
+    .blog-grid {
+        grid-template-columns: 1fr; /* Una sola columna */
+    }
+
+    .blog-card {
+        flex-direction: column; /* Foto arriba, texto abajo */
+    }
+
+    .blog-image {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .blog-content {
+        width: 100%;
+        padding: 20px;
+    }
+
+    /* 5. Noticia Destacada (Home) */
+    .featured-news-card {
+        flex-direction: column;
+    }
+    
+    .featured-image, .featured-content {
+        width: 100%;
+    }
+    
+    .featured-image {
+        height: 250px;
+    }
+
+    /* 6. Footer */
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+    
+    .social-icons {
+        justify-content: center;
+    }
+
+    /* 7. Modal de Noticias */
+    .modal-content {
+        width: 95%; /* Que ocupe casi toda la pantalla */
+        margin: 10% auto;
+        flex-direction: column;
+    }
+    
+    .modal-img {
+        width: 100%;
+        height: 200px;
+    }
+}
+
+
 
 
