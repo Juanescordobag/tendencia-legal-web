@@ -342,7 +342,7 @@
             
             // CORRECCIÓN: Usamos 'clienteSupabase'
             const { data, error } = await clienteSupabase.storage
-                .from('archivos_tendencia')
+                .from('ARCHIVOS_TENDENCIA')
                 .upload(nombreUnico, archivo);
 
             if (error) {
@@ -352,7 +352,7 @@
             }
 
             const { data: publicUrlData } = clienteSupabase.storage
-                .from('archivos_tendencia')
+                .from('ARCHIVOS_TENDENCIA')
                 .getPublicUrl(nombreUnico);
 
             return publicUrlData.publicUrl;
