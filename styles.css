@@ -978,106 +978,174 @@ header nav ul li a.active {
 }
 .btn-modal:hover { background: #B68656; }
 /* =========================================
-   VERSIÓN MÓVIL (RESPONSIVE DESIGN)
+   VERSIÓN MÓVIL CORREGIDA (RESPONSIVE DESIGN)
    ========================================= */
 
 @media (max-width: 768px) {
-
-    /* 1. Ajustes Generales */
-    body {
-        font-size: 16px; /* Letra legible */
-    }
     
-    .container {
-        width: 90%; /* Más espacio a los lados */
-        padding: 0 15px;
+    /* 1. Reset y Ajustes del Cuerpo */
+    /* Esto es vital para que nada se salga de la pantalla */
+    html, body {
+        overflow-x: hidden; /* Prohíbe el scroll horizontal */
+        width: 100%;
     }
 
-    /* 2. Cabecera y Menú */
-    header .container {
-        flex-direction: column;
-        text-align: center;
+    body {
+        /* Agregamos un colchón arriba para que el menú fijo no tape el contenido.
+           Ajusta este valor (160px) si ves que sigue tapando o queda mucho espacio. */
+        padding-top: 160px; 
+    }
+
+    .container {
+        width: 100%;
+        padding: 0 20px; /* Margen seguro a los lados */
+    }
+
+    /* 2. Cabecera y Menú (Estilo Lista Vertical) */
+    header {
+        position: fixed; /* Aseguramos que se quede fija arriba */
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #fff; /* Fondo blanco para que se lea bien */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Sombra para separarlo del contenido */
+        z-index: 9999; /* Que siempre esté por encima de todo */
         padding: 15px 0;
+        height: auto; /* Que su altura se ajuste al contenido */
+    }
+
+    header .container {
+        flex-direction: column; /* Elementos uno debajo del otro */
+        align-items: center;
+    }
+
+    .logo img {
+        height: 50px; /* Logo más pequeño para que no estorbe */
+        width: auto;
+        margin-bottom: 15px;
+    }
+
+    header nav {
+        width: 100%; /* Que el menú ocupe todo el ancho */
     }
 
     header nav ul {
-        flex-direction: column; /* Menú vertical */
-        gap: 15px;
+        flex-direction: column;
         padding: 0;
-        margin-top: 15px;
+        margin: 0;
+        width: 100%;
+        background-color: #f8f9fa; /* Un fondo gris claro para diferenciar el menú */
+        border-radius: 8px; /* Bordes redondeados */
+        border: 1px solid #eee;
     }
 
     header nav ul li {
         width: 100%;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 5px;
+        margin: 0;
+        text-align: center; /* Texto centrado */
+    }
+
+    /* Estilo de botón para cada enlace */
+    header nav ul li a {
+        display: block; /* Que el enlace ocupe todo el espacio del botón */
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee; /* Línea separadora */
+        color: #162F45;
+        font-weight: 600;
+        font-size: 15px;
+    }
+    
+    /* Quitar el borde al último botón */
+    header nav ul li:last-child a {
+        border-bottom: none;
+    }
+
+    /* Ocultar el menú desplegable de "Áreas" en móvil para simplificar */
+    /* El usuario puede ir a la página principal de áreas y navegar desde ahí */
+    .dropdown-menu {
+        display: none !important;
     }
 
     /* 3. Hero Section (Portada) */
+    .hero {
+        padding: 40px 0; /* Menos espacio vertical */
+        text-align: center;
+    }
+
     .hero h1 {
-        font-size: 32px; /* Título más pequeño */
+        font-size: 30px; /* Título más pequeño */
+        line-height: 1.2;
     }
     
     .hero p {
-        font-size: 18px;
+        font-size: 17px;
+        padding: 0 10px;
     }
 
-    /* 4. Tarjetas (Servicios y Noticias) */
+    /* 4. Títulos de Sección */
+    section h2 {
+        font-size: 26px;
+        text-align: center;
+        margin-top: 0; /* Asegurar que no haya margen superior extra */
+    }
+
+    /* 5. Tarjetas y Grillas (Todo a 1 columna) */
     .service-grid, 
     .blog-grid {
-        grid-template-columns: 1fr; /* Una sola columna */
+        grid-template-columns: 1fr;
+        gap: 30px;
     }
 
     .blog-card {
-        flex-direction: column; /* Foto arriba, texto abajo */
+        flex-direction: column;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
 
     .blog-image {
         width: 100%;
-        height: 200px;
+        height: 220px;
     }
     
     .blog-content {
         width: 100%;
-        padding: 20px;
-    }
-
-    /* 5. Noticia Destacada (Home) */
-    .featured-news-card {
-        flex-direction: column;
-    }
-    
-    .featured-image, .featured-content {
-        width: 100%;
-    }
-    
-    .featured-image {
-        height: 250px;
+        padding: 25px;
     }
 
     /* 6. Footer */
+    footer {
+        padding: 40px 0 30px;
+        text-align: center;
+    }
+
     .footer-content {
         flex-direction: column;
-        text-align: center;
-        gap: 30px;
+        gap: 35px;
+    }
+    
+    .footer-logo {
+        margin: 0 auto 20px;
     }
     
     .social-icons {
         justify-content: center;
     }
-
-    /* 7. Modal de Noticias */
-    .modal-content {
-        width: 95%; /* Que ocupe casi toda la pantalla */
-        margin: 10% auto;
-        flex-direction: column;
-    }
     
-    .modal-img {
-        width: 100%;
-        height: 200px;
+    .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Botón de WhatsApp */
+    .btn-wsp {
+        width: 55px;
+        height: 55px;
+        font-size: 30px;
+        bottom: 20px;
+        right: 20px;
     }
 }
+
+
 
 
 
