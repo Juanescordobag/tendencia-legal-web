@@ -37,28 +37,66 @@
         .section-view.active-view { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* FORMS & TABLES *<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control | Tendencia Legal</title>
+    <link rel="icon" type="image/png" href="pilar.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS GESTIÓN INTERNA TENDENCIA LEGAL --- */
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; display: flex; height: 100vh; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar { width: 260px; background-color: #162F45; color: white; display: flex; flex-direction: column; padding: 20px; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+        .sidebar-logo { display: flex; align-items: center; gap: 15px; margin-bottom: 50px; padding-bottom: 20px; border-bottom: 1px solid rgba(182, 134, 86, 0.3); }
+        .sidebar-logo img { width: 45px; }
+        .sidebar-logo div { display: flex; flex-direction: column; }
+        .sidebar-logo h2 { font-size: 16px; margin: 0; color: white; font-family: 'Times New Roman', serif; letter-spacing: 0.5px; }
+        .sidebar-logo span { font-size: 11px; color: #B68656; text-transform: uppercase; margin-top: 3px; }
+
+        .menu-item { padding: 12px 15px; color: #ddd; text-decoration: none; display: flex; align-items: center; gap: 15px; border-radius: 5px; margin-bottom: 8px; transition: all 0.2s; cursor: pointer; font-size: 14px; }
+        .menu-item:hover, .menu-item.active { background-color: rgba(255, 255, 255, 0.1); color: #fff; border-left: 4px solid #B68656; }
+        .menu-item i { width: 20px; text-align: center; color: #B68656; }
+        .menu-item.active i { color: #fff; }
+        
+        /* CLASE IMPORTANTE: Oculta elementos al iniciar */
+        .admin-only { display: none; } 
+
+        .logout-btn { margin-top: auto; color: #ffcccc; }
+        .logout-btn:hover { background-color: rgba(200, 50, 50, 0.2); border-left: none; }
+
+        /* CONTENT */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
+        .header h1 { color: #162F45; margin: 0; font-size: 24px; font-family: 'Times New Roman', serif; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #555; background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* VIEWS & ANIMATIONS */
+        .section-view { display: none; animation: fadeIn 0.3s; }
+        .section-view.active-view { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         /* FORMS & TABLES */
         .data-table-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 30px; }
         .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .table-header-flex h3 { margin: 0; color: #162F45; }
         
-        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="date"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #162F45; margin-top: 15px; }
 
         .btn-action { background-color: #162F45; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-top: 20px; }
         .btn-action:hover { background-color: #B68656; }
 
-        /* ESTILOS PARA ARCHIVOS ADJUNTOS */
         .file-upload-wrapper { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
         .file-name-display { display: none; align-items: center; gap: 10px; background: #e3f2fd; padding: 5px 10px; border-radius: 4px; font-size: 13px; color: #1565c0; border: 1px solid #bbdefb; }
         .btn-delete-file { background: none; border: none; color: #c62828; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .btn-delete-file:hover { color: red; }
 
-        /* ESTILOS BOTONES DE EDICIÓN/ELIMINAR */
         .btn-icon { cursor: pointer; margin: 0 5px; font-size: 16px; border: none; background: none; }
-        .btn-edit { color: #f57f17; } /* Naranja */
-        .btn-delete { color: #c62828; } /* Rojo */
-        .btn-edit:hover { color: #ffca28; }
+        .btn-delete { color: #c62828; } 
         .btn-delete:hover { color: red; }
 
         /* KPI & TABLES */
@@ -73,6 +111,8 @@
         .status.active { background-color: #e8f5e9; color: #2e7d32; }
         .status.pending { background-color: #fff8e1; color: #f57f17; }
         .status.closed { background-color: #ffebee; color: #c62828; }
+        .status.role-admin { background-color: #E3F2FD; color: #1565C0; }
+        .status.role-abogado { background-color: #F3E5F5; color: #7B1FA2; }
     </style>
 </head>
 <body>
@@ -85,27 +125,31 @@
                 <span>Gestión Interna</span>
             </div>
         </div>
+        
         <div class="menu-item active" onclick="showSection('dashboard', this)"><i class="fas fa-home"></i> Inicio</div>
         <div class="menu-item" onclick="showSection('clientes', this)"><i class="fas fa-address-book"></i> Clientes</div>
         <div class="menu-item" onclick="showSection('procesos', this)"><i class="fas fa-balance-scale"></i> Procesos</div>
         <div class="menu-item" onclick="showSection('finanzas', this)"><i class="fas fa-chart-line"></i> Finanzas</div>
-        <div class="menu-item" onclick="showSection('gestion-noticias', this)"><i class="fas fa-newspaper"></i> Publicar Noticias</div>
-        <a href="login.html" class="menu-item logout-btn"><i class="fas fa-power-off"></i> Salir</a>
+        
+        <div class="menu-item admin-only" onclick="showSection('gestion-noticias', this)"><i class="fas fa-newspaper"></i> Publicar Noticias</div>
+        <div class="menu-item admin-only" onclick="showSection('usuarios-sistema', this)"><i class="fas fa-users-cog"></i> Usuarios & Accesos</div>
+        
+        <div class="menu-item logout-btn" onclick="cerrarSesion()"><i class="fas fa-power-off"></i> Salir</div>
     </div>
 
     <div class="main-content">
         <div class="header">
             <h1 id="page-title">Resumen Ejecutivo</h1>
             <div class="user-profile">
-                <i class="fas fa-user-tie"></i> <span>Socio: Juan Esteban Córdoba</span>
+                <i class="fas fa-user-tie"></i> <span id="nombreUsuarioDisplay">Cargando...</span>
             </div>
         </div>
 
         <div id="dashboard" class="section-view active-view">
             <div class="kpi-grid">
                 <div class="kpi-card" style="border-top-color: #162F45;"><h3>Casos Activos</h3><div class="number">12</div></div>
-                <div class="kpi-card" style="border-top-color: #B68656;"><h3>Nuevos Clientes (Mes)</h3><div class="number">4</div></div>
-                <div class="kpi-card" style="border-top-color: #2e7d32;"><h3>Facturación Enero</h3><div class="number">$ 15.2M</div></div>
+                <div class="kpi-card" style="border-top-color: #B68656;"><h3>Nuevos Clientes</h3><div class="number">4</div></div>
+                <div class="kpi-card" style="border-top-color: #2e7d32;"><h3>Facturación</h3><div class="number">$ 15.2M</div></div>
                 <div class="kpi-card" style="border-top-color: #d32f2f;"><h3>Tareas Críticas</h3><div class="number">3</div></div>
             </div>
             <div class="data-table-container">
@@ -113,30 +157,18 @@
                 <table>
                     <thead><tr><th>Fecha</th><th>Cliente</th><th>Detalle</th><th>Estado</th></tr></thead>
                     <tbody>
-                        <tr><td>16 Ene 2026</td><td>Peludencios S.A.S</td><td>Revisión Contrato Proveedores</td><td><span class="status active">En Proceso</span></td></tr>
-                        <tr><td>15 Ene 2026</td><td>Scotiabank</td><td>Entrevista VP Recursos Humanos</td><td><span class="status active">Gestión</span></td></tr>
-                        <tr><td>12 Ene 2026</td><td>Carlos Pérez</td><td>Radicación Demanda</td><td><span class="status pending">Pendiente</span></td></tr>
+                        <tr><td>16 Ene 2026</td><td>Peludencios S.A.S</td><td>Revisión Contrato</td><td><span class="status active">En Proceso</span></td></tr>
                     </tbody>
                 </table>
             </div>
         </div> 
 
         <div id="gestion-noticias" class="section-view">
-            
             <div class="data-table-container">
-                <div class="table-header-flex">
-                    <h3 id="tituloFormulario">Redactar Nuevo Artículo</h3>
-                    <button class="btn-action" onclick="resetearFormulario()" style="background:#888; display:none;" id="btnCancelarEdicion">Cancelar Edición</button>
-                </div>
-                
+                <div class="table-header-flex"><h3 id="tituloFormulario">Redactar Nuevo Artículo</h3></div>
                 <form id="formNoticia" style="max-width: 600px;">
-                    <input type="hidden" id="indiceEdicion" value="-1">
-
-                    <div>
-                        <label>Título del Artículo</label>
-                        <input type="text" id="tituloNoticia" placeholder="Ej: Nueva Ley de Emprendimiento" required>
-                    </div>
-
+                    <div><label>Título</label><input type="text" id="tituloNoticia" placeholder="Ej: Reforma Laboral 2026" required></div>
+                    
                     <div style="display:flex; gap:20px;">
                         <div style="flex:1;">
                             <label>Categoría</label>
@@ -144,170 +176,243 @@
                                 <option value="Derecho laboral">Derecho laboral</option>
                                 <option value="Derecho comercial">Derecho comercial</option>
                                 <option value="Derecho civil">Derecho civil</option>
-                                <option value="Derecho administrativo/estatal">Derecho administrativo/estatal</option>
-                                <option value="Derecho penal">Derecho penal</option>
-                                <option value="Derecho constitucional">Derecho constitucional</option>
-                                <option value="Derecho ambiental">Derecho ambiental</option>
+                                <option value="Derecho administrativo/estatal">Derecho administrativo</option>
                                 <option value="Actualidad">Actualidad</option>
                             </select>
                         </div>
-                        <div style="flex:1;">
-                            <label>Fecha de Noticia</label>
-                            <input type="date" id="fechaNoticia" required>
-                        </div>
+                        <div style="flex:1;"><label>Fecha</label><input type="date" id="fechaNoticia" required></div>
                     </div>
 
-                    <div>
-                        <label>Resumen (Intro)</label>
-                        <textarea id="resumenNoticia" rows="3" placeholder="Breve descripción..." required></textarea>
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                        <label>Cuerpo del Artículo / Noticia Completa</label>
-                        <textarea id="contenidoNoticia" rows="10" placeholder="Escribe aquí todo el desarrollo del artículo, análisis jurídico, etc..." style="white-space: pre-wrap;"></textarea>
-                    </div>
-
+                    <div><label>Resumen</label><textarea id="resumenNoticia" rows="3" required></textarea></div>
+                    <div style="margin-top:20px;"><label>Cuerpo del Artículo</label><textarea id="contenidoNoticia" rows="10" style="white-space: pre-wrap;"></textarea></div>
+                    
                     <div>
                         <label><i class="fas fa-camera"></i> Imagen Destacada</label>
                         <div class="file-upload-wrapper">
                             <input type="file" id="inputImagen" accept="image/*" onchange="manejarArchivo('inputImagen', 'nombreImagen', 'displayImagen')">
                         </div>
                         <div id="displayImagen" class="file-name-display">
-                            <span id="nombreImagen">nombre_archivo.jpg</span>
+                            <span id="nombreImagen">archivo.jpg</span>
                             <button type="button" class="btn-delete-file" onclick="borrarArchivo('inputImagen', 'displayImagen')"><i class="fas fa-times"></i></button>
                         </div>
                     </div>
 
                     <div>
-                        <label><i class="fas fa-paperclip"></i> Adjuntar Documento (Decretos/Leyes)</label>
+                        <label><i class="fas fa-paperclip"></i> Adjuntar PDF/Doc</label>
                         <div class="file-upload-wrapper">
                             <input type="file" id="inputDoc" accept=".pdf,.doc,.docx" onchange="manejarArchivo('inputDoc', 'nombreDoc', 'displayDoc')">
                         </div>
-                        <div id="displayDoc" class="file-name-display" style="background: #fff3e0; border-color: #ffe0b2; color: #e65100;">
-                            <span id="nombreDoc">ley_123.pdf</span>
+                        <div id="displayDoc" class="file-name-display" style="background: #fff3e0; border-color: #ffe0b2;">
+                            <span id="nombreDoc">documento.pdf</span>
                             <button type="button" class="btn-delete-file" onclick="borrarArchivo('inputDoc', 'displayDoc')"><i class="fas fa-times"></i></button>
                         </div>
                     </div>
 
-                    <div>
-                        <label><i class="fas fa-link"></i> Enlace Externo (Opcional)</label>
-                        <input type="text" id="linkNoticia" placeholder="Ej: https://www.elespectador.com/noticia...">
-                    </div>
+                    <div><label>Enlace Externo</label><input type="text" id="linkNoticia" placeholder="https://..."></div>
 
-                    <button type="submit" class="btn-action" style="font-size:16px;" id="btnSubmitNoticia">
-                        <i class="fas fa-paper-plane"></i> Publicar en la Web
-                    </button>
+                    <button type="submit" class="btn-action" id="btnSubmitNoticia"><i class="fas fa-paper-plane"></i> Publicar</button>
                 </form>
             </div>
 
             <div class="data-table-container">
-                <div class="table-header-flex">
-                    <h3>Historial de Publicaciones</h3>
-                </div>
+                <div class="table-header-flex"><h3>Historial de Publicaciones</h3></div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Título</th>
-                            <th>Categoría</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaNoticiasBody">
-                        </tbody>
+                    <thead><tr><th>Fecha</th><th>Título</th><th>Categoría</th><th>Acciones</th></tr></thead>
+                    <tbody id="tablaNoticiasBody"></tbody>
                 </table>
             </div>
-
         </div>
 
-        <div id="clientes" class="section-view">
+        <div id="usuarios-sistema" class="section-view">
             <div class="data-table-container">
                 <div class="table-header-flex">
-                    <h3>Directorio de Clientes</h3>
-                    <button class="btn-action"><i class="fas fa-plus"></i> Registrar Cliente</button>
+                    <h3>Crear Nuevo Usuario</h3>
                 </div>
+                <form id="formUsuario" style="max-width: 500px; margin-bottom: 40px; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+                    <div><label>Nombre Completo</label><input type="text" id="nuevoNombre" placeholder="Ej: Manuela Correa" required></div>
+                    <div><label>Correo Electrónico</label><input type="email" id="nuevoEmail" placeholder="abogado@tendencialegal.com" required></div>
+                    <div><label>Contraseña Temporal</label><input type="password" id="nuevoPass" placeholder="Mínimo 6 caracteres" required></div>
+                    <div>
+                        <label>Rol en la Firma</label>
+                        <select id="nuevoRol">
+                            <option value="abogado">Abogado (Acceso Limitado)</option>
+                            <option value="admin">Socio Administrador (Acceso Total)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-action" id="btnCrearUsuario">
+                        <i class="fas fa-user-plus"></i> Registrar Usuario
+                    </button>
+                </form>
+
+                <div class="table-header-flex"><h3>Usuarios Activos</h3></div>
                 <table>
-                    <thead><tr><th>Cliente</th><th>Tipo</th><th>Contacto Principal</th><th>Teléfono</th><th>Acciones</th></tr></thead>
-                    <tbody>
-                        <tr><td><strong>Peludencios S.A.S</strong></td><td>Jurídica</td><td>Juan José (Operaciones)</td><td>300 123 4567</td><td><i class="fas fa-ellipsis-h"></i></td></tr>
-                        <tr><td><strong>Martina López</strong></td><td>Natural</td><td>Martina López</td><td>310 987 6543</td><td><i class="fas fa-ellipsis-h"></i></td></tr>
-                        <tr><td><strong>Transportes del Norte</strong></td><td>Corporativo</td><td>Gerencia RRHH</td><td>320 555 1122</td><td><i class="fas fa-ellipsis-h"></i></td></tr>
-                    </tbody>
+                    <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th></tr></thead>
+                    <tbody id="tablaUsuariosBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="procesos" class="section-view">
-            <div class="data-table-container">
-                <div class="table-header-flex">
-                    <h3>Expedientes Digitales</h3>
-                    <button class="btn-action"><i class="fas fa-folder-plus"></i> Nuevo Expediente</button>
-                </div>
-                <table>
-                    <thead><tr><th>Radicado</th><th>Cliente</th><th>Tipo Proceso</th><th>Etapa Actual</th><th>Responsable</th></tr></thead>
-                    <tbody>
-                        <tr><td>TL-2026-001</td><td>Peludencios S.A.S</td><td>Propiedad Intelectual</td><td><span class="status closed">Registro Concedido</span></td><td>Juan E. Córdoba</td></tr>
-                        <tr><td>CIV-092-22</td><td>Familia Ramírez</td><td>Sucesión</td><td><span class="status pending">Fallo</span></td><td>Manuela Correa</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="finanzas" class="section-view">
-            <div class="kpi-grid">
-                <div class="kpi-card"><h3>Total Facturado</h3><div class="number" style="color:#2e7d32;">$ 15,200,000</div></div>
-                <div class="kpi-card"><h3>Gastos Operativos</h3><div class="number" style="color:#c62828;">$ 4,500,000</div></div>
-                <div class="kpi-card"><h3>Utilidad Neta</h3><div class="number" style="color:#B68656;">$ 10,700,000</div></div>
-            </div>
-            <div class="data-table-container">
-                <div class="table-header-flex">
-                    <h3>Cuentas de Cobro Activas</h3>
-                    <button class="btn-action"><i class="fas fa-file-invoice"></i> Nueva Factura</button>
-                </div>
-                <table>
-                    <thead><tr><th># Factura</th><th>Cliente</th><th>Vencimiento</th><th>Valor</th><th>Estado</th></tr></thead>
-                    <tbody>
-                        <tr><td>FAC-055</td><td>Transportes del Norte</td><td>30 Ene 2026</td><td>$ 2,500,000</td><td><span class="status pending">Pendiente</span></td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <div id="clientes" class="section-view"><div class="data-table-container"><h3>Directorio de Clientes</h3><p>Módulo de gestión de clientes...</p></div></div>
+        <div id="procesos" class="section-view"><div class="data-table-container"><h3>Expedientes</h3><p>Módulo de procesos...</p></div></div>
+        <div id="finanzas" class="section-view"><div class="data-table-container"><h3>Finanzas</h3><p>Módulo financiero...</p></div></div>
 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // 2. CONEXIÓN A LA NUBE (Ya puse tus datos aquí)
+        // ==========================================
+        // 1. CONFIGURACIÓN E INICIO
+        // ==========================================
         const supabaseUrl = 'https://gpwrnhynvyerranktstf.supabase.co';
         const supabaseKey = 'sb_publishable_XsLhiovLphmecmnjHAmYDQ_MEIaARRZ'; 
-        
-        // CORRECCIÓN: Usamos 'clienteSupabase' para no causar conflicto de nombres
         const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // VARIABLES GLOBALES
-        let archivoImagen = null;    
+        let usuarioActual = null;
+        let rolActual = null;
+        
+        // Variables para Noticias
+        let archivoImagen = null;
         let archivoDocumento = null;
-        let imagenVistaPrevia = 'logo.png'; 
 
-        // 3. NAVEGACIÓN
+        // VERIFICAR SESIÓN Y ROL AL CARGAR
+        async function iniciarSistema() {
+            const { data: { session } } = await clienteSupabase.auth.getSession();
+            
+            if (!session) {
+                window.location.href = "login.html"; 
+                return;
+            }
+
+            usuarioActual = session.user;
+            
+            // Consultar Rol
+            const { data: perfil, error } = await clienteSupabase
+                .from('perfiles')
+                .select('*')
+                .eq('id', usuarioActual.id)
+                .single();
+
+            if (perfil) {
+                rolActual = perfil.rol;
+                document.getElementById('nombreUsuarioDisplay').innerText = perfil.nombre || usuarioActual.email;
+                
+                // APLICAR PERMISOS VISUALES
+                if (rolActual === 'admin') {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+                }
+            } else {
+                // Si no tiene perfil creado aún, mostramos email
+                document.getElementById('nombreUsuarioDisplay').innerText = usuarioActual.email;
+            }
+        }
+        iniciarSistema();
+
+        // LOGOUT
+        async function cerrarSesion() {
+            await clienteSupabase.auth.signOut();
+            window.location.href = "login.html";
+        }
+
+        // NAVEGACIÓN (Con protección)
         function showSection(sectionId, element) {
+            // Protección de lógica: Si no es admin, no dejamos entrar
+            if ((sectionId === 'gestion-noticias' || sectionId === 'usuarios-sistema') && rolActual !== 'admin') {
+                alert("Acceso denegado: Se requieren permisos de Socio Administrador.");
+                return;
+            }
+
             document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
             document.getElementById(sectionId).classList.add('active-view');
-            const titles = { 'dashboard': 'Resumen Ejecutivo', 'clientes': 'Gestión de Clientes', 'procesos': 'Control de Procesos', 'finanzas': 'Información Financiera', 'gestion-noticias': 'Gestor de Contenidos (CMS)' };
-            document.getElementById('page-title').innerText = titles[sectionId];
+            
             if (element) {
                 document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
                 element.classList.add('active');
             }
-            
-            // Si entran a noticias, cargamos la tabla desde la nube
-            if(sectionId === 'gestion-noticias') {
-                cargarNoticiasDesdeNube();
+
+            // Cargar datos específicos si es necesario
+            if(sectionId === 'usuarios-sistema') cargarUsuarios();
+            if(sectionId === 'gestion-noticias') cargarNoticiasDesdeNube();
+        }
+
+        // ==========================================
+        // 2. GESTIÓN DE USUARIOS (Solo Admin)
+        // ==========================================
+        const formUsuario = document.getElementById('formUsuario');
+        if(formUsuario){
+            formUsuario.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const nombre = document.getElementById('nuevoNombre').value;
+                const email = document.getElementById('nuevoEmail').value;
+                const password = document.getElementById('nuevoPass').value;
+                const rol = document.getElementById('nuevoRol').value;
+                const btn = document.getElementById('btnCrearUsuario');
+
+                btn.disabled = true;
+                btn.innerHTML = "Creando...";
+
+                try {
+                    // A. Crear Auth User (Esto envía un correo de confirmación por defecto en Supabase)
+                    // Nota: Si desactivaste 'Confirm Email' en Supabase, el usuario entra directo.
+                    const { data: dataAuth, error: errorAuth } = await clienteSupabase.auth.signUp({
+                        email: email,
+                        password: password
+                    });
+
+                    if (errorAuth) throw errorAuth;
+                    if (!dataAuth.user) throw new Error("No se pudo crear el usuario");
+
+                    // B. Crear Perfil (Vincular Rol)
+                    const { error: errorPerfil } = await clienteSupabase
+                        .from('perfiles')
+                        .insert([{
+                            id: dataAuth.user.id,
+                            email: email,
+                            nombre: nombre,
+                            rol: rol
+                        }]);
+
+                    if (errorPerfil) throw errorPerfil;
+
+                    alert("Usuario creado correctamente.");
+                    document.getElementById('formUsuario').reset();
+                    cargarUsuarios();
+
+                } catch (err) {
+                    alert("Error: " + err.message);
+                    console.error(err);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-user-plus"></i> Registrar Usuario';
+                }
+            });
+        }
+
+        async function cargarUsuarios() {
+            const tbody = document.getElementById('tablaUsuariosBody');
+            tbody.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
+
+            const { data, error } = await clienteSupabase.from('perfiles').select('*');
+
+            if (data) {
+                tbody.innerHTML = "";
+                data.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${u.nombre || 'Sin nombre'}</td>
+                            <td>${u.email}</td>
+                            <td><span class="status role-${u.rol}">${u.rol ? u.rol.toUpperCase() : 'N/A'}</span></td>
+                        </tr>
+                    `;
+                });
             }
         }
 
-        // 4. MANEJAR ARCHIVOS
+        // ==========================================
+        // 3. GESTIÓN DE NOTICIAS (Solo Admin)
+        // ==========================================
+        
+        // Manejo de Archivos Visual
         function manejarArchivo(inputId, nombreSpanId, displayId) {
             const input = document.getElementById(inputId);
             const display = document.getElementById(displayId);
@@ -318,175 +423,128 @@
                 nombreSpan.innerText = archivo.name;
                 display.style.display = 'inline-flex'; 
 
-                if (inputId === 'inputImagen') {
-                    archivoImagen = archivo;
-                    imagenVistaPrevia = URL.createObjectURL(archivo);
-                } else if (inputId === 'inputDoc') {
-                    archivoDocumento = archivo;
-                }
+                if (inputId === 'inputImagen') archivoImagen = archivo;
+                if (inputId === 'inputDoc') archivoDocumento = archivo;
             }
         }
 
         function borrarArchivo(inputId, displayId) {
             document.getElementById(inputId).value = "";
             document.getElementById(displayId).style.display = 'none';
-            if (inputId === 'inputImagen') { archivoImagen = null; imagenVistaPrevia = 'logo.png'; }
-            if (inputId === 'inputDoc') { archivoDocumento = null; }
+            if (inputId === 'inputImagen') archivoImagen = null;
+            if (inputId === 'inputDoc') archivoDocumento = null;
         }
 
-        // 5. SUBIR ARCHIVO A SUPABASE
+        // Subir a Storage
         async function subirArchivoNube(archivo, carpeta) {
             if (!archivo) return null; 
-
             const nombreUnico = `${carpeta}-${Date.now()}-${archivo.name}`;
             
-            // CORRECCIÓN: Usamos 'clienteSupabase'
+            // Subir
             const { data, error } = await clienteSupabase.storage
-                .from('archivos_tendencia')
+                .from('ARCHIVOS_TENDENCIA') // Asegúrate que el bucket se llame así en Supabase (Mayúsculas importan)
                 .upload(nombreUnico, archivo);
 
             if (error) {
-                console.error('Error subiendo archivo:', error);
-                alert('Error subiendo archivo: ' + error.message);
-                return null;
+                console.error('Error subiendo:', error);
+                throw error;
             }
 
+            // Obtener URL
             const { data: publicUrlData } = clienteSupabase.storage
-                .from('archivos_tendencia')
+                .from('ARCHIVOS_TENDENCIA')
                 .getPublicUrl(nombreUnico);
 
             return publicUrlData.publicUrl;
         }
 
-        // 6. GUARDAR NOTICIA EN LA NUBE
-        document.getElementById('formNoticia').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const btn = document.getElementById('btnSubmitNoticia');
-            const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo a la nube...';
-            btn.disabled = true;
+        // Publicar Noticia
+        const formNoticia = document.getElementById('formNoticia');
+        if(formNoticia){
+            formNoticia.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('btnSubmitNoticia');
+                const txtOriginal = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+                btn.disabled = true;
 
-            try {
-                let urlImagenFinal = null;
-                if (archivoImagen) {
-                    urlImagenFinal = await subirArchivoNube(archivoImagen, 'img');
+                try {
+                    let urlImg = null;
+                    let urlDoc = null;
+
+                    if(archivoImagen) urlImg = await subirArchivoNube(archivoImagen, 'img');
+                    if(archivoDocumento) urlDoc = await subirArchivoNube(archivoDocumento, 'doc');
+
+                    const nuevaNoticia = {
+                        titulo: document.getElementById('tituloNoticia').value,
+                        categoria: document.getElementById('categoriaNoticia').value,
+                        fecha: document.getElementById('fechaNoticia').value,
+                        resumen: document.getElementById('resumenNoticia').value,
+                        contenido: document.getElementById('contenidoNoticia').value,
+                        enlace: document.getElementById('linkNoticia').value,
+                        imagen_url: urlImg,
+                        archivo_url: urlDoc,
+                        nombre_archivo: archivoDocumento ? archivoDocumento.name : null
+                    };
+
+                    const { error } = await clienteSupabase.from('noticias').insert([nuevaNoticia]);
+                    if(error) throw error;
+
+                    alert("¡Noticia publicada con éxito!");
+                    formNoticia.reset();
+                    borrarArchivo('inputImagen', 'displayImagen');
+                    borrarArchivo('inputDoc', 'displayDoc');
+                    cargarNoticiasDesdeNube();
+
+                } catch(err) {
+                    alert("Error publicando: " + err.message);
+                    console.error(err);
+                } finally {
+                    btn.innerHTML = txtOriginal;
+                    btn.disabled = false;
                 }
+            });
+        }
 
-                let urlDocFinal = null;
-                if (archivoDocumento) {
-                    urlDocFinal = await subirArchivoNube(archivoDocumento, 'doc');
-                }
-
-                const titulo = document.getElementById('tituloNoticia').value;
-                const categoria = document.getElementById('categoriaNoticia').value;
-                const fecha = document.getElementById('fechaNoticia').value;
-                const resumen = document.getElementById('resumenNoticia').value;
-                const contenido = document.getElementById('contenidoNoticia').value;
-                const enlace = document.getElementById('linkNoticia').value;
-                
-                const nombreDoc = archivoDocumento ? archivoDocumento.name : null;
-
-                // CORRECCIÓN: Usamos 'clienteSupabase'
-                const { error } = await clienteSupabase
-                    .from('noticias')
-                    .insert([
-                        { 
-                            titulo: titulo,
-                            categoria: categoria,
-                            fecha: fecha,
-                            resumen: resumen,
-                            contenido: contenido,
-                            imagen_url: urlImagenFinal,
-                            archivo_url: urlDocFinal,
-                            nombre_archivo: nombreDoc,
-                            enlace: enlace
-                        }
-                    ]);
-
-                if (error) throw error;
-
-                alert('¡Noticia publicada en la NUBE con éxito!');
-                resetearFormulario();
-                cargarNoticiasDesdeNube();
-
-            } catch (error) {
-                console.error(error);
-                alert('Error al guardar: ' + error.message);
-            } finally {
-                btn.innerHTML = textoOriginal;
-                btn.disabled = false;
-            }
-        });
-
-        // 7. LEER NOTICIAS DE LA NUBE
+        // Cargar Historial Noticias
         async function cargarNoticiasDesdeNube() {
             const tbody = document.getElementById('tablaNoticiasBody');
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Cargando datos...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
 
-            // CORRECCIÓN: Usamos 'clienteSupabase'
             const { data: noticias, error } = await clienteSupabase
                 .from('noticias')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Error cargando noticias. Revisa la consola (F12).</td></tr>';
-                console.error(error);
-                return;
-            }
-
-            tbody.innerHTML = ''; 
-
-            if(noticias.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No hay noticias publicadas aún.</td></tr>';
-                return;
-            }
-
-            noticias.forEach((noticia) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${noticia.fecha}</td>
-                    <td><strong>${noticia.titulo}</strong></td>
-                    <td><span class="status pending">${noticia.categoria}</span></td>
-                    <td>
-                        <button class="btn-icon btn-delete" onclick="borrarNoticiaNube(${noticia.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 8. BORRAR NOTICIA
-        async function borrarNoticiaNube(id) {
-            if(confirm('¿Seguro que quieres borrar esta noticia de la base de datos?')) {
-                // CORRECCIÓN: Usamos 'clienteSupabase'
-                const { error } = await clienteSupabase
-                    .from('noticias')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) {
-                    alert('Error al borrar: ' + error.message);
-                } else {
-                    alert('Noticia eliminada');
-                    cargarNoticiasDesdeNube();
-                }
+            if (noticias) {
+                tbody.innerHTML = "";
+                noticias.forEach(n => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${n.fecha}</td>
+                            <td>${n.titulo}</td>
+                            <td><span class="status pending">${n.categoria}</span></td>
+                            <td><button class="btn-icon btn-delete" onclick="borrarNoticia(${n.id})"><i class="fas fa-trash"></i></button></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4">Error cargando noticias.</td></tr>';
             }
         }
 
-        function resetearFormulario() {
-            document.getElementById('formNoticia').reset();
-            borrarArchivo('inputImagen', 'displayImagen');
-            borrarArchivo('inputDoc', 'displayDoc');
+        // Borrar Noticia
+        async function borrarNoticia(id) {
+            if(!confirm("¿Seguro que deseas eliminar esta noticia?")) return;
+
+            const { error } = await clienteSupabase.from('noticias').delete().eq('id', id);
+            if(error) {
+                alert("Error al borrar: " + error.message);
+            } else {
+                alert("Noticia eliminada.");
+                cargarNoticiasDesdeNube();
+            }
         }
-        
-        // Cargar noticias al inicio si ya estamos en la vista
-        window.addEventListener('load', () => {
-             if(document.getElementById('gestion-noticias').classList.contains('active-view')){
-                 cargarNoticiasDesdeNube();
-             }
-        });
 
     </script>
 </body>
