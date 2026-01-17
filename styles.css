@@ -1312,6 +1312,81 @@ footer {
     /* Ocultar dropdowns internos en móvil para simplificar */
     .dropdown-menu { display: none !important; }
 }
+/* ==============================================
+   ¡PEGAR ESTO AL FINAL DE STYLES.CSS!
+   (ESTO ARREGLA EL TAMAÑO Y EL ZOOM EN CELULARES)
+   ============================================== */
+@media (max-width: 768px) {
+
+    /* 1. BLOQUEAR EL DESBORDE (Evita que la pantalla se aleje) */
+    html, body {
+        overflow-x: hidden; 
+        width: 100%;
+        position: relative;
+    }
+
+    /* 2. ARREGLAR BARRA SUPERIOR (HEADER) */
+    /* Forzamos que la barra sea delgada y el logo pequeño */
+    header {
+        height: 70px !important; 
+        padding: 0 !important;
+    }
+
+    header .container {
+        padding: 0 15px; /* Espacio a los lados */
+    }
+
+    .logo img {
+        height: 40px !important; /* Logo pequeño */
+        margin-top: 5px;
+    }
+
+    /* Ajustar posición del menú para que no quede flotando */
+    header nav {
+        top: 70px !important; 
+    }
+
+    /* 3. ACHICAR LA PORTADA (HERO) */
+    .hero {
+        padding: 40px 15px !important;
+    }
+
+    .hero h1 {
+        font-size: 28px !important; /* Título pequeño para que quepa */
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+
+    /* 4. PONER COLUMNAS EN FILA (CRUCIAL PARA EL INDEX) */
+    /* Esto toma las tarjetas que están lado a lado y las pone una abajo de otra */
+    .service-grid, 
+    .featured-news-card,
+    .footer-content {
+        display: flex !important;
+        flex-direction: column !important; 
+        width: 100% !important;
+        gap: 30px;
+    }
+
+    /* Ajustar ancho de las tarjetas */
+    .card, .featured-news-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Ajustar imagen de la noticia */
+    .featured-image {
+        min-height: 200px;
+        height: auto;
+    }
+    
+    /* 5. AJUSTE FINAL DEL CUERPO */
+    body {
+        padding-top: 70px !important; /* Para que el contenido empiece después del header */
+    }
+}
+
 
 
 
