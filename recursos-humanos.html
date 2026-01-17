@@ -105,6 +105,12 @@
             var header = document.querySelector("header");
             header.classList.toggle("abajo", window.scrollY > 0);
         });
+
+        // FUNCIÓN PARA ABRIR/CERRAR MENÚ EN MÓVIL
+        function toggleMenu() {
+            var menu = document.querySelector("header nav");
+            menu.classList.toggle("desplegado");
+        }
     </script>
 </body>
 </html>
