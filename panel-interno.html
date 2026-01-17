@@ -388,23 +388,78 @@
             });
         }
 
+        // ==========================================
+        // FUNCIONES DE GESTIÓN DE USUARIOS
+        // ==========================================
+
         async function cargarUsuarios() {
             const tbody = document.getElementById('tablaUsuariosBody');
-            tbody.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='4'>Cargando...</td></tr>";
 
             const { data, error } = await clienteSupabase.from('perfiles').select('*');
 
             if (data) {
                 tbody.innerHTML = "";
                 data.forEach(u => {
+                    // No mostrar botón de borrar para uno mismo
+                    const esMio = u.id === usuarioActual.id;
+                    const botonesAccion = esMio ? 
+                        '<span style="font-size:12px; color:#888;">(Tú)</span>' : 
+                        `
+                        <button class="btn-icon" title="Restablecer Contraseña" onclick="enviarResetPassword('${u.email}')" style="color:#f57f17;">
+                            <i class="fas fa-key"></i>
+                        </button>
+                        <button class="btn-icon btn-delete" title="Eliminar Usuario" onclick="borrarUsuarioTotal('${u.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        `;
+
                     tbody.innerHTML += `
                         <tr>
                             <td>${u.nombre || 'Sin nombre'}</td>
                             <td>${u.email}</td>
                             <td><span class="status role-${u.rol}">${u.rol ? u.rol.toUpperCase() : 'N/A'}</span></td>
+                            <td style="text-align: center;">${botonesAccion}</td>
                         </tr>
                     `;
                 });
+            }
+        }
+
+        // 1. FUNCIÓN PARA BORRAR USUARIO (Usando el truco RPC)
+        async function borrarUsuarioTotal(idUsuario) {
+            if (!confirm("⚠️ ¡PELIGRO! ⚠️\n\n¿Estás seguro de eliminar este usuario?\nEsta acción borrará su acceso y sus datos permanentemente.")) {
+                return;
+            }
+
+            // Llamamos a la "Función Mágica" que creamos en SQL
+            const { error } = await clienteSupabase.rpc('eliminar_usuario_total', {
+                id_usuario: idUsuario
+            });
+
+            if (error) {
+                alert("Error al eliminar: " + error.message);
+                console.error(error);
+            } else {
+                alert("✅ Usuario eliminado correctamente.");
+                cargarUsuarios(); // Recargar la tabla
+            }
+        }
+
+        // 2. FUNCIÓN PARA RESTABLECER CONTRASEÑA
+        async function enviarResetPassword(emailUsuario) {
+            if (!confirm(`¿Enviar un correo de recuperación de contraseña a ${emailUsuario}?`)) {
+                return;
+            }
+
+            const { data, error } = await clienteSupabase.auth.resetPasswordForEmail(emailUsuario, {
+                redirectTo: window.location.href // Opcional: a dónde vuelven al dar clic
+            });
+
+            if (error) {
+                alert("Error al enviar correo: " + error.message);
+            } else {
+                alert(`✅ Correo enviado a ${emailUsuario}.\n\nEl usuario recibirá un link para poner una contraseña nueva.`);
             }
         }
 
