@@ -614,4 +614,87 @@ footer {
     /* Ocultar dropdowns internos en móvil para simplificar */
     .dropdown-menu { display: none !important; }
 }
+/* ==============================================
+   PEGAR ESTO AL FINAL DE STYLES.CSS
+   (CORRECCIONES DE TAMAÑO PARA CELULAR)
+   ============================================== */
+@media (max-width: 768px) {
+
+    /* 1. EVITAR EL "ZOOM OUT" (Bloquear desborde horizontal) */
+    html, body {
+        overflow-x: hidden; /* Corta lo que se salga de lado */
+        width: 100%;
+        position: relative;
+    }
+
+    /* 2. REPARAR BARRA SUPERIOR (HEADER) */
+    header {
+        height: 70px !important; /* Forzar altura pequeña */
+        padding: 0 !important;
+    }
+
+    header .container {
+        padding: 0 15px; /* Espacio seguro a los lados */
+    }
+
+    /* Logo más pequeño para que quepa */
+    .logo img {
+        height: 40px !important; 
+        margin-top: 5px;
+    }
+
+    /* Ajustar posición del botón menú y del menú desplegable */
+    .menu-toggle {
+        font-size: 24px; /* Ícono más discreto */
+    }
+
+    header nav {
+        top: 70px !important; /* Que empiece justo debajo del header */
+    }
+
+    /* 3. ACHICAR LA PORTADA (HERO) - Culpable #1 del desborde */
+    .hero {
+        padding: 40px 15px !important; /* Menos colchón */
+    }
+
+    .hero h1 {
+        font-size: 28px !important; /* Título mucho más pequeño (antes 50px) */
+        line-height: 1.2;
+        word-wrap: break-word; /* Si una palabra es larga, que baje */
+    }
+
+    .hero p {
+        font-size: 16px !important;
+        padding: 0 10px;
+    }
+
+    /* 4. APILAR LAS TARJETAS (Servicios y Noticias) - Culpable #2 */
+    .service-grid, 
+    .featured-news-card,
+    .footer-content {
+        display: flex !important;
+        flex-direction: column !important; /* Una debajo de otra */
+        width: 100% !important;
+        gap: 20px;
+    }
+
+    /* Asegurar que las tarjetas no sean más anchas que la pantalla */
+    .card, .featured-news-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Ajustar imagen de noticia */
+    .featured-image {
+        min-height: 200px;
+        height: auto;
+    }
+    
+    /* 5. AJUSTAR CUERPO GENERAL */
+    body {
+        padding-top: 70px !important; /* Mismo tamaño que el header */
+    }
+}
+
 
