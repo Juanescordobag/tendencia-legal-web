@@ -219,38 +219,29 @@ function cargarClientesLocal() {
     const tbody = document.getElementById('tablaClientesBody');
     const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
 
+    // 1. Si no hay clientes, mostrar mensaje vacío
     if (clientes.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No hay expedientes activos.</td></tr>';
         return;
     }
-    // Dentro de cargarClientesLocal...
+
+    // 2. Limpiar tabla antes de llenarla
+    tbody.innerHTML = '';
+
+    // 3. Recorrer y dibujar cada cliente
     clientes.forEach(c => {
         
-        // Lógica visual para el IVA (NUEVO BLOQUE)
+        // A. Lógica visual para el IVA
         let textoIva = '';
-        if(c.impuesto === 'MasIVA') textoIva = '<span style="color:#c62828; font-size:10px;">(+ IVA)</span>';
-        if(c.impuesto === 'Incluido') textoIva = '<span style="color:#2e7d32; font-size:10px;">(Inc.)</span>';
+        if(c.impuesto === 'MasIVA') textoIva = '<span style="color:#c62828; font-size:10px; font-weight:bold;">(+ IVA)</span>';
+        if(c.impuesto === 'Incluido') textoIva = '<span style="color:#2e7d32; font-size:10px; font-weight:bold;">(Inc.)</span>';
 
-        tbody.innerHTML += `
-            <tr>
-                <td>
-                    <span class="status active">${c.modalidadPago}</span>
-                    <div style="font-size:13px; margin-top:2px; font-weight:bold;">
-                        $ ${Number(c.valorTotal).toLocaleString()} ${textoIva}
-                    </div>
-                </td>
-
-                </tr>
-        `;
-    });
-
-    tbody.innerHTML = '';
-    clientes.forEach(c => {
-        // Icono según servicio
+        // B. Icono según servicio
         let iconoServicio = '<i class="fas fa-folder"></i>'; // Default
         if(c.servicio === 'Demandante') iconoServicio = '<i class="fas fa-gavel" style="color:#c62828;"></i>';
         if(c.servicio === 'Tramite') iconoServicio = '<i class="fas fa-file-signature" style="color:#1565c0;"></i>';
 
+        // C. Insertar fila HTML
         tbody.innerHTML += `
             <tr>
                 <td>
@@ -264,7 +255,9 @@ function cargarClientesLocal() {
                 </td>
                 <td>
                     <span class="status active">${c.modalidadPago}</span>
-                    <div style="font-size:11px; margin-top:2px;">$ ${c.valorTotal || '0'}</div>
+                    <div style="font-size:13px; margin-top:2px; font-weight:bold;">
+                        $ ${Number(c.valorTotal).toLocaleString()} ${textoIva}
+                    </div>
                 </td>
                 <td>
                     <button class="btn-icon" title="Ver Detalle"><i class="fas fa-eye" style="color:#162F45;"></i></button>
@@ -274,7 +267,6 @@ function cargarClientesLocal() {
         `;
     });
 }
-
 function borrarClienteLocal(id) {
     if(!confirm("¿Seguro que deseas eliminar este expediente y todos sus datos financieros?")) return;
     let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
