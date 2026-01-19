@@ -149,7 +149,91 @@ function abrirModalCliente() {
         agregarCuota();
     }
 }
+// --- Función para VER DETALLE (El Ojo) ---
+function verCliente(id) {
+    const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
+    const cliente = clientes.find(c => c.id === id);
 
+    if (!cliente) return;
+
+    // 1. Llenar el formulario con los datos
+    document.getElementById('clienteTipo').value = cliente.tipoPersona;
+    document.getElementById('clienteId').value = cliente.identificacion;
+    document.getElementById('clienteNombre').value = cliente.nombre;
+    document.getElementById('clienteTelefono').value = cliente.telefono;
+    document.getElementById('clienteEmail').value = cliente.email;
+    document.getElementById('clienteDireccion').value = cliente.direccion || '';
+    
+    document.getElementById('servicioTipo').value = cliente.servicio;
+    document.getElementById('fechaInicio').value = cliente.fechaInicio;
+    document.getElementById('contraparteNombre').value = cliente.contraparte || '';
+    document.getElementById('casoDescripcion').value = cliente.descripcion || '';
+    
+    document.getElementById('cobroModalidad').value = cliente.modalidadPago;
+    document.getElementById('valorTotal').value = cliente.valorTotal;
+    document.getElementById('impuestoIva').value = cliente.impuesto;
+    document.getElementById('porcentajeExito').value = cliente.porcentajeExito || '';
+
+    // 2. Llenar la tabla de cuotas
+    const tbody = document.getElementById('listaCuotas');
+    tbody.innerHTML = '';
+    if (cliente.planPagos) {
+        cliente.planPagos.forEach(cuota => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td><input type="text" value="${cuota.concepto}" class="input-tabla" style="width:100%; border:none;" disabled></td>
+                <td><input type="date" value="${cuota.fecha}" class="input-tabla" style="width:100%; border:none;" disabled></td>
+                <td><input type="number" value="${cuota.valor}" class="input-tabla" style="width:100%; border:none;" disabled></td>
+                <td style="text-align:center;"></td> `;
+            tbody.appendChild(fila);
+        });
+    }
+
+    // 3. Configurar Modal en MODO LECTURA
+    clienteEnEdicionId = id; // Guardamos el ID
+    document.getElementById('modalCliente').style.display = 'flex';
+    cambiarTab('tab-cliente');
+    toggleCuotaLitis(); // Para mostrar/ocultar campos según la data cargada
+
+    // BLOQUEAR TODOS LOS INPUTS
+    const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea, #formCliente button.btn-action');
+    inputs.forEach(input => {
+        // No bloqueamos el botón de cerrar ni los tabs
+        if (!input.classList.contains('btn-close-modal') && !input.classList.contains('tab-btn')) {
+            input.disabled = true;
+        }
+    });
+
+    // 4. Cambiar botones del footer (Mostrar "Modificar" y "Cerrar")
+    const footerModal = document.querySelector('#formCliente .modal-footer-btns'); // Necesitaremos agregar esta clase en el HTML
+    if(footerModal) {
+        footerModal.innerHTML = `
+            <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalCliente()">Cerrar</button>
+            <button type="button" class="btn-action" style="background: #B68656;" onclick="activarEdicion()">
+                <i class="fas fa-edit"></i> Modificar
+            </button>
+        `;
+    }
+}
+// --- Función para ACTIVAR EDICIÓN ---
+function activarEdicion() {
+    // 1. Desbloquear inputs
+    const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea');
+    inputs.forEach(input => input.disabled = false);
+
+    // 2. Restaurar botones originales (Cancelar / Guardar)
+    const footerModal = document.querySelector('#formCliente .modal-footer-btns');
+    footerModal.innerHTML = `
+        <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalCliente()">Cancelar</button>
+        <button type="submit" class="btn-action" id="btnGuardarCliente">
+            <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+    `;
+    
+    // 3. Reactivar botones de cuotas
+    document.getElementById('btnAgregarCuota').disabled = false;
+    alert("Modo edición activado. Puedes modificar los datos.");
+}
 function cerrarModalCliente() {
     document.getElementById('modalCliente').style.display = 'none';
     document.getElementById('formCliente').reset();
@@ -157,63 +241,65 @@ function cerrarModalCliente() {
     borrarArchivo('inputContrato', 'displayContrato');
 }
 
-// --- D. Guardar Cliente (CREATE) ---
+// --- D. Guardar Cliente (CREATE / UPDATE) ---
 const formCliente = document.getElementById('formCliente');
 if(formCliente) {
     formCliente.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // 1. Recopilar Plan de Pagos (Iterar sobre la tabla)
+        // Recopilar cuotas
         const cuotas = [];
         document.querySelectorAll('#listaCuotas tr').forEach(fila => {
             const inputs = fila.querySelectorAll('input');
-            if(inputs[0].value) { // Solo si tiene concepto
+            if(inputs[0].value) {
                 cuotas.push({
                     concepto: inputs[0].value,
                     fecha: inputs[1].value,
                     valor: inputs[2].value,
-                    estado: 'Pendiente' // Por defecto
+                    estado: 'Pendiente'
                 });
             }
         });
 
-        // 2. Construir el Objeto Cliente Completo
-        const nuevoCliente = {
-            id: Date.now(),
-            // Datos Básicos
+        // Crear objeto datos
+        const datosCliente = {
+            id: clienteEnEdicionId ? clienteEnEdicionId : Date.now(), // Usar ID existente si editamos
             tipoPersona: document.getElementById('clienteTipo').value,
             identificacion: document.getElementById('clienteId').value,
             nombre: document.getElementById('clienteNombre').value,
             telefono: document.getElementById('clienteTelefono').value,
             email: document.getElementById('clienteEmail').value,
             direccion: document.getElementById('clienteDireccion').value,
-            
-            // Datos del Asunto
             servicio: document.getElementById('servicioTipo').value,
             fechaInicio: document.getElementById('fechaInicio').value,
             contraparte: document.getElementById('contraparteNombre').value,
             descripcion: document.getElementById('casoDescripcion').value,
-            
-            // Datos Económicos
             modalidadPago: document.getElementById('cobroModalidad').value,
             valorTotal: document.getElementById('valorTotal').value,
-            impuesto: document.getElementById('impuestoIva').value, // <--- CAMPO IVA
+            impuesto: document.getElementById('impuestoIva').value,
             porcentajeExito: document.getElementById('porcentajeExito').value,
-            planPagos: cuotas, // Array de objetos
-            
-            // Archivo (Simulado por ahora con el nombre)
-            nombreContrato: document.getElementById('nombreContrato').innerText !== 'contrato.pdf' ? document.getElementById('nombreContrato').innerText : null,
-            
-            fechaRegistro: new Date().toLocaleDateString()
+            planPagos: cuotas,
+            nombreContrato: document.getElementById('nombreContrato').innerText,
+            fechaRegistro: new Date().toLocaleDateString() // Podrías mantener la original si quisieras
         };
 
-        // 3. Guardar en LocalStorage
+        // Guardar en Storage
         let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-        clientes.push(nuevoCliente);
-        localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
+        
+        if (clienteEnEdicionId) {
+            // MODO EDICIÓN: Buscar y reemplazar
+            const index = clientes.findIndex(c => c.id === clienteEnEdicionId);
+            if(index !== -1) {
+                clientes[index] = datosCliente;
+                alert("Cliente actualizado correctamente.");
+            }
+        } else {
+            // MODO CREACIÓN: Agregar nuevo
+            clientes.push(datosCliente);
+            alert("Cliente creado correctamente.");
+        }
 
-        // 4. Feedback
-        alert("Expediente creado con éxito.");
+        localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
         cerrarModalCliente();
         cargarClientesLocal();
     });
