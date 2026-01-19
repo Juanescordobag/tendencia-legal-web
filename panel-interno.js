@@ -82,6 +82,7 @@ function showSection(sectionId, element) {
     if(sectionId === 'usuarios-sistema') cargarUsuarios();
     if(sectionId === 'gestion-noticias') cargarNoticiasDesdeNube();
     if(sectionId === 'clientes') cargarClientesLocal();
+    if(sectionId === 'dashboard') actualizarDashboard();
 }
 
 
