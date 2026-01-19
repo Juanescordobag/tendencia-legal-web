@@ -530,3 +530,53 @@ async function borrarNoticia(id) {
     if (error) alert("Error: " + error.message);
     else { alert("Eliminado."); cargarNoticiasDesdeNube(); }
 }
+// ==========================================
+// 5. LÓGICA DEL DASHBOARD (INICIO)
+// ==========================================
+function actualizarDashboard() {
+    const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
+    
+    // 1. Calcular Casos Activos
+    document.getElementById('kpi-casos').innerText = clientes.length;
+
+    // 2. Calcular Nuevos Clientes (En este mes)
+    const mesActual = new Date().getMonth();
+    const nuevos = clientes.filter(c => {
+        const fechaRegistro = new Date(c.fechaRegistro); // Asumiendo formato válido
+        return fechaRegistro.getMonth() === mesActual;
+    }).length;
+    // Si prefieres mostrar el total siempre, usa: clientes.length
+    document.getElementById('kpi-nuevos').innerText = nuevos;
+
+    // 3. Calcular Facturación Total
+    const totalDinero = clientes.reduce((sum, c) => sum + Number(c.valorTotal || 0), 0);
+    document.getElementById('kpi-facturacion').innerText = "$ " + totalDinero.toLocaleString();
+
+    // 4. Calcular Tareas (Cuotas Pendientes de cobro)
+    let cuotasPendientes = 0;
+    clientes.forEach(c => {
+        if(c.planPagos) {
+            cuotasPendientes += c.planPagos.filter(p => p.estado === 'Pendiente').length;
+        }
+    });
+    document.getElementById('kpi-pendientes').innerText = cuotasPendientes;
+
+    // 5. Llenar tabla de Últimos Movimientos
+    const tbody = document.getElementById('tablaMovimientosBody');
+    if (tbody) {
+        tbody.innerHTML = "";
+        // Tomamos los últimos 5 clientes invertidos (los más nuevos primero)
+        const ultimos = [...clientes].reverse().slice(0, 5);
+        
+        ultimos.forEach(c => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${c.fechaRegistro || 'N/A'}</td>
+                    <td>${c.nombre}</td>
+                    <td>${c.servicio}</td>
+                    <td><span class="status active">Activo</span></td>
+                </tr>
+            `;
+        });
+    }
+}
