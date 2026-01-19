@@ -141,13 +141,27 @@ function eliminarFilaCuota(id) {
 
 // --- C. Funciones del Modal ---
 function abrirModalCliente() {
+    clienteEnEdicionId = null; // Resetear ID
     document.getElementById('modalCliente').style.display = 'flex';
-    // Resetear a la primera pestaña
     cambiarTab('tab-cliente');
-    // Agregar una cuota por defecto si la tabla está vacía
-    if(document.getElementById('listaCuotas').children.length === 0){
-        agregarCuota();
+    document.getElementById('formCliente').reset(); // Limpiar campos
+    document.getElementById('listaCuotas').innerHTML = ''; // Limpiar tabla cuotas
+    
+    // Asegurar que los botones sean los de "Crear"
+    const footerModal = document.querySelector('#formCliente .modal-footer-btns');
+    if(footerModal) {
+        footerModal.innerHTML = `
+            <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalCliente()">Cancelar</button>
+            <button type="submit" class="btn-action"><i class="fas fa-save"></i> Crear Expediente</button>
+        `;
     }
+    
+    // Desbloquear inputs por si quedaron bloqueados
+    const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea');
+    inputs.forEach(input => input.disabled = false);
+    
+    // Agregar cuota vacía
+    agregarCuota();
 }
 // --- Función para VER DETALLE (El Ojo) ---
 function verCliente(id) {
@@ -354,7 +368,7 @@ function cargarClientesLocal() {
                     </div>
                 </td>
                 <td>
-                    <button class="btn-icon" title="Ver Detalle"><i class="fas fa-eye" style="color:#162F45;"></i></button>
+                    <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle"><i class="fas fa-eye" style="color:#162F45;"></i></button>
                     <button class="btn-icon btn-delete" onclick="borrarClienteLocal(${c.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
