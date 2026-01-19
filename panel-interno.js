@@ -11,6 +11,7 @@ let rolActual = null;
 // Variables globales para archivos
 let archivoImagen = null;
 let archivoDocumento = null;
+let archivoContrato = null; // Variable para el contrato del cliente
 
 // INICIAR SISTEMA
 async function iniciarSistema() {
@@ -44,7 +45,9 @@ async function iniciarSistema() {
     }
 
     // 3. Cargar datos iniciales
-    cargarClientesLocal(); // <--- NUEVO: Cargar clientes del storage
+    if(document.getElementById('tablaClientesBody')) {
+        cargarClientesLocal(); 
+    }
 }
 
 iniciarSistema();
@@ -84,9 +87,6 @@ function showSection(sectionId, element) {
 // 2. GESTIÓN DE CLIENTES (LÓGICA AVANZADA)
 // ==========================================
 
-// Variables globales para el formulario
-let archivoContrato = null;
-
 // --- A. Lógica de Pestañas (Tabs) ---
 function cambiarTab(tabId) {
     // 1. Ocultar todos los contenidos
@@ -101,7 +101,7 @@ function cambiarTab(tabId) {
     // 3. Activar el seleccionado
     document.getElementById(tabId).classList.add('active');
     // Encontrar el botón que llamó a esta función (truco usando event)
-    event.currentTarget.classList.add('active');
+    if(event) event.currentTarget.classList.add('active');
 }
 
 // --- B. Lógica Financiera ---
@@ -156,67 +156,72 @@ function cerrarModalCliente() {
 }
 
 // --- D. Guardar Cliente (CREATE) ---
-document.getElementById('formCliente').addEventListener('submit', function(e) {
-    e.preventDefault();
+const formCliente = document.getElementById('formCliente');
+if(formCliente) {
+    formCliente.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    // 1. Recopilar Plan de Pagos (Iterar sobre la tabla)
-    const cuotas = [];
-    document.querySelectorAll('#listaCuotas tr').forEach(fila => {
-        const inputs = fila.querySelectorAll('input');
-        if(inputs[0].value) { // Solo si tiene concepto
-            cuotas.push({
-                concepto: inputs[0].value,
-                fecha: inputs[1].value,
-                valor: inputs[2].value,
-                estado: 'Pendiente' // Por defecto
-            });
-        }
+        // 1. Recopilar Plan de Pagos (Iterar sobre la tabla)
+        const cuotas = [];
+        document.querySelectorAll('#listaCuotas tr').forEach(fila => {
+            const inputs = fila.querySelectorAll('input');
+            if(inputs[0].value) { // Solo si tiene concepto
+                cuotas.push({
+                    concepto: inputs[0].value,
+                    fecha: inputs[1].value,
+                    valor: inputs[2].value,
+                    estado: 'Pendiente' // Por defecto
+                });
+            }
+        });
+
+        // 2. Construir el Objeto Cliente Completo
+        const nuevoCliente = {
+            id: Date.now(),
+            // Datos Básicos
+            tipoPersona: document.getElementById('clienteTipo').value,
+            identificacion: document.getElementById('clienteId').value,
+            nombre: document.getElementById('clienteNombre').value,
+            telefono: document.getElementById('clienteTelefono').value,
+            email: document.getElementById('clienteEmail').value,
+            direccion: document.getElementById('clienteDireccion').value,
+            
+            // Datos del Asunto
+            servicio: document.getElementById('servicioTipo').value,
+            fechaInicio: document.getElementById('fechaInicio').value,
+            contraparte: document.getElementById('contraparteNombre').value,
+            descripcion: document.getElementById('casoDescripcion').value,
+            
+            // Datos Económicos
+            modalidadPago: document.getElementById('cobroModalidad').value,
+            valorTotal: document.getElementById('valorTotal').value,
+            impuesto: document.getElementById('impuestoIva').value, // <--- CAMPO IVA
+            porcentajeExito: document.getElementById('porcentajeExito').value,
+            planPagos: cuotas, // Array de objetos
+            
+            // Archivo (Simulado por ahora con el nombre)
+            nombreContrato: document.getElementById('nombreContrato').innerText !== 'contrato.pdf' ? document.getElementById('nombreContrato').innerText : null,
+            
+            fechaRegistro: new Date().toLocaleDateString()
+        };
+
+        // 3. Guardar en LocalStorage
+        let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
+        clientes.push(nuevoCliente);
+        localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
+
+        // 4. Feedback
+        alert("Expediente creado con éxito.");
+        cerrarModalCliente();
+        cargarClientesLocal();
     });
+}
 
-    // 2. Construir el Objeto Cliente Completo
-    const nuevoCliente = {
-        id: Date.now(),
-        // Datos Básicos
-        tipoPersona: document.getElementById('clienteTipo').value,
-        identificacion: document.getElementById('clienteId').value,
-        nombre: document.getElementById('clienteNombre').value,
-        telefono: document.getElementById('clienteTelefono').value,
-        email: document.getElementById('clienteEmail').value,
-        direccion: document.getElementById('clienteDireccion').value,
-        
-        // Datos del Asunto
-        servicio: document.getElementById('servicioTipo').value,
-        fechaInicio: document.getElementById('fechaInicio').value,
-        contraparte: document.getElementById('contraparteNombre').value,
-        descripcion: document.getElementById('casoDescripcion').value,
-        
-        // Datos Económicos
-        modalidadPago: document.getElementById('cobroModalidad').value,
-        valorTotal: document.getElementById('valorTotal').value,
-        impuesto: document.getElementById('impuestoIva').value,
-        porcentajeExito: document.getElementById('porcentajeExito').value,
-        planPagos: cuotas, // Array de objetos
-        
-        // Archivo (Simulado por ahora con el nombre)
-        nombreContrato: document.getElementById('nombreContrato').innerText !== 'contrato.pdf' ? document.getElementById('nombreContrato').innerText : null,
-        
-        fechaRegistro: new Date().toLocaleDateString()
-    };
-
-    // 3. Guardar en LocalStorage
-    let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-    clientes.push(nuevoCliente);
-    localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
-
-    // 4. Feedback
-    alert("Expediente creado con éxito.");
-    cerrarModalCliente();
-    cargarClientesLocal();
-});
-
-// --- E. Cargar Clientes (READ) ---
+// --- E. Cargar Clientes (READ) - VERSIÓN CORREGIDA Y ÚNICA ---
 function cargarClientesLocal() {
     const tbody = document.getElementById('tablaClientesBody');
+    if(!tbody) return; // Protección por si no estamos en la vista correcta
+
     const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
 
     // 1. Si no hay clientes, mostrar mensaje vacío
@@ -239,6 +244,7 @@ function cargarClientesLocal() {
         // B. Icono según servicio
         let iconoServicio = '<i class="fas fa-folder"></i>'; // Default
         if(c.servicio === 'Demandante') iconoServicio = '<i class="fas fa-gavel" style="color:#c62828;"></i>';
+        if(c.servicio === 'Demandado') iconoServicio = '<i class="fas fa-shield-alt" style="color:#1565c0;"></i>';
         if(c.servicio === 'Tramite') iconoServicio = '<i class="fas fa-file-signature" style="color:#1565c0;"></i>';
 
         // C. Insertar fila HTML
@@ -267,6 +273,7 @@ function cargarClientesLocal() {
         `;
     });
 }
+
 function borrarClienteLocal(id) {
     if(!confirm("¿Seguro que deseas eliminar este expediente y todos sus datos financieros?")) return;
     let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
@@ -274,6 +281,7 @@ function borrarClienteLocal(id) {
     localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
     cargarClientesLocal();
 }
+
 
 // ==========================================
 // 3. GESTIÓN DE USUARIOS (SUPABASE)
@@ -312,6 +320,7 @@ if(formUsuario){
 
 async function cargarUsuarios() {
     const tbody = document.getElementById('tablaUsuariosBody');
+    if(!tbody) return;
     tbody.innerHTML = "<tr><td colspan='4'>Cargando...</td></tr>";
     const { data } = await clienteSupabase.from('perfiles').select('*');
     if (data) {
@@ -342,6 +351,7 @@ function manejarArchivo(inputId, nombreSpanId, displayId) {
         document.getElementById(displayId).style.display = 'inline-flex';
         if (inputId === 'inputImagen') archivoImagen = input.files[0];
         if (inputId === 'inputDoc') archivoDocumento = input.files[0];
+        if (inputId === 'inputContrato') archivoContrato = input.files[0];
     }
 }
 
@@ -350,6 +360,7 @@ function borrarArchivo(inputId, displayId) {
     document.getElementById(displayId).style.display = 'none';
     if (inputId === 'inputImagen') archivoImagen = null;
     if (inputId === 'inputDoc') archivoDocumento = null;
+    if (inputId === 'inputContrato') archivoContrato = null;
 }
 
 const formNoticia = document.getElementById('formNoticia');
@@ -400,6 +411,7 @@ if(formNoticia){
 
 async function cargarNoticiasDesdeNube() {
     const tbody = document.getElementById('tablaNoticiasBody');
+    if(!tbody) return;
     tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
     const { data } = await clienteSupabase.from('noticias').select('*').order('created_at', { ascending: false });
     if (data) {
