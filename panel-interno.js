@@ -8,12 +8,14 @@ const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
 let usuarioActual = null;
 let rolActual = null;
 
-// Variables globales
-let clienteEnEdicionId = null; // <--- AGREGA ESTO (Guardará el ID del cliente que estamos editando)
+// Variables globales de estado
+let clienteEnEdicionId = null; 
+let clientesCache = []; // Almacena temporalmente los clientes descargados para verlos rápido
+
 // Variables globales para archivos
 let archivoImagen = null;
 let archivoDocumento = null;
-let archivoContrato = null; // Variable para el contrato del cliente
+let archivoContrato = null; 
 
 // INICIAR SISTEMA
 async function iniciarSistema() {
@@ -46,10 +48,8 @@ async function iniciarSistema() {
         document.getElementById('nombreUsuarioDisplay').innerText = usuarioActual.email;
     }
 
-    // 3. Cargar datos iniciales
-    if(document.getElementById('tablaClientesBody')) {
-        cargarClientesLocal(); 
-    }
+    // 3. Cargar datos iniciales (Dashboard o Clientes)
+    cargarClientesDesdeNube(); 
 }
 
 iniciarSistema();
@@ -67,9 +67,8 @@ function showSection(sectionId, element) {
         alert("Acceso denegado: Se requieren permisos de Socio Administrador.");
         return;
     }
-    // ... código anterior ...
-    
-    // Lógica para cambiar el Título
+
+    // Título Dinámico
     const titulos = {
         'dashboard': 'Resumen Ejecutivo',
         'clientes': 'Gestión de Clientes',
@@ -78,13 +77,10 @@ function showSection(sectionId, element) {
         'gestion-noticias': 'Publicación de Noticias',
         'usuarios-sistema': 'Control de Usuarios'
     };
-    
     const tituloElement = document.getElementById('page-title');
     if(tituloElement && titulos[sectionId]) {
         tituloElement.innerText = titulos[sectionId];
     }
-
-    // ... resto del código (document.querySelectorAll...) ...
 
     // Cambio de vista
     document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
@@ -99,29 +95,19 @@ function showSection(sectionId, element) {
     // Cargas dinámicas según sección
     if(sectionId === 'usuarios-sistema') cargarUsuarios();
     if(sectionId === 'gestion-noticias') cargarNoticiasDesdeNube();
-    if(sectionId === 'clientes') cargarClientesLocal();
-    if(sectionId === 'dashboard') actualizarDashboard();
+    if(sectionId === 'clientes' || sectionId === 'dashboard') cargarClientesDesdeNube();
 }
 
 
 // ==========================================
-// 2. GESTIÓN DE CLIENTES (LÓGICA AVANZADA)
+// 2. GESTIÓN DE CLIENTES (CONECTADO A SUPABASE)
 // ==========================================
 
 // --- A. Lógica de Pestañas (Tabs) ---
 function cambiarTab(tabId) {
-    // 1. Ocultar todos los contenidos
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    // 2. Desactivar todos los botones
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // 3. Activar el seleccionado
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    // Encontrar el botón que llamó a esta función (truco usando event)
     if(event) event.currentTarget.classList.add('active');
 }
 
@@ -129,8 +115,6 @@ function cambiarTab(tabId) {
 function toggleCuotaLitis() {
     const modalidad = document.getElementById('cobroModalidad').value;
     const divPorcentaje = document.getElementById('divPorcentajeExito');
-    
-    // Si es Cuota Litis o Mixto, mostramos el campo de porcentaje
     if (modalidad === 'CuotaLitis' || modalidad === 'Mixto') {
         divPorcentaje.style.display = 'block';
     } else {
@@ -141,12 +125,11 @@ function toggleCuotaLitis() {
 
 function agregarCuota() {
     const tbody = document.getElementById('listaCuotas');
-    const idUnico = Date.now(); // Para identificar la fila
-
+    const idUnico = Date.now();
     const fila = document.createElement('tr');
     fila.id = `fila-${idUnico}`;
     fila.innerHTML = `
-        <td><input type="text" placeholder="Ej: Anticipo 50%" class="input-tabla" style="width:100%; border:none;"></td>
+        <td><input type="text" placeholder="Ej: Anticipo" class="input-tabla" style="width:100%; border:none;"></td>
         <td><input type="date" class="input-tabla" style="width:100%; border:none;"></td>
         <td><input type="number" placeholder="$" class="input-tabla" style="width:100%; border:none;"></td>
         <td style="text-align:center;"><i class="fas fa-trash btn-delete" style="cursor:pointer;" onclick="eliminarFilaCuota('${idUnico}')"></i></td>
@@ -160,14 +143,14 @@ function eliminarFilaCuota(id) {
 
 // --- C. Funciones del Modal ---
 function abrirModalCliente() {
-    clienteEnEdicionId = null; // Resetear ID
+    clienteEnEdicionId = null;
     document.getElementById('modalCliente').style.display = 'flex';
     cambiarTab('tab-cliente');
-    document.getElementById('formCliente').reset(); // Limpiar campos
-    document.getElementById('listaCuotas').innerHTML = ''; // Limpiar tabla cuotas
+    document.getElementById('formCliente').reset();
+    document.getElementById('listaCuotas').innerHTML = '';
     
-    // Asegurar que los botones sean los de "Crear"
-    const footerModal = document.querySelector('#formCliente .modal-footer-btns');
+    // Restaurar botones de creación
+    const footerModal = document.querySelector('.modal-footer-btns');
     if(footerModal) {
         footerModal.innerHTML = `
             <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalCliente()">Cancelar</button>
@@ -175,22 +158,20 @@ function abrirModalCliente() {
         `;
     }
     
-    // Desbloquear inputs por si quedaron bloqueados
+    // Desbloquear inputs
     const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea');
     inputs.forEach(input => input.disabled = false);
     
-    // Agregar cuota vacía
-    agregarCuota();
+    agregarCuota(); // Una cuota vacía por defecto
 }
-// --- Función para VER DETALLE (El Ojo) ---
-function verCliente(id) {
-    const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-    const cliente = clientes.find(c => c.id === id);
 
+function verCliente(id) {
+    // Buscar en la caché local (lo que bajamos de la nube)
+    const cliente = clientesCache.find(c => c.id === id);
     if (!cliente) return;
 
-    // 1. Llenar el formulario con los datos
-    document.getElementById('clienteTipo').value = cliente.tipoPersona;
+    // Llenar formulario (Mapeo: Base de datos -> Inputs HTML)
+    document.getElementById('clienteTipo').value = cliente.tipo_persona;
     document.getElementById('clienteId').value = cliente.identificacion;
     document.getElementById('clienteNombre').value = cliente.nombre;
     document.getElementById('clienteTelefono').value = cliente.telefono;
@@ -198,47 +179,43 @@ function verCliente(id) {
     document.getElementById('clienteDireccion').value = cliente.direccion || '';
     
     document.getElementById('servicioTipo').value = cliente.servicio;
-    document.getElementById('fechaInicio').value = cliente.fechaInicio;
+    document.getElementById('fechaInicio').value = cliente.fecha_inicio;
     document.getElementById('contraparteNombre').value = cliente.contraparte || '';
     document.getElementById('casoDescripcion').value = cliente.descripcion || '';
     
-    document.getElementById('cobroModalidad').value = cliente.modalidadPago;
-    document.getElementById('valorTotal').value = cliente.valorTotal;
+    document.getElementById('cobroModalidad').value = cliente.modalidad_pago;
+    document.getElementById('valorTotal').value = cliente.valor_total;
     document.getElementById('impuestoIva').value = cliente.impuesto;
-    document.getElementById('porcentajeExito').value = cliente.porcentajeExito || '';
+    document.getElementById('porcentajeExito').value = cliente.porcentaje_exito || '';
 
-    // 2. Llenar la tabla de cuotas
+    // Llenar tabla de cuotas (desde JSON)
     const tbody = document.getElementById('listaCuotas');
     tbody.innerHTML = '';
-    if (cliente.planPagos) {
-        cliente.planPagos.forEach(cuota => {
+    if (cliente.plan_pagos) {
+        cliente.plan_pagos.forEach(cuota => {
             const fila = document.createElement('tr');
             fila.innerHTML = `
                 <td><input type="text" value="${cuota.concepto}" class="input-tabla" style="width:100%; border:none;" disabled></td>
                 <td><input type="date" value="${cuota.fecha}" class="input-tabla" style="width:100%; border:none;" disabled></td>
                 <td><input type="number" value="${cuota.valor}" class="input-tabla" style="width:100%; border:none;" disabled></td>
-                <td style="text-align:center;"></td> `;
+                <td style="text-align:center;"></td>
+            `;
             tbody.appendChild(fila);
         });
     }
 
-    // 3. Configurar Modal en MODO LECTURA
-    clienteEnEdicionId = id; // Guardamos el ID
+    // Configurar Modal en MODO LECTURA
+    clienteEnEdicionId = id;
     document.getElementById('modalCliente').style.display = 'flex';
     cambiarTab('tab-cliente');
-    toggleCuotaLitis(); // Para mostrar/ocultar campos según la data cargada
+    toggleCuotaLitis();
 
-    // BLOQUEAR TODOS LOS INPUTS
-    const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea, #formCliente button.btn-action');
-    inputs.forEach(input => {
-        // No bloqueamos el botón de cerrar ni los tabs
-        if (!input.classList.contains('btn-close-modal') && !input.classList.contains('tab-btn')) {
-            input.disabled = true;
-        }
-    });
+    // Bloquear inputs
+    const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea, #btnAgregarCuota');
+    inputs.forEach(input => input.disabled = true);
 
-    // 4. Cambiar botones del footer (Mostrar "Modificar" y "Cerrar")
-    const footerModal = document.querySelector('#formCliente .modal-footer-btns'); // Necesitaremos agregar esta clase en el HTML
+    // Botones Ver/Modificar
+    const footerModal = document.querySelector('.modal-footer-btns');
     if(footerModal) {
         footerModal.innerHTML = `
             <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalCliente()">Cerrar</button>
@@ -248,165 +225,249 @@ function verCliente(id) {
         `;
     }
 }
-// --- Función para ACTIVAR EDICIÓN ---
+
 function activarEdicion() {
-    // 1. Desbloquear inputs
-    const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea');
+    const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea, #btnAgregarCuota');
     inputs.forEach(input => input.disabled = false);
 
-    // 2. Restaurar botones originales (Cancelar / Guardar)
-    const footerModal = document.querySelector('#formCliente .modal-footer-btns');
+    const footerModal = document.querySelector('.modal-footer-btns');
     footerModal.innerHTML = `
         <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalCliente()">Cancelar</button>
         <button type="submit" class="btn-action" id="btnGuardarCliente">
             <i class="fas fa-save"></i> Guardar Cambios
         </button>
     `;
-    
-    // 3. Reactivar botones de cuotas
-    document.getElementById('btnAgregarCuota').disabled = false;
-    alert("Modo edición activado. Puedes modificar los datos.");
+    alert("Modo edición activado.");
 }
+
 function cerrarModalCliente() {
     document.getElementById('modalCliente').style.display = 'none';
     document.getElementById('formCliente').reset();
-    document.getElementById('listaCuotas').innerHTML = ''; // Limpiar cuotas
+    document.getElementById('listaCuotas').innerHTML = '';
     borrarArchivo('inputContrato', 'displayContrato');
 }
 
-// --- D. Guardar Cliente (CREATE / UPDATE) ---
+// --- D. Guardar Cliente (CREATE / UPDATE en Supabase) ---
 const formCliente = document.getElementById('formCliente');
 if(formCliente) {
-    formCliente.addEventListener('submit', function(e) {
+    formCliente.addEventListener('submit', async function(e) {
         e.preventDefault();
-
-        // Recopilar cuotas
-        const cuotas = [];
-        document.querySelectorAll('#listaCuotas tr').forEach(fila => {
-            const inputs = fila.querySelectorAll('input');
-            if(inputs[0].value) {
-                cuotas.push({
-                    concepto: inputs[0].value,
-                    fecha: inputs[1].value,
-                    valor: inputs[2].value,
-                    estado: 'Pendiente'
-                });
-            }
-        });
-
-        // Crear objeto datos
-        const datosCliente = {
-            id: clienteEnEdicionId ? clienteEnEdicionId : Date.now(), // Usar ID existente si editamos
-            tipoPersona: document.getElementById('clienteTipo').value,
-            identificacion: document.getElementById('clienteId').value,
-            nombre: document.getElementById('clienteNombre').value,
-            telefono: document.getElementById('clienteTelefono').value,
-            email: document.getElementById('clienteEmail').value,
-            direccion: document.getElementById('clienteDireccion').value,
-            servicio: document.getElementById('servicioTipo').value,
-            fechaInicio: document.getElementById('fechaInicio').value,
-            contraparte: document.getElementById('contraparteNombre').value,
-            descripcion: document.getElementById('casoDescripcion').value,
-            modalidadPago: document.getElementById('cobroModalidad').value,
-            valorTotal: document.getElementById('valorTotal').value,
-            impuesto: document.getElementById('impuestoIva').value,
-            porcentajeExito: document.getElementById('porcentajeExito').value,
-            planPagos: cuotas,
-            nombreContrato: document.getElementById('nombreContrato').innerText,
-            fechaRegistro: new Date().toLocaleDateString() // Podrías mantener la original si quisieras
-        };
-
-        // Guardar en Storage
-        let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
         
-        if (clienteEnEdicionId) {
-            // MODO EDICIÓN: Buscar y reemplazar
-            const index = clientes.findIndex(c => c.id === clienteEnEdicionId);
-            if(index !== -1) {
-                clientes[index] = datosCliente;
-                alert("Cliente actualizado correctamente.");
+        // Feedback visual de carga
+        const btn = document.querySelector('#formCliente button[type="submit"]');
+        const txtOriginal = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        btn.disabled = true;
+
+        try {
+            // 1. Recopilar Plan de Pagos
+            const cuotas = [];
+            document.querySelectorAll('#listaCuotas tr').forEach(fila => {
+                const inputs = fila.querySelectorAll('input');
+                if(inputs[0].value) {
+                    cuotas.push({
+                        concepto: inputs[0].value,
+                        fecha: inputs[1].value,
+                        valor: inputs[2].value,
+                        estado: 'Pendiente'
+                    });
+                }
+            });
+
+            // 2. Preparar objeto para SQL (Nombres en snake_case)
+            const datosCliente = {
+                tipo_persona: document.getElementById('clienteTipo').value,
+                identificacion: document.getElementById('clienteId').value,
+                nombre: document.getElementById('clienteNombre').value,
+                telefono: document.getElementById('clienteTelefono').value,
+                email: document.getElementById('clienteEmail').value,
+                direccion: document.getElementById('clienteDireccion').value,
+                servicio: document.getElementById('servicioTipo').value,
+                fecha_inicio: document.getElementById('fechaInicio').value,
+                contraparte: document.getElementById('contraparteNombre').value,
+                descripcion: document.getElementById('casoDescripcion').value,
+                modalidad_pago: document.getElementById('cobroModalidad').value,
+                valor_total: document.getElementById('valorTotal').value || 0,
+                impuesto: document.getElementById('impuestoIva').value,
+                porcentaje_exito: document.getElementById('porcentajeExito').value || 0,
+                plan_pagos: cuotas,
+                // Nota: Por ahora guardamos el nombre del archivo como texto. 
+                contrato_url: document.getElementById('nombreContrato').innerText,
+                
+                user_id: usuarioActual.id // ¡Importante! El dueño del registro
+            };
+
+            let errorOperacion = null;
+
+            if (clienteEnEdicionId) {
+                // UPDATE
+                const { error } = await clienteSupabase
+                    .from('clientes')
+                    .update(datosCliente)
+                    .eq('id', clienteEnEdicionId);
+                errorOperacion = error;
+            } else {
+                // INSERT
+                const { error } = await clienteSupabase
+                    .from('clientes')
+                    .insert([datosCliente]);
+                errorOperacion = error;
             }
-        } else {
-            // MODO CREACIÓN: Agregar nuevo
-            clientes.push(datosCliente);
-            alert("Cliente creado correctamente.");
+
+            if(errorOperacion) throw errorOperacion;
+
+            alert("Operación exitosa.");
+            cerrarModalCliente();
+            cargarClientesDesdeNube(); // Recargar tabla
+
+        } catch (err) {
+            alert("Error al guardar: " + err.message);
+            console.error(err);
+        } finally {
+            btn.innerHTML = txtOriginal;
+            btn.disabled = false;
+        }
+    });
+}
+
+// --- E. Cargar Clientes (READ desde Supabase) ---
+async function cargarClientesDesdeNube() {
+    try {
+        const { data: clientes, error } = await clienteSupabase
+            .from('clientes')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Guardar en variable global para uso rápido en "Ver Detalle"
+        clientesCache = clientes || [];
+
+        // 1. ACTUALIZAR DASHBOARD (Si estamos en Inicio)
+        actualizarDashboard(clientesCache);
+
+        // 2. ACTUALIZAR TABLA DE CLIENTES (Si estamos en Clientes)
+        const tbody = document.getElementById('tablaClientesBody');
+        if(tbody) {
+            if (clientesCache.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No hay expedientes activos.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            clientesCache.forEach(c => {
+                // Lógica visual IVA
+                let textoIva = '';
+                if(c.impuesto === 'MasIVA') textoIva = '<span style="color:#c62828; font-size:10px; font-weight:bold;">(+ IVA)</span>';
+                if(c.impuesto === 'Incluido') textoIva = '<span style="color:#2e7d32; font-size:10px; font-weight:bold;">(Inc.)</span>';
+
+                // Icono servicio
+                let iconoServicio = '<i class="fas fa-folder"></i>';
+                if(c.servicio === 'Demandante') iconoServicio = '<i class="fas fa-gavel" style="color:#c62828;"></i>';
+                if(c.servicio === 'Demandado') iconoServicio = '<i class="fas fa-shield-alt" style="color:#1565c0;"></i>';
+                if(c.servicio === 'Tramite') iconoServicio = '<i class="fas fa-file-signature" style="color:#1565c0;"></i>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div style="font-weight:bold;">${c.nombre}</div>
+                            <div style="font-size:11px; color:#666;">${iconoServicio} ${c.servicio}</div>
+                        </td>
+                        <td>${c.identificacion || 'N/A'}</td>
+                        <td>
+                            <div>${c.telefono || ''}</div>
+                            <div style="font-size:11px; color:#888;">${c.email || ''}</div>
+                        </td>
+                        <td>
+                            <span class="status active">${c.modalidad_pago}</span>
+                            <div style="font-size:13px; margin-top:2px; font-weight:bold;">
+                                $ ${Number(c.valor_total).toLocaleString()} ${textoIva}
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle"><i class="fas fa-eye" style="color:#162F45;"></i></button>
+                            <button class="btn-icon btn-delete" onclick="borrarClienteNube(${c.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
-        localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
-        cerrarModalCliente();
-        cargarClientesLocal();
-    });
-}
-
-// --- E. Cargar Clientes (READ) - VERSIÓN CORREGIDA Y ÚNICA ---
-function cargarClientesLocal() {
-    const tbody = document.getElementById('tablaClientesBody');
-    if(!tbody) return; // Protección por si no estamos en la vista correcta
-
-    const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-
-    // 1. Si no hay clientes, mostrar mensaje vacío
-    if (clientes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No hay expedientes activos.</td></tr>';
-        return;
+    } catch (err) {
+        console.error("Error cargando clientes:", err);
     }
-
-    // 2. Limpiar tabla antes de llenarla
-    tbody.innerHTML = '';
-
-    // 3. Recorrer y dibujar cada cliente
-    clientes.forEach(c => {
-        
-        // A. Lógica visual para el IVA
-        let textoIva = '';
-        if(c.impuesto === 'MasIVA') textoIva = '<span style="color:#c62828; font-size:10px; font-weight:bold;">(+ IVA)</span>';
-        if(c.impuesto === 'Incluido') textoIva = '<span style="color:#2e7d32; font-size:10px; font-weight:bold;">(Inc.)</span>';
-
-        // B. Icono según servicio
-        let iconoServicio = '<i class="fas fa-folder"></i>'; // Default
-        if(c.servicio === 'Demandante') iconoServicio = '<i class="fas fa-gavel" style="color:#c62828;"></i>';
-        if(c.servicio === 'Demandado') iconoServicio = '<i class="fas fa-shield-alt" style="color:#1565c0;"></i>';
-        if(c.servicio === 'Tramite') iconoServicio = '<i class="fas fa-file-signature" style="color:#1565c0;"></i>';
-
-        // C. Insertar fila HTML
-        tbody.innerHTML += `
-            <tr>
-                <td>
-                    <div style="font-weight:bold;">${c.nombre}</div>
-                    <div style="font-size:11px; color:#666;">${iconoServicio} ${c.servicio}</div>
-                </td>
-                <td>${c.identificacion}</td>
-                <td>
-                    <div>${c.telefono}</div>
-                    <div style="font-size:11px; color:#888;">${c.email}</div>
-                </td>
-                <td>
-                    <span class="status active">${c.modalidadPago}</span>
-                    <div style="font-size:13px; margin-top:2px; font-weight:bold;">
-                        $ ${Number(c.valorTotal).toLocaleString()} ${textoIva}
-                    </div>
-                </td>
-                <td>
-                    <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle"><i class="fas fa-eye" style="color:#162F45;"></i></button>
-                    <button class="btn-icon btn-delete" onclick="borrarClienteLocal(${c.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `;
-    });
 }
 
-function borrarClienteLocal(id) {
-    if(!confirm("¿Seguro que deseas eliminar este expediente y todos sus datos financieros?")) return;
-    let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-    clientes = clientes.filter(c => c.id !== id);
-    localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
-    cargarClientesLocal();
+async function borrarClienteNube(id) {
+    if(!confirm("¿Seguro que deseas eliminar este expediente PERMANENTEMENTE de la base de datos?")) return;
+    
+    try {
+        const { error } = await clienteSupabase.from('clientes').delete().eq('id', id);
+        if(error) throw error;
+        alert("Expediente eliminado.");
+        cargarClientesDesdeNube();
+    } catch(err) {
+        alert("Error al borrar: " + err.message);
+    }
+}
+
+// --- F. Función Auxiliar: Actualizar Dashboard ---
+function actualizarDashboard(clientes) {
+    if(!document.getElementById('kpi-casos')) return;
+
+    // 1. Casos
+    document.getElementById('kpi-casos').innerText = clientes.length;
+
+    // 2. Nuevos (Mes actual)
+    const mesActual = new Date().getMonth();
+    const nuevos = clientes.filter(c => {
+        const fecha = new Date(c.created_at);
+        return fecha.getMonth() === mesActual;
+    }).length;
+    document.getElementById('kpi-nuevos').innerText = nuevos;
+
+    // 3. Facturación Total
+    const totalDinero = clientes.reduce((sum, c) => sum + Number(c.valor_total || 0), 0);
+    // Formato corto para millones: $ 15.2M
+    document.getElementById('kpi-facturacion').innerText = "$ " + (totalDinero / 1000000).toFixed(1) + "M"; 
+
+    // 4. Tareas (Cuotas Pendientes)
+    let cuotasPendientes = 0;
+    clientes.forEach(c => {
+        if(c.plan_pagos) {
+            // El plan de pagos es un array JSON, podemos filtrarlo
+            if(Array.isArray(c.plan_pagos)){
+                cuotasPendientes += c.plan_pagos.filter(p => p.estado === 'Pendiente').length;
+            }
+        }
+    });
+    document.getElementById('kpi-pendientes').innerText = cuotasPendientes;
+
+    // 5. Tabla Movimientos (Últimos 5)
+    const tbody = document.getElementById('tablaMovimientosBody');
+    if(tbody) {
+        tbody.innerHTML = "";
+        const ultimos = [...clientes].slice(0, 5); // Supabase ya los trae ordenados por fecha desc
+        ultimos.forEach(c => {
+            // Formatear fecha simple
+            const fecha = new Date(c.created_at).toLocaleDateString();
+            tbody.innerHTML += `
+                <tr>
+                    <td>${fecha}</td>
+                    <td>${c.nombre}</td>
+                    <td>${c.servicio}</td>
+                    <td><span class="status active">Activo</span></td>
+                </tr>
+            `;
+        });
+    }
 }
 
 
 // ==========================================
 // 3. GESTIÓN DE USUARIOS (SUPABASE)
 // ==========================================
+// ... (Este bloque se mantiene igual, ya funciona bien) ...
 const formUsuario = document.getElementById('formUsuario');
 if(formUsuario){
     formUsuario.addEventListener('submit', async function(e) {
@@ -548,54 +609,4 @@ async function borrarNoticia(id) {
     const { error } = await clienteSupabase.from('noticias').delete().eq('id', id);
     if (error) alert("Error: " + error.message);
     else { alert("Eliminado."); cargarNoticiasDesdeNube(); }
-}
-// ==========================================
-// 5. LÓGICA DEL DASHBOARD (INICIO)
-// ==========================================
-function actualizarDashboard() {
-    const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-    
-    // 1. Calcular Casos Activos
-    document.getElementById('kpi-casos').innerText = clientes.length;
-
-    // 2. Calcular Nuevos Clientes (En este mes)
-    const mesActual = new Date().getMonth();
-    const nuevos = clientes.filter(c => {
-        const fechaRegistro = new Date(c.fechaRegistro); // Asumiendo formato válido
-        return fechaRegistro.getMonth() === mesActual;
-    }).length;
-    // Si prefieres mostrar el total siempre, usa: clientes.length
-    document.getElementById('kpi-nuevos').innerText = nuevos;
-
-    // 3. Calcular Facturación Total
-    const totalDinero = clientes.reduce((sum, c) => sum + Number(c.valorTotal || 0), 0);
-    document.getElementById('kpi-facturacion').innerText = "$ " + totalDinero.toLocaleString();
-
-    // 4. Calcular Tareas (Cuotas Pendientes de cobro)
-    let cuotasPendientes = 0;
-    clientes.forEach(c => {
-        if(c.planPagos) {
-            cuotasPendientes += c.planPagos.filter(p => p.estado === 'Pendiente').length;
-        }
-    });
-    document.getElementById('kpi-pendientes').innerText = cuotasPendientes;
-
-    // 5. Llenar tabla de Últimos Movimientos
-    const tbody = document.getElementById('tablaMovimientosBody');
-    if (tbody) {
-        tbody.innerHTML = "";
-        // Tomamos los últimos 5 clientes invertidos (los más nuevos primero)
-        const ultimos = [...clientes].reverse().slice(0, 5);
-        
-        ultimos.forEach(c => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${c.fechaRegistro || 'N/A'}</td>
-                    <td>${c.nombre}</td>
-                    <td>${c.servicio}</td>
-                    <td><span class="status active">Activo</span></td>
-                </tr>
-            `;
-        });
-    }
 }
