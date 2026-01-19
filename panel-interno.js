@@ -67,6 +67,24 @@ function showSection(sectionId, element) {
         alert("Acceso denegado: Se requieren permisos de Socio Administrador.");
         return;
     }
+    // ... código anterior ...
+    
+    // Lógica para cambiar el Título
+    const titulos = {
+        'dashboard': 'Resumen Ejecutivo',
+        'clientes': 'Gestión de Clientes',
+        'procesos': 'Expedientes y Procesos',
+        'finanzas': 'Departamento Financiero',
+        'gestion-noticias': 'Publicación de Noticias',
+        'usuarios-sistema': 'Control de Usuarios'
+    };
+    
+    const tituloElement = document.getElementById('page-title');
+    if(tituloElement && titulos[sectionId]) {
+        tituloElement.innerText = titulos[sectionId];
+    }
+
+    // ... resto del código (document.querySelectorAll...) ...
 
     // Cambio de vista
     document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-view'));
