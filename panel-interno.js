@@ -193,6 +193,7 @@ document.getElementById('formCliente').addEventListener('submit', function(e) {
         // Datos Económicos
         modalidadPago: document.getElementById('cobroModalidad').value,
         valorTotal: document.getElementById('valorTotal').value,
+        impuesto: document.getElementById('impuestoIva').value,
         porcentajeExito: document.getElementById('porcentajeExito').value,
         planPagos: cuotas, // Array de objetos
         
