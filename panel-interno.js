@@ -81,90 +81,186 @@ function showSection(sectionId, element) {
 
 
 // ==========================================
-// 2. GESTIÓN DE CLIENTES (LOCAL STORAGE) - NUEVO
+// 2. GESTIÓN DE CLIENTES (LÓGICA AVANZADA)
 // ==========================================
 
-// Funciones del Modal
+// Variables globales para el formulario
+let archivoContrato = null;
+
+// --- A. Lógica de Pestañas (Tabs) ---
+function cambiarTab(tabId) {
+    // 1. Ocultar todos los contenidos
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    // 2. Desactivar todos los botones
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // 3. Activar el seleccionado
+    document.getElementById(tabId).classList.add('active');
+    // Encontrar el botón que llamó a esta función (truco usando event)
+    event.currentTarget.classList.add('active');
+}
+
+// --- B. Lógica Financiera ---
+function toggleCuotaLitis() {
+    const modalidad = document.getElementById('cobroModalidad').value;
+    const divPorcentaje = document.getElementById('divPorcentajeExito');
+    
+    // Si es Cuota Litis o Mixto, mostramos el campo de porcentaje
+    if (modalidad === 'CuotaLitis' || modalidad === 'Mixto') {
+        divPorcentaje.style.display = 'block';
+    } else {
+        divPorcentaje.style.display = 'none';
+        document.getElementById('porcentajeExito').value = '';
+    }
+}
+
+function agregarCuota() {
+    const tbody = document.getElementById('listaCuotas');
+    const idUnico = Date.now(); // Para identificar la fila
+
+    const fila = document.createElement('tr');
+    fila.id = `fila-${idUnico}`;
+    fila.innerHTML = `
+        <td><input type="text" placeholder="Ej: Anticipo 50%" class="input-tabla" style="width:100%; border:none;"></td>
+        <td><input type="date" class="input-tabla" style="width:100%; border:none;"></td>
+        <td><input type="number" placeholder="$" class="input-tabla" style="width:100%; border:none;"></td>
+        <td style="text-align:center;"><i class="fas fa-trash btn-delete" style="cursor:pointer;" onclick="eliminarFilaCuota('${idUnico}')"></i></td>
+    `;
+    tbody.appendChild(fila);
+}
+
+function eliminarFilaCuota(id) {
+    document.getElementById(`fila-${id}`).remove();
+}
+
+// --- C. Funciones del Modal ---
 function abrirModalCliente() {
     document.getElementById('modalCliente').style.display = 'flex';
+    // Resetear a la primera pestaña
+    cambiarTab('tab-cliente');
+    // Agregar una cuota por defecto si la tabla está vacía
+    if(document.getElementById('listaCuotas').children.length === 0){
+        agregarCuota();
+    }
 }
 
 function cerrarModalCliente() {
     document.getElementById('modalCliente').style.display = 'none';
     document.getElementById('formCliente').reset();
+    document.getElementById('listaCuotas').innerHTML = ''; // Limpiar cuotas
+    borrarArchivo('inputContrato', 'displayContrato');
 }
 
-// Guardar Cliente (Create)
+// --- D. Guardar Cliente (CREATE) ---
 document.getElementById('formCliente').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // 1. Capturar datos
+    // 1. Recopilar Plan de Pagos (Iterar sobre la tabla)
+    const cuotas = [];
+    document.querySelectorAll('#listaCuotas tr').forEach(fila => {
+        const inputs = fila.querySelectorAll('input');
+        if(inputs[0].value) { // Solo si tiene concepto
+            cuotas.push({
+                concepto: inputs[0].value,
+                fecha: inputs[1].value,
+                valor: inputs[2].value,
+                estado: 'Pendiente' // Por defecto
+            });
+        }
+    });
+
+    // 2. Construir el Objeto Cliente Completo
     const nuevoCliente = {
-        id: Date.now(), // ID temporal único basado en la hora
-        tipo: document.getElementById('clienteTipo').value,
+        id: Date.now(),
+        // Datos Básicos
+        tipoPersona: document.getElementById('clienteTipo').value,
         identificacion: document.getElementById('clienteId').value,
         nombre: document.getElementById('clienteNombre').value,
         telefono: document.getElementById('clienteTelefono').value,
         email: document.getElementById('clienteEmail').value,
+        direccion: document.getElementById('clienteDireccion').value,
+        
+        // Datos del Asunto
+        servicio: document.getElementById('servicioTipo').value,
+        fechaInicio: document.getElementById('fechaInicio').value,
+        contraparte: document.getElementById('contraparteNombre').value,
+        descripcion: document.getElementById('casoDescripcion').value,
+        
+        // Datos Económicos
+        modalidadPago: document.getElementById('cobroModalidad').value,
+        valorTotal: document.getElementById('valorTotal').value,
+        porcentajeExito: document.getElementById('porcentajeExito').value,
+        planPagos: cuotas, // Array de objetos
+        
+        // Archivo (Simulado por ahora con el nombre)
+        nombreContrato: document.getElementById('nombreContrato').innerText !== 'contrato.pdf' ? document.getElementById('nombreContrato').innerText : null,
+        
         fechaRegistro: new Date().toLocaleDateString()
     };
 
-    // 2. Obtener lista actual de LocalStorage
+    // 3. Guardar en LocalStorage
     let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-
-    // 3. Agregar y guardar
     clientes.push(nuevoCliente);
     localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
 
-    // 4. Limpiar y recargar
-    alert("Cliente guardado correctamente (Local)");
+    // 4. Feedback
+    alert("Expediente creado con éxito.");
     cerrarModalCliente();
     cargarClientesLocal();
 });
 
-// Cargar Clientes (Read)
+// --- E. Cargar Clientes (READ) ---
 function cargarClientesLocal() {
     const tbody = document.getElementById('tablaClientesBody');
     const clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
 
     if (clientes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No hay clientes registrados aún.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No hay expedientes activos.</td></tr>';
         return;
     }
 
     tbody.innerHTML = '';
-    clientes.forEach(cliente => {
-        // Icono según tipo (Edificio para empresa, Usuario para persona)
-        const iconoTipo = cliente.tipo === 'Juridica' ? '<i class="fas fa-building"></i>' : '<i class="fas fa-user"></i>';
+    clientes.forEach(c => {
+        // Icono según servicio
+        let iconoServicio = '<i class="fas fa-folder"></i>'; // Default
+        if(c.servicio === 'Demandante') iconoServicio = '<i class="fas fa-gavel" style="color:#c62828;"></i>';
+        if(c.servicio === 'Tramite') iconoServicio = '<i class="fas fa-file-signature" style="color:#1565c0;"></i>';
 
         tbody.innerHTML += `
             <tr>
-                <td>${iconoTipo} <strong>${cliente.nombre}</strong></td>
-                <td>${cliente.identificacion}</td>
-                <td>${cliente.telefono}</td>
-                <td>${cliente.email}</td>
                 <td>
-                    <button class="btn-icon btn-delete" onclick="borrarClienteLocal(${cliente.id})" title="Eliminar">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div style="font-weight:bold;">${c.nombre}</div>
+                    <div style="font-size:11px; color:#666;">${iconoServicio} ${c.servicio}</div>
+                </td>
+                <td>${c.identificacion}</td>
+                <td>
+                    <div>${c.telefono}</div>
+                    <div style="font-size:11px; color:#888;">${c.email}</div>
+                </td>
+                <td>
+                    <span class="status active">${c.modalidadPago}</span>
+                    <div style="font-size:11px; margin-top:2px;">$ ${c.valorTotal || '0'}</div>
+                </td>
+                <td>
+                    <button class="btn-icon" title="Ver Detalle"><i class="fas fa-eye" style="color:#162F45;"></i></button>
+                    <button class="btn-icon btn-delete" onclick="borrarClienteLocal(${c.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `;
     });
 }
 
-// Borrar Cliente (Delete)
 function borrarClienteLocal(id) {
-    if(!confirm("¿Seguro que deseas eliminar este cliente?")) return;
-
+    if(!confirm("¿Seguro que deseas eliminar este expediente y todos sus datos financieros?")) return;
     let clientes = JSON.parse(localStorage.getItem('clientes_tendencia')) || [];
-    // Filtramos para dejar todos MENOS el que tiene ese ID
     clientes = clientes.filter(c => c.id !== id);
-    
     localStorage.setItem('clientes_tendencia', JSON.stringify(clientes));
     cargarClientesLocal();
 }
-
 
 // ==========================================
 // 3. GESTIÓN DE USUARIOS (SUPABASE)
