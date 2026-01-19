@@ -260,10 +260,19 @@
                                     <option value="Mixto">Mixto (Fijo + Éxito)</option>
                                 </select>
                             </div>
-                            <div>
-                                <label>Valor Total Estimado / Base</label>
+                            <div class="form-grid-2"> <div>
+                                <label>Valor Total / Base</label>
                                 <input type="number" id="valorTotal" placeholder="$ 0">
                             </div>
+                            <div>
+                                <label>Tratamiento del IVA</label>
+                                <select id="impuestoIva">
+                                    <option value="MasIVA">Más IVA (Valor + 19%)</option>
+                                    <option value="Incluido">IVA Incluido (Valor Final)</option>
+                                    <option value="NoAplica">No Aplica / Exento</option>
+                                </select>
+                            </div>
+                        </div>
                         </div>
         
                         <div id="divPorcentajeExito" style="display:none; margin-bottom: 15px; background: #fff3cd; padding: 10px; border-radius: 5px;">
