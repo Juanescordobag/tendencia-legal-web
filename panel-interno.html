@@ -147,23 +147,37 @@
             </div>
         </div>
 
-        <div id="dashboard" class="section-view active-view">
+       <div id="dashboard" class="section-view active-view">
             <div class="kpi-grid">
-                <div class="kpi-card" style="border-top-color: #162F45;"><h3>Casos Activos</h3><div class="number">12</div></div>
-                <div class="kpi-card" style="border-top-color: #B68656;"><h3>Nuevos Clientes</h3><div class="number">4</div></div>
-                <div class="kpi-card" style="border-top-color: #2e7d32;"><h3>Facturación</h3><div class="number">$ 15.2M</div></div>
-                <div class="kpi-card" style="border-top-color: #d32f2f;"><h3>Tareas Críticas</h3><div class="number">3</div></div>
+                <div class="kpi-card" style="border-top-color: #162F45;">
+                    <h3>Casos Activos</h3>
+                    <div class="number" id="kpi-casos">0</div> 
+                </div>
+        
+                <div class="kpi-card" style="border-top-color: #B68656;">
+                    <h3>Nuevos Clientes</h3>
+                    <div class="number" id="kpi-nuevos">0</div> 
+                </div>
+        
+                <div class="kpi-card" style="border-top-color: #2e7d32;">
+                    <h3>Facturación</h3>
+                    <div class="number" id="kpi-facturacion">$ 0</div> 
+                </div>
+        
+                <div class="kpi-card" style="border-top-color: #d32f2f;">
+                    <h3>Tareas Críticas</h3>
+                    <div class="number" id="kpi-pendientes">0</div> 
+                </div>
             </div>
+        
             <div class="data-table-container">
                 <div class="table-header-flex"><h3>Últimos Movimientos</h3></div>
                 <table>
                     <thead><tr><th>Fecha</th><th>Cliente</th><th>Detalle</th><th>Estado</th></tr></thead>
-                    <tbody>
-                        <tr><td>16 Ene 2026</td><td>Peludencios S.A.S</td><td>Revisión Contrato</td><td><span class="status active">En Proceso</span></td></tr>
-                    </tbody>
+                    <tbody id="tablaMovimientosBody"></tbody> 
                 </table>
             </div>
-        </div> 
+        </div>
 
         <div id="clientes" class="section-view">
             <div class="data-table-container">
