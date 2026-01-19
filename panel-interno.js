@@ -8,6 +8,8 @@ const clienteSupabase = supabase.createClient(supabaseUrl, supabaseKey);
 let usuarioActual = null;
 let rolActual = null;
 
+// Variables globales
+let clienteEnEdicionId = null; // <--- AGREGA ESTO (Guardará el ID del cliente que estamos editando)
 // Variables globales para archivos
 let archivoImagen = null;
 let archivoDocumento = null;
