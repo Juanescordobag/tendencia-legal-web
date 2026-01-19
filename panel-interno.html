@@ -8,6 +8,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* --- ESTILOS PARA TABS (PESTAÑAS) --- */
+        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 20px; cursor: pointer; background: none; border: none; border-bottom: 3px solid transparent; font-weight: 600; color: #888; font-size: 14px; transition: all 0.3s; }
+        .tab-btn:hover { color: #162F45; }
+        .tab-btn.active { border-bottom-color: #B68656; color: #162F45; }
+        
+        /* Ocultar contenido de tabs inactivos */
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        
+        /* Estilos para la tabla de cuotas */
+        .payment-plan-table { width: 100%; font-size: 13px; border: 1px solid #eee; margin-top: 10px; }
+        .payment-plan-table th { background: #f9f9f9; padding: 8px; }
+        .payment-plan-table td { padding: 5px; border-top: 1px solid #eee; }
         /* --- ESTILOS GESTIÓN INTERNA TENDENCIA LEGAL --- */
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; display: flex; height: 100vh; overflow: hidden; }
 
@@ -161,45 +175,134 @@
         </div>
 
         <div id="modalCliente" class="modal-overlay">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Registrar Cliente</h2>
+            <div class="modal-content" style="max-width: 700px;"> <div class="modal-header">
+                    <h2><i class="fas fa-briefcase"></i> Nuevo Expediente / Cliente</h2>
                     <button class="btn-close-modal" onclick="cerrarModalCliente()">&times;</button>
                 </div>
+        
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="cambiarTab('tab-cliente')">1. El Cliente</button>
+                    <button class="tab-btn" onclick="cambiarTab('tab-asunto')">2. El Asunto</button>
+                    <button class="tab-btn" onclick="cambiarTab('tab-economico')">3. Honorarios</button>
+                    <button class="tab-btn" onclick="cambiarTab('tab-docs')">4. Contrato</button>
+                </div>
+        
                 <form id="formCliente">
-                    <div class="form-grid-2">
-                        <div>
-                            <label>Tipo de Persona</label>
-                            <select id="clienteTipo">
-                                <option value="Natural">Persona Natural</option>
-                                <option value="Juridica">Persona Jurídica (Empresa)</option>
-                            </select>
+                    
+                    <div id="tab-cliente" class="tab-content active">
+                        <div class="form-grid-2">
+                            <div>
+                                <label>Tipo de Persona</label>
+                                <select id="clienteTipo">
+                                    <option value="Natural">Persona Natural</option>
+                                    <option value="Juridica">Persona Jurídica (Empresa)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Identificación (CC/NIT)</label>
+                                <input type="text" id="clienteId" placeholder="Ej: 987654321" required>
+                            </div>
                         </div>
                         <div>
-                            <label>Identificación (CC/NIT)</label>
-                            <input type="text" id="clienteId" placeholder="Ej: 987654321" required>
+                            <label>Nombre Completo / Razón Social</label>
+                            <input type="text" id="clienteNombre" placeholder="Ej: Juan Pérez / Peludencios SAS" required>
+                        </div>
+                        <div class="form-grid-2">
+                            <div>
+                                <label>Teléfono Contacto</label>
+                                <input type="number" id="clienteTelefono" required>
+                            </div>
+                            <div>
+                                <label>Correo Electrónico</label>
+                                <input type="email" id="clienteEmail" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label>Dirección Física (Notificaciones)</label>
+                            <input type="text" id="clienteDireccion" placeholder="Calle 123 # 45-67, Medellín">
                         </div>
                     </div>
-
-                    <div>
-                        <label>Nombre Completo / Razón Social</label>
-                        <input type="text" id="clienteNombre" placeholder="Ej: Juan Pérez / Peludencios SAS" required>
-                    </div>
-
-                    <div class="form-grid-2">
-                        <div>
-                            <label>Teléfono</label>
-                            <input type="number" id="clienteTelefono" placeholder="Ej: 3001234567" required>
+        
+                    <div id="tab-asunto" class="tab-content">
+                        <div class="form-grid-2">
+                            <div>
+                                <label>Tipo de Servicio</label>
+                                <select id="servicioTipo">
+                                    <option value="Tramite">Trámite / Gestión Admin</option>
+                                    <option value="Demandante">Proceso Judicial (Demandante)</option>
+                                    <option value="Demandado">Defensa Judicial (Demandado)</option>
+                                    <option value="Consultoria">Consultoría / Concepto</option>
+                                    <option value="Conciliacion">Conciliación / Prejurídico</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Fecha Inicio Contrato</label>
+                                <input type="date" id="fechaInicio" required>
+                            </div>
                         </div>
                         <div>
-                            <label>Correo Electrónico</label>
-                            <input type="email" id="clienteEmail" placeholder="contacto@cliente.com" required>
+                            <label>Nombre de la Contraparte (Opcional)</label>
+                            <input type="text" id="contraparteNombre" placeholder="¿Contra quién es el pleito?">
+                        </div>
+                        <div>
+                            <label>Descripción Breve del Caso</label>
+                            <textarea id="casoDescripcion" rows="3" placeholder="Ej: Sucesión del señor X, incluye bienes en Cartagena..."></textarea>
                         </div>
                     </div>
-
-                    <button type="submit" class="btn-action" style="width:100%; margin-top:25px;">
-                        <i class="fas fa-save"></i> Guardar Cliente
-                    </button>
+        
+                    <div id="tab-economico" class="tab-content">
+                        <div class="form-grid-2">
+                            <div>
+                                <label>Modalidad de Cobro</label>
+                                <select id="cobroModalidad" onchange="toggleCuotaLitis()">
+                                    <option value="Fijo">Honorarios Fijos</option>
+                                    <option value="CuotaLitis">Cuota Litis (Solo éxito)</option>
+                                    <option value="Mixto">Mixto (Fijo + Éxito)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Valor Total Estimado / Base</label>
+                                <input type="number" id="valorTotal" placeholder="$ 0">
+                            </div>
+                        </div>
+        
+                        <div id="divPorcentajeExito" style="display:none; margin-bottom: 15px; background: #fff3cd; padding: 10px; border-radius: 5px;">
+                            <label style="margin-top:0; color: #856404;">% Cuota Litis (Al ganar)</label>
+                            <input type="number" id="porcentajeExito" placeholder="Ej: 30" max="100">
+                        </div>
+        
+                        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
+                            <label style="display:flex; justify-content:space-between; align-items:center;">
+                                Plan de Pagos (Fijo)
+                                <button type="button" class="btn-action" style="padding: 5px 10px; font-size: 11px; margin:0;" onclick="agregarCuota()">
+                                    <i class="fas fa-plus"></i> Agregar Cuota
+                                </button>
+                            </label>
+                            <table class="payment-plan-table">
+                                <thead><tr><th>Concepto (Anticipo, Mensualidad)</th><th>Fecha Límite</th><th>Valor</th><th>Acción</th></tr></thead>
+                                <tbody id="listaCuotas">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+        
+                    <div id="tab-docs" class="tab-content">
+                        <label><i class="fas fa-file-signature"></i> Subir Contrato / Propuesta Firmada</label>
+                        <div class="file-upload-wrapper" style="border: 2px dashed #ccc; padding: 20px; text-align: center; justify-content: center;">
+                            <input type="file" id="inputContrato" accept=".pdf,.doc,.docx" onchange="manejarArchivo('inputContrato', 'nombreContrato', 'displayContrato')">
+                        </div>
+                        <div id="displayContrato" class="file-name-display" style="margin-top: 10px;">
+                            <span id="nombreContrato">contrato.pdf</span>
+                            <button type="button" class="btn-delete-file" onclick="borrarArchivo('inputContrato', 'displayContrato')">x</button>
+                        </div>
+                    </div>
+        
+                    <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee; padding-top: 20px;">
+                        <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalCliente()">Cancelar</button>
+                        <button type="submit" class="btn-action">
+                            <i class="fas fa-save"></i> Crear Expediente
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
