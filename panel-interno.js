@@ -223,6 +223,26 @@ function cargarClientesLocal() {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No hay expedientes activos.</td></tr>';
         return;
     }
+    // Dentro de cargarClientesLocal...
+    clientes.forEach(c => {
+        
+        // Lógica visual para el IVA (NUEVO BLOQUE)
+        let textoIva = '';
+        if(c.impuesto === 'MasIVA') textoIva = '<span style="color:#c62828; font-size:10px;">(+ IVA)</span>';
+        if(c.impuesto === 'Incluido') textoIva = '<span style="color:#2e7d32; font-size:10px;">(Inc.)</span>';
+
+        tbody.innerHTML += `
+            <tr>
+                <td>
+                    <span class="status active">${c.modalidadPago}</span>
+                    <div style="font-size:13px; margin-top:2px; font-weight:bold;">
+                        $ ${Number(c.valorTotal).toLocaleString()} ${textoIva}
+                    </div>
+                </td>
+
+                </tr>
+        `;
+    });
 
     tbody.innerHTML = '';
     clientes.forEach(c => {
