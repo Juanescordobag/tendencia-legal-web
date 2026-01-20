@@ -409,7 +409,7 @@
                     <div class="data-table-container" style="flex: 2;">
                         <div class="table-header-flex">
                             <h3><i class="fas fa-history"></i> Bitácora / Actuaciones</h3>
-                            <button class="btn-action" style="margin:0; padding: 5px 10px; font-size:12px;" onclick="alert('Aquí abriremos el modal para subir autos, memoriales, etc.')">
+                            <button class="btn-action" style="margin:0; padding: 5px 10px; font-size:12px;" onclick="abrirModalActuacion()">
                                 <i class="fas fa-plus"></i> Nueva Actuación
                             </button>
                         </div>
@@ -551,6 +551,57 @@
                 <div class="modal-footer-btns" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee; padding-top: 20px;">
                     <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalProceso()">Cancelar</button>
                     <button type="submit" class="btn-action"><i class="fas fa-save"></i> Guardar Proceso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modalActuacion" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-medical"></i> Registrar Actuación</h2>
+                <button class="btn-close-modal" onclick="cerrarModalActuacion()">&times;</button>
+            </div>
+    
+            <form id="formActuacion">
+                <div>
+                    <label>Título de la Actuación</label>
+                    <input type="text" id="actTitulo" placeholder="Ej: Auto Admisorio, Audiencia Inicial..." required>
+                </div>
+    
+                <div class="form-grid-2">
+                    <div>
+                        <label>Fecha</label>
+                        <input type="date" id="actFecha" required>
+                    </div>
+                    <div>
+                        <label>Tipo</label>
+                        <select id="actTipo">
+                            <option value="Juzgado">🏛️ Notificación Juzgado</option>
+                            <option value="Memorial">📝 Memorial Enviado</option>
+                            <option value="Audiencia">📢 Audiencia</option>
+                            <option value="Interno">📌 Nota Interna</option>
+                        </select>
+                    </div>
+                </div>
+    
+                <div>
+                    <label>Descripción / Nota</label>
+                    <textarea id="actDescripcion" rows="3" placeholder="Detalles importantes..."></textarea>
+                </div>
+    
+                <div style="margin-top: 15px; padding: 15px; background: #f0f4f8; border-radius: 5px; border: 1px dashed #B68656;">
+                    <label style="margin-top:0;"><i class="fas fa-paperclip"></i> Adjuntar Archivo (PDF, Img)</label>
+                    <input type="file" id="inputArchivoActuacion" accept=".pdf,.doc,.docx,.jpg,.png" style="margin-top:5px;" onchange="manejarArchivo('inputArchivoActuacion', 'nombreArchivoAct', 'displayArchivoAct')">
+                    
+                    <div id="displayArchivoAct" class="file-name-display" style="margin-top:5px;">
+                        <span id="nombreArchivoAct">archivo.pdf</span>
+                        <button type="button" class="btn-delete-file" onclick="borrarArchivo('inputArchivoActuacion', 'displayArchivoAct')">x</button>
+                    </div>
+                </div>
+    
+                <div class="modal-footer-btns" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalActuacion()">Cancelar</button>
+                    <button type="submit" class="btn-action"><i class="fas fa-save"></i> Guardar en Historial</button>
                 </div>
             </form>
         </div>
