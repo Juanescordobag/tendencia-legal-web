@@ -787,7 +787,6 @@ async function cargarProcesos() {
                             ${p.etapa_procesal || 'Iniciando'}
                         </span>
                     </td>
-                    /* Busca el <td> de las acciones y reemplázalo por este bloque de 3 botones: */
                     <td>
                         <button class="btn-icon" onclick="abrirExpediente(${p.id})" title="Ver Expediente Completo">
                             <i class="fas fa-folder-open" style="color:#B68656;"></i>
