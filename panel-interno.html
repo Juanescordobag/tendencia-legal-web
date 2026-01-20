@@ -181,9 +181,13 @@
 
         <div id="clientes" class="section-view">
             <div class="data-table-container">
-                <div class="table-header-flex">
+               <div class="table-header-flex" style="gap: 15px;">
                     <h3>Directorio de Clientes</h3>
-                    <button class="btn-action" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button>
+                    <div style="flex: 1; max-width: 300px; position: relative;">
+                        <input type="text" id="buscadorCliente" placeholder="Buscar por nombre o cédula..." onkeyup="filtrarClientes()" style="padding-left: 35px; margin: 0;">
+                        <i class="fas fa-search" style="position: absolute; left: 10px; top: 12px; color: #888;"></i>
+                    </div>
+                    <button class="btn-action" style="margin-top:0;" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button>
                 </div>
                 
                 <table id="tablaClientes">
