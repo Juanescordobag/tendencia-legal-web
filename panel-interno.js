@@ -355,6 +355,67 @@ if(formCliente) {
 }
 
 // --- E. Cargar Clientes (READ desde Supabase) ---
+// --- NUEVA ESTRUCTURA PARA PODER BUSCAR ---
+
+// 1. Función solo para DIBUJAR la tabla (recibe una lista)
+function renderizarTablaClientes(lista) {
+    const tbody = document.getElementById('tablaClientesBody');
+    if (!tbody) return;
+
+    if (lista.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No se encontraron coincidencias.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = '';
+    lista.forEach(c => {
+        // Lógica visual IVA
+        let textoIva = '';
+        if(c.impuesto === 'MasIVA') textoIva = '<span style="color:#c62828; font-size:10px; font-weight:bold;">(+ IVA)</span>';
+        if(c.impuesto === 'Incluido') textoIva = '<span style="color:#2e7d32; font-size:10px; font-weight:bold;">(Inc.)</span>';
+
+        // Icono servicio
+        let iconoServicio = '<i class="fas fa-folder"></i>';
+        if(c.servicio === 'Demandante') iconoServicio = '<i class="fas fa-gavel" style="color:#c62828;"></i>';
+        if(c.servicio === 'Demandado') iconoServicio = '<i class="fas fa-shield-alt" style="color:#1565c0;"></i>';
+        if(c.servicio === 'Tramite') iconoServicio = '<i class="fas fa-file-signature" style="color:#1565c0;"></i>';
+
+        tbody.innerHTML += `
+            <tr>
+                <td>
+                    <div style="font-weight:bold;">${c.nombre}</div>
+                    <div style="font-size:11px; color:#666;">${iconoServicio} ${c.servicio}</div>
+                </td>
+                <td>${c.identificacion || 'N/A'}</td>
+                <td>
+                    <div>${c.telefono || ''}</div>
+                    <div style="font-size:11px; color:#888;">${c.email || ''}</div>
+                </td>
+                <td>
+                    <span class="status active">${c.modalidad_pago}</span>
+                    <div style="font-size:13px; margin-top:2px; font-weight:bold;">
+                        $ ${Number(c.valor_total).toLocaleString()} ${textoIva}
+                    </div>
+                </td>
+                <td style="display: flex; gap: 5px; justify-content: center;">
+                    <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle">
+                        <i class="fas fa-eye" style="color:#162F45;"></i>
+                    </button>
+                    
+                    <button class="btn-icon" onclick="nuevoCasoParaCliente(${c.id})" title="Nuevo caso para este cliente">
+                        <i class="fas fa-folder-plus" style="color:#B68656;"></i>
+                    </button>
+                
+                    <button class="btn-icon btn-delete" onclick="borrarClienteNube(${c.id})" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// 2. Función Principal Modificada (Descarga y llama a dibujar)
 async function cargarClientesDesdeNube() {
     try {
         const { data: clientes, error } = await clienteSupabase
@@ -364,71 +425,35 @@ async function cargarClientesDesdeNube() {
 
         if (error) throw error;
 
-        // Guardar en variable global para uso rápido en "Ver Detalle"
+        // Guardamos TODOS los datos en memoria
         clientesCache = clientes || [];
 
-        // 1. ACTUALIZAR DASHBOARD (Si estamos en Inicio)
+        // Actualizamos Dashboard
         actualizarDashboard(clientesCache);
 
-        // 2. ACTUALIZAR TABLA DE CLIENTES (Si estamos en Clientes)
-        const tbody = document.getElementById('tablaClientesBody');
-        if(tbody) {
-            if (clientesCache.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No hay expedientes activos.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = '';
-            clientesCache.forEach(c => {
-                // Lógica visual IVA
-                let textoIva = '';
-                if(c.impuesto === 'MasIVA') textoIva = '<span style="color:#c62828; font-size:10px; font-weight:bold;">(+ IVA)</span>';
-                if(c.impuesto === 'Incluido') textoIva = '<span style="color:#2e7d32; font-size:10px; font-weight:bold;">(Inc.)</span>';
-
-                // Icono servicio
-                let iconoServicio = '<i class="fas fa-folder"></i>';
-                if(c.servicio === 'Demandante') iconoServicio = '<i class="fas fa-gavel" style="color:#c62828;"></i>';
-                if(c.servicio === 'Demandado') iconoServicio = '<i class="fas fa-shield-alt" style="color:#1565c0;"></i>';
-                if(c.servicio === 'Tramite') iconoServicio = '<i class="fas fa-file-signature" style="color:#1565c0;"></i>';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div style="font-weight:bold;">${c.nombre}</div>
-                            <div style="font-size:11px; color:#666;">${iconoServicio} ${c.servicio}</div>
-                        </td>
-                        <td>${c.identificacion || 'N/A'}</td>
-                        <td>
-                            <div>${c.telefono || ''}</div>
-                            <div style="font-size:11px; color:#888;">${c.email || ''}</div>
-                        </td>
-                        <td>
-                            <span class="status active">${c.modalidad_pago}</span>
-                            <div style="font-size:13px; margin-top:2px; font-weight:bold;">
-                                $ ${Number(c.valor_total).toLocaleString()} ${textoIva}
-                            </div>
-                        </td>
-                        <td style="display: flex; gap: 5px; justify-content: center;">
-                            <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle">
-                                <i class="fas fa-eye" style="color:#162F45;"></i>
-                            </button>
-                            
-                            <button class="btn-icon" onclick="nuevoCasoParaCliente(${c.id})" title="Nuevo caso para este cliente">
-                                <i class="fas fa-folder-plus" style="color:#B68656;"></i>
-                            </button>
-                        
-                            <button class="btn-icon btn-delete" onclick="borrarClienteNube(${c.id})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
+        // Dibujamos la tabla con TODOS los datos
+        renderizarTablaClientes(clientesCache);
 
     } catch (err) {
         console.error("Error cargando clientes:", err);
     }
+}
+
+// 3. Función del Buscador (Se activa al escribir)
+function filtrarClientes() {
+    const texto = document.getElementById('buscadorCliente').value.toLowerCase();
+    
+    // Filtramos la memoria (clientesCache) sin ir a la nube
+    const filtrados = clientesCache.filter(c => {
+        const nombre = (c.nombre || '').toLowerCase();
+        const cedula = (c.identificacion || '').toLowerCase();
+        
+        // Si el nombre O la cédula contienen el texto escrito
+        return nombre.includes(texto) || cedula.includes(texto);
+    });
+
+    // Redibujamos la tabla solo con los filtrados
+    renderizarTablaClientes(filtrados);
 }
 
 async function borrarClienteNube(id) {
