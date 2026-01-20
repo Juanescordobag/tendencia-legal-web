@@ -693,7 +693,7 @@ function abrirModalProceso() {
     // Usamos la caché de clientes que ya descargamos antes
     if(clientesCache.length > 0) {
         clientesCache.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.nombre} - ${c.identificacion}</option>`;
+            select.innerHTML += `<option value="${c.id}">${c.nombre} - ${c.identificacion} (${c.servicio})</option>`;
         });
     } else {
         select.innerHTML = '<option value="">No hay clientes registrados</option>';
