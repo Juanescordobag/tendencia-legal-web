@@ -225,7 +225,31 @@ function verCliente(id) {
         `;
     }
 }
+// --- Función: Crear NUEVO CASO reciclando datos del cliente ---
+function nuevoCasoParaCliente(id) {
+    // 1. Buscar los datos del cliente original
+    const clienteOrigen = clientesCache.find(c => c.id === id);
+    if (!clienteOrigen) return;
 
+    // 2. Abrir el modal como si fuera nuevo (limpio)
+    abrirModalCliente(); 
+
+    // 3. PRE-LLENAR solo la Pestaña 1 (Datos Personales)
+    document.getElementById('clienteTipo').value = clienteOrigen.tipo_persona;
+    document.getElementById('clienteId').value = clienteOrigen.identificacion;
+    document.getElementById('clienteNombre').value = clienteOrigen.nombre;
+    document.getElementById('clienteTelefono').value = clienteOrigen.telefono;
+    document.getElementById('clienteEmail').value = clienteOrigen.email;
+    document.getElementById('clienteDireccion').value = clienteOrigen.direccion || '';
+
+    // 4. Asegurarnos que el sistema sepa que es un registro NUEVO (no una edición)
+    clienteEnEdicionId = null; 
+
+    // 5. Movernos visualmente a la pestaña 2 para que el abogado empiece ahí
+    cambiarTab('tab-asunto');
+    
+    alert(`Se han copiado los datos de "${clienteOrigen.nombre}".\nPor favor ingresa los detalles del nuevo proceso legal.`);
+}
 function activarEdicion() {
     const inputs = document.querySelectorAll('#formCliente input, #formCliente select, #formCliente textarea, #btnAgregarCuota');
     inputs.forEach(input => input.disabled = false);
