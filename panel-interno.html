@@ -350,35 +350,94 @@
         </div>
 
         <div id="procesos" class="section-view">
-            <div class="data-table-container">
-                <div class="table-header-flex" style="gap: 15px;">
-                    <h3>Gestión de Expedientes</h3>
+            
+            <div id="vista-lista-procesos">
+                <div class="data-table-container">
+                    <div class="table-header-flex" style="gap: 15px;">
+                        <h3>Gestión de Expedientes</h3>
+                        <select id="filtroEstadoProceso" onchange="cargarProcesos()" style="max-width: 200px;">
+                            <option value="Activo">📂 Ver Activos</option>
+                            <option value="Cerrado">🗄️ Ver Archivo Muerto</option>
+                        </select>
+                        <div style="flex: 1;"></div>
+                        <button class="btn-action" style="margin-top:0;" onclick="abrirModalProceso()">
+                            <i class="fas fa-plus"></i> Nuevo Proceso
+                        </button>
+                    </div>
                     
-                    <select id="filtroEstadoProceso" onchange="cargarProcesos()" style="max-width: 200px;">
-                        <option value="Activo">📂 Ver Activos</option>
-                        <option value="Cerrado">🗄️ Ver Archivo Muerto</option>
-                    </select>
-                    
-                    <div style="flex: 1;"></div> <button class="btn-action" style="margin-top:0;" onclick="abrirModalProceso()">
-                        <i class="fas fa-plus"></i> Nuevo Proceso
+                    <table id="tablaProcesos">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Tipo / Asunto</th>
+                                <th>Radicado / Detalle</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaProcesosBody">
+                            <tr><td colspan="5" style="text-align:center; color:#888;">Cargando expedientes...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        
+            <div id="vista-expediente-detalle" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <button onclick="cerrarExpediente()" style="background:none; border:none; cursor:pointer; color:#162F45; font-size:16px; font-weight:bold; display:flex; align-items:center; gap:5px;">
+                        <i class="fas fa-arrow-left"></i> Volver al listado
                     </button>
                 </div>
-                
-                <table id="tablaProcesos">
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Tipo / Asunto</th>
-                            <th>Radicado / Detalle</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaProcesosBody">
-                        <tr><td colspan="5" style="text-align:center; color:#888;">Cargando expedientes...</td></tr>
-                    </tbody>
-                </table>
+        
+                <div class="data-table-container" style="background: #fff; border-left: 5px solid #B68656; margin-bottom: 20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <h2 id="expTitulo" style="margin:0; color:#162F45; font-family:'Times New Roman', serif;">Cargando...</h2>
+                            <p id="expSubtitulo" style="margin:5px 0 0; color:#666;">Cargando...</p>
+                            <div id="expTags" style="margin-top:10px;"></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <button class="btn-action" style="margin:0; background:#162F45;" onclick="alert('Próximamente: Calculadora de Términos')">
+                                <i class="fas fa-calculator"></i> Calcular Término
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    
+                    <div class="data-table-container" style="flex: 2;">
+                        <div class="table-header-flex">
+                            <h3><i class="fas fa-history"></i> Bitácora / Actuaciones</h3>
+                            <button class="btn-action" style="margin:0; padding: 5px 10px; font-size:12px;" onclick="alert('Aquí abriremos el modal para subir autos, memoriales, etc.')">
+                                <i class="fas fa-plus"></i> Nueva Actuación
+                            </button>
+                        </div>
+                        
+                        <div id="timeline-actuaciones" style="margin-top: 20px;">
+                            <p style="color:#888; text-align:center; padding:20px;">Selecciona un proceso para ver su historia.</p>
+                        </div>
+                    </div>
+        
+                    <div class="data-table-container" style="flex: 1;">
+                        <h3>Datos Clave</h3>
+                        <div style="margin-bottom: 15px;">
+                            <label style="margin:0; font-size:12px; color:#888;">Radicado</label>
+                            <div id="expRadicado" style="font-weight:bold; color:#162F45;">-</div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="margin:0; font-size:12px; color:#888;">Juzgado / Entidad</label>
+                            <div id="expEntidad">-</div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="margin:0; font-size:12px; color:#888;">Enlace Oficial</label>
+                            <a id="expLink" href="#" target="_blank" style="display:block; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; color:#B68656;">-</a>
+                        </div>
+                    </div>
+        
+                </div>
             </div>
+        
         </div>
         <div id="finanzas" class="section-view"><div class="data-table-container"><h3>Finanzas</h3><p>Módulo financiero...</p></div></div>
 
