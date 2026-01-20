@@ -408,9 +408,19 @@ async function cargarClientesDesdeNube() {
                                 $ ${Number(c.valor_total).toLocaleString()} ${textoIva}
                             </div>
                         </td>
-                        <td>
-                            <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle"><i class="fas fa-eye" style="color:#162F45;"></i></button>
-                            <button class="btn-icon btn-delete" onclick="borrarClienteNube(${c.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        /* --- REEMPLAZA EL BLOQUE DE BOTONES EN cargarClientesDesdeNube --- */
+                        <td style="display: flex; gap: 5px; justify-content: center;">
+                            <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle">
+                                <i class="fas fa-eye" style="color:#162F45;"></i>
+                            </button>
+                            
+                            <button class="btn-icon" onclick="nuevoCasoParaCliente(${c.id})" title="Nuevo caso para este cliente">
+                                <i class="fas fa-folder-plus" style="color:#B68656;"></i>
+                            </button>
+                        
+                            <button class="btn-icon btn-delete" onclick="borrarClienteNube(${c.id})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
