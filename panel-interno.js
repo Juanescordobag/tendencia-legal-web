@@ -787,10 +787,16 @@ async function cargarProcesos() {
                             ${p.etapa_procesal || 'Iniciando'}
                         </span>
                     </td>
+                    /* Busca el <td> de las acciones y reemplázalo por este bloque de 3 botones: */
                     <td>
-                        <button class="btn-icon" onclick="verProceso(${p.id})" title="Editar / Ver Detalle">
+                        <button class="btn-icon" onclick="abrirExpediente(${p.id})" title="Ver Expediente Completo">
+                            <i class="fas fa-folder-open" style="color:#B68656;"></i>
+                        </button>
+                    
+                        <button class="btn-icon" onclick="verProceso(${p.id})" title="Editar Datos">
                             <i class="fas fa-edit" style="color:#162F45;"></i>
                         </button>
+                    
                         <button class="btn-icon btn-delete" onclick="borrarProceso(${p.id})" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -929,6 +935,52 @@ async function borrarProceso(id) {
         alert("Error al borrar: " + err.message);
     }
 }
+// ==========================================
+// 6. LÓGICA DEL EXPEDIENTE DIGITAL
+// ==========================================
 
+// A. Abrir la vista de detalle
+function abrirExpediente(id) {
+    const proceso = procesosCache.find(p => p.id === id);
+    if (!proceso) return;
+
+    // 1. Ocultar lista, mostrar detalle
+    document.getElementById('vista-lista-procesos').style.display = 'none';
+    document.getElementById('vista-expediente-detalle').style.display = 'block';
+
+    // 2. Llenar Datos de Cabecera
+    const nombreCliente = proceso.clientes ? proceso.clientes.nombre : 'Cliente';
+    document.getElementById('expTitulo').innerText = nombreCliente;
+    document.getElementById('expSubtitulo').innerText = `${proceso.tipo} - ${proceso.subtipo || 'General'}`;
+    
+    // Tags de estado
+    const estadoColor = proceso.etapa_procesal ? '#e3f2fd' : '#eee';
+    document.getElementById('expTags').innerHTML = `
+        <span class="status active" style="background:${estadoColor}; color:#1565c0;">${proceso.etapa_procesal || 'Iniciando'}</span>
+        <span class="status">${proceso.estado_actual}</span>
+    `;
+
+    // 3. Llenar Datos Laterales
+    document.getElementById('expRadicado').innerText = proceso.radicado || 'N/A';
+    document.getElementById('expEntidad').innerText = proceso.juzgado || 'N/A';
+    
+    const linkEl = document.getElementById('expLink');
+    if(proceso.link_tyba) {
+        linkEl.href = proceso.link_tyba;
+        linkEl.innerText = "Ver en Rama Judicial 🔗";
+        linkEl.style.display = 'block';
+    } else {
+        linkEl.style.display = 'none';
+    }
+
+    // 4. (Pendiente) Cargar Actuaciones de la base de datos...
+    // cargarActuaciones(id);
+}
+
+// B. Volver a la lista
+function cerrarExpediente() {
+    document.getElementById('vista-expediente-detalle').style.display = 'none';
+    document.getElementById('vista-lista-procesos').style.display = 'block';
+}
 
 
