@@ -973,13 +973,169 @@ function abrirExpediente(id) {
     }
 
     // 4. (Pendiente) Cargar Actuaciones de la base de datos...
-    // cargarActuaciones(id);
+    cargarActuaciones(id);
 }
 
 // B. Volver a la lista
 function cerrarExpediente() {
     document.getElementById('vista-expediente-detalle').style.display = 'none';
     document.getElementById('vista-lista-procesos').style.display = 'block';
+}
+// ==========================================
+// 7. GESTIÓN DE ACTUACIONES (BITÁCORA)
+// ==========================================
+
+let procesoActualId = null; // Variable para saber en qué carpeta estamos
+let archivoActuacionBlob = null; // Variable temporal para el archivo
+
+// A. Abrir Modal de Actuación
+function abrirModalActuacion() {
+    document.getElementById('modalActuacion').style.display = 'flex';
+    document.getElementById('formActuacion').reset();
+    document.getElementById('actFecha').valueAsDate = new Date(); // Pone la fecha de hoy
+    borrarArchivo('inputArchivoActuacion', 'displayArchivoAct');
+    
+    // Necesitamos capturar el archivo en la variable global específica para este modal
+    const input = document.getElementById('inputArchivoActuacion');
+    input.onchange = function() {
+        if(input.files[0]) {
+            archivoActuacionBlob = input.files[0];
+            document.getElementById('nombreArchivoAct').innerText = input.files[0].name;
+            document.getElementById('displayArchivoAct').style.display = 'inline-flex';
+        }
+    };
+}
+
+function cerrarModalActuacion() {
+    document.getElementById('modalActuacion').style.display = 'none';
+    archivoActuacionBlob = null;
+}
+
+// B. Guardar Actuación (Subir Archivo + Insertar en DB)
+document.getElementById('formActuacion').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.querySelector('#formActuacion button[type="submit"]');
+    const txtOriginal = btn.innerHTML;
+    btn.innerHTML = 'Subiendo...'; btn.disabled = true;
+
+    try {
+        let urlArchivo = null;
+        let nombreArchivo = null;
+
+        // 1. Subir archivo si existe
+        if (archivoActuacionBlob) {
+            nombreArchivo = archivoActuacionBlob.name;
+            const ruta = `actuaciones/${Date.now()}-${nombreArchivo}`;
+            
+            const { error: uploadError } = await clienteSupabase.storage
+                .from('ARCHIVOS_TENDENCIA')
+                .upload(ruta, archivoActuacionBlob);
+            
+            if (uploadError) throw uploadError;
+
+            // Obtener URL pública
+            const { data } = clienteSupabase.storage
+                .from('ARCHIVOS_TENDENCIA')
+                .getPublicUrl(ruta);
+            
+            urlArchivo = data.publicUrl;
+        }
+
+        // 2. Guardar en Base de Datos
+        const { error } = await clienteSupabase
+            .from('actuaciones')
+            .insert([{
+                proceso_id: procesoActualId, // ¡Importante! Vincula con el caso
+                titulo: document.getElementById('actTitulo').value,
+                fecha_actuacion: document.getElementById('actFecha').value,
+                tipo: document.getElementById('actTipo').value,
+                descripcion: document.getElementById('actDescripcion').value,
+                archivo_url: urlArchivo,
+                nombre_archivo: nombreArchivo,
+                user_id: usuarioActual.id
+            }]);
+
+        if (error) throw error;
+
+        alert("Actuación registrada correctamente.");
+        cerrarModalActuacion();
+        cargarActuaciones(procesoActualId); // Recargar la línea de tiempo
+
+    } catch (err) {
+        alert("Error: " + err.message);
+    } finally {
+        btn.innerHTML = txtOriginal;
+        btn.disabled = false;
+    }
+});
+
+// C. Cargar y Pintar la Línea de Tiempo
+async function cargarActuaciones(idProceso) {
+    const contenedor = document.getElementById('timeline-actuaciones');
+    contenedor.innerHTML = '<p style="text-align:center;">Cargando historia...</p>';
+
+    // Guardamos el ID en la variable global para usarlo al guardar
+    procesoActualId = idProceso;
+
+    const { data: actuaciones, error } = await clienteSupabase
+        .from('actuaciones')
+        .select('*')
+        .eq('proceso_id', idProceso)
+        .order('fecha_actuacion', { ascending: false }); // Lo más nuevo primero
+
+    if (error) {
+        console.error(error);
+        contenedor.innerHTML = '<p>Error cargando datos.</p>';
+        return;
+    }
+
+    if (actuaciones.length === 0) {
+        contenedor.innerHTML = `
+            <div style="text-align:center; padding: 30px; background:#f9f9f9; border-radius:8px; border:1px dashed #ccc;">
+                <p style="color:#888; margin:0;">Este expediente aún no tiene movimientos.</p>
+                <button onclick="abrirModalActuacion()" style="margin-top:10px; background:none; border:none; color:#B68656; font-weight:bold; cursor:pointer;">
+                    + Registrar el primero
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    contenedor.innerHTML = '';
+    actuaciones.forEach(act => {
+        // Icono según tipo
+        let icono = '📌';
+        if(act.tipo === 'Juzgado') icono = '⚖️';
+        if(act.tipo === 'Audiencia') icono = '📢';
+        if(act.tipo === 'Memorial') icono = '📝';
+
+        // Botón de descarga si hay archivo
+        let btnArchivo = '';
+        if(act.archivo_url) {
+            btnArchivo = `
+                <a href="${act.archivo_url}" target="_blank" style="display:inline-block; margin-top:10px; padding:5px 10px; background:#e3f2fd; color:#1565c0; text-decoration:none; border-radius:4px; font-size:12px; font-weight:bold;">
+                    <i class="fas fa-paperclip"></i> Ver ${act.nombre_archivo || 'Documento'}
+                </a>
+            `;
+        }
+
+        contenedor.innerHTML += `
+            <div style="display:flex; gap:15px; margin-bottom:20px;">
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div style="width:30px; height:30px; background:#162F45; color:white; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:14px; z-index:2;">
+                        ${icono}
+                    </div>
+                    <div style="width:2px; flex:1; background:#eee; margin-top:5px;"></div>
+                </div>
+                <div style="flex:1; padding-bottom:20px;">
+                    <div style="font-size:12px; color:#B68656; font-weight:bold;">${act.fecha_actuacion}</div>
+                    <h4 style="margin:5px 0; color:#162F45;">${act.titulo}</h4>
+                    <p style="margin:0; font-size:13px; color:#555; line-height:1.4;">${act.descripcion || ''}</p>
+                    ${btnArchivo}
+                </div>
+            </div>
+        `;
+    });
 }
 
 
