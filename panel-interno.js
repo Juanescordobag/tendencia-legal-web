@@ -444,45 +444,47 @@ async function borrarClienteNube(id) {
     }
 }
 
-// --- F. Función Auxiliar: Actualizar Dashboard ---
+// --- F. Función Auxiliar: Actualizar Dashboard (MEJORADA) ---
 function actualizarDashboard(clientes) {
     if(!document.getElementById('kpi-casos')) return;
 
-    // 1. Casos
+    // 1. Casos Activos (Cuenta total de expedientes)
     document.getElementById('kpi-casos').innerText = clientes.length;
 
-    // 2. Nuevos (Mes actual)
+    // 2. Nuevos Clientes (Personas Únicas este mes)
     const mesActual = new Date().getMonth();
-    const nuevos = clientes.filter(c => {
+    
+    // a. Filtramos los registros creados este mes
+    const registrosMes = clientes.filter(c => {
         const fecha = new Date(c.created_at);
         return fecha.getMonth() === mesActual;
-    }).length;
-    document.getElementById('kpi-nuevos').innerText = nuevos;
+    });
+
+    // b. Usamos "Set" para eliminar duplicados basados en la identificación (Cédula)
+    // Así si Nancy tiene 3 casos este mes, solo cuenta como 1 cliente nuevo.
+    const clientesUnicos = new Set(registrosMes.map(c => c.identificacion));
+    
+    document.getElementById('kpi-nuevos').innerText = clientesUnicos.size;
 
     // 3. Facturación Total
     const totalDinero = clientes.reduce((sum, c) => sum + Number(c.valor_total || 0), 0);
-    // Formato corto para millones: $ 15.2M
     document.getElementById('kpi-facturacion').innerText = "$ " + (totalDinero / 1000000).toFixed(1) + "M"; 
 
     // 4. Tareas (Cuotas Pendientes)
     let cuotasPendientes = 0;
     clientes.forEach(c => {
-        if(c.plan_pagos) {
-            // El plan de pagos es un array JSON, podemos filtrarlo
-            if(Array.isArray(c.plan_pagos)){
-                cuotasPendientes += c.plan_pagos.filter(p => p.estado === 'Pendiente').length;
-            }
+        if(c.plan_pagos && Array.isArray(c.plan_pagos)) {
+            cuotasPendientes += c.plan_pagos.filter(p => p.estado === 'Pendiente').length;
         }
     });
     document.getElementById('kpi-pendientes').innerText = cuotasPendientes;
 
-    // 5. Tabla Movimientos (Últimos 5)
+    // 5. Tabla Movimientos
     const tbody = document.getElementById('tablaMovimientosBody');
     if(tbody) {
         tbody.innerHTML = "";
-        const ultimos = [...clientes].slice(0, 5); // Supabase ya los trae ordenados por fecha desc
+        const ultimos = [...clientes].slice(0, 5); 
         ultimos.forEach(c => {
-            // Formatear fecha simple
             const fecha = new Date(c.created_at).toLocaleDateString();
             tbody.innerHTML += `
                 <tr>
