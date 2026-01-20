@@ -72,7 +72,7 @@ function showSection(sectionId, element) {
     const titulos = {
         'dashboard': 'Resumen Ejecutivo',
         'clientes': 'Gestión de Clientes',
-        'procesos': 'Expedientes y Procesos',
+        'procesos': 'Expedientes y Casos',
         'finanzas': 'Departamento Financiero',
         'gestion-noticias': 'Publicación de Noticias',
         'usuarios-sistema': 'Control de Usuarios'
