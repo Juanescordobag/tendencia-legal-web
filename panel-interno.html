@@ -349,7 +349,37 @@
             </div>
         </div>
 
-        <div id="procesos" class="section-view"><div class="data-table-container"><h3>Expedientes</h3><p>Módulo de procesos...</p></div></div>
+        <div id="procesos" class="section-view">
+            <div class="data-table-container">
+                <div class="table-header-flex" style="gap: 15px;">
+                    <h3>Gestión de Expedientes</h3>
+                    
+                    <select id="filtroEstadoProceso" onchange="cargarProcesos()" style="max-width: 200px;">
+                        <option value="Activo">📂 Ver Activos</option>
+                        <option value="Cerrado">🗄️ Ver Archivo Muerto</option>
+                    </select>
+                    
+                    <div style="flex: 1;"></div> <button class="btn-action" style="margin-top:0;" onclick="abrirModalProceso()">
+                        <i class="fas fa-plus"></i> Nuevo Proceso
+                    </button>
+                </div>
+                
+                <table id="tablaProcesos">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Tipo / Asunto</th>
+                            <th>Radicado / Detalle</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaProcesosBody">
+                        <tr><td colspan="5" style="text-align:center; color:#888;">Cargando expedientes...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div id="finanzas" class="section-view"><div class="data-table-container"><h3>Finanzas</h3><p>Módulo financiero...</p></div></div>
 
         <div id="gestion-noticias" class="section-view">
