@@ -670,3 +670,56 @@ async function borrarNoticia(id) {
     if (error) alert("Error: " + error.message);
     else { alert("Eliminado."); cargarNoticiasDesdeNube(); }
 }
+// ==========================================
+// 5. GESTIÓN DE PROCESOS (LÓGICA UI)
+// ==========================================
+
+// Variables globales de procesos
+let procesoEnEdicionId = null; 
+
+// A. Abrir y Cerrar Modal
+function abrirModalProceso() {
+    procesoEnEdicionId = null;
+    document.getElementById('modalProceso').style.display = 'flex';
+    document.getElementById('formProceso').reset();
+    
+    // Por defecto mostrar campos judiciales
+    toggleCamposProceso();
+    
+    // CARGAR CLIENTES EN EL SELECT
+    const select = document.getElementById('procesoClienteId');
+    select.innerHTML = '<option value="">Seleccione un cliente...</option>';
+    
+    // Usamos la caché de clientes que ya descargamos antes
+    if(clientesCache.length > 0) {
+        clientesCache.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.nombre} - ${c.identificacion}</option>`;
+        });
+    } else {
+        select.innerHTML = '<option value="">No hay clientes registrados</option>';
+    }
+}
+
+function cerrarModalProceso() {
+    document.getElementById('modalProceso').style.display = 'none';
+}
+
+// B. Alternar entre Judicial y Consultoría
+function toggleCamposProceso() {
+    const tipo = document.getElementById('procesoTipo').value;
+    const divJudicial = document.getElementById('camposJudiciales');
+    const divConsultoria = document.getElementById('camposConsultoria');
+
+    if (tipo === 'Judicial') {
+        divJudicial.style.display = 'block';
+        divConsultoria.style.display = 'none';
+    } else {
+        divJudicial.style.display = 'none';
+        divConsultoria.style.display = 'block';
+    }
+}
+
+// C. Función placeholder para el filtro (la programaremos completa en el siguiente paso)
+function cargarProcesos() {
+    console.log("Cargando procesos... (Lógica pendiente de implementación)");
+}
