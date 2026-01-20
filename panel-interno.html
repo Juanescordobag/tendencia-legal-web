@@ -421,6 +421,78 @@
         </div>
 
     </div>
+        <div id="modalProceso" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-balance-scale"></i> Nuevo Proceso</h2>
+                <button class="btn-close-modal" onclick="cerrarModalProceso()">&times;</button>
+            </div>
+    
+            <form id="formProceso">
+                <div>
+                    <label>Cliente Asociado</label>
+                    <select id="procesoClienteId" required>
+                        <option value="">Cargando clientes...</option>
+                    </select>
+                </div>
+    
+                <div class="form-grid-2">
+                    <div>
+                        <label>Clasificación</label>
+                        <select id="procesoTipo" onchange="toggleCamposProceso()">
+                            <option value="Judicial">Proceso Judicial (Litigio)</option>
+                            <option value="Consultoria">Consultoría / Asesoría</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Subtipo / Rama</label>
+                        <input type="text" id="procesoSubtipo" placeholder="Ej: Laboral, Civil, Tutela...">
+                    </div>
+                </div>
+    
+                <div id="camposJudiciales">
+                    <div class="form-grid-2">
+                        <div>
+                            <label>Radicado (23 dígitos)</label>
+                            <input type="text" id="procesoRadicado" placeholder="05001...">
+                        </div>
+                        <div>
+                            <label>Juzgado / Despacho</label>
+                            <input type="text" id="procesoJuzgado" placeholder="Juzgado 15 Laboral...">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Enlace TYBA / Expediente Digital</label>
+                        <input type="url" id="procesoLink" placeholder="https://procesos.rama.judicial.gov.co/...">
+                    </div>
+                </div>
+    
+                <div id="camposConsultoria" style="display: none;">
+                    <label>Fecha y Hora de la Cita / Reunión</label>
+                    <input type="datetime-local" id="procesoFechaCita">
+                </div>
+    
+                <div class="form-grid-2">
+                    <div>
+                        <label>Etapa Actual</label>
+                        <input type="text" id="procesoEtapa" placeholder="Ej: Admisión, Pruebas, Inicial...">
+                    </div>
+                     <div>
+                        <label>Estado</label>
+                        <select id="procesoEstado">
+                            <option value="Activo">Activo (En curso)</option>
+                            <option value="Cerrado">Cerrado (Archivado)</option>
+                        </select>
+                    </div>
+                </div>
+    
+                <div class="modal-footer-btns" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalProceso()">Cancelar</button>
+                    <button type="submit" class="btn-action"><i class="fas fa-save"></i> Guardar Proceso</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="panel-interno.js"></script> 
