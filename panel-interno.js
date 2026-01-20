@@ -1011,7 +1011,7 @@ function cerrarModalActuacion() {
     archivoActuacionBlob = null;
 }
 
-// B. Guardar Actuación (Subir Archivo + Insertar en DB)
+// B. Guardar Actuación (Subir Archivo a BUCKET PRIVADO + Insertar en DB)
 document.getElementById('formActuacion').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.querySelector('#formActuacion button[type="submit"]');
@@ -1022,20 +1022,22 @@ document.getElementById('formActuacion').addEventListener('submit', async functi
         let urlArchivo = null;
         let nombreArchivo = null;
 
-        // 1. Subir archivo si existe
+        // 1. Subir archivo (A LA CARPETA SEGURA 'expedientes_privados')
         if (archivoActuacionBlob) {
             nombreArchivo = archivoActuacionBlob.name;
-            const ruta = `actuaciones/${Date.now()}-${nombreArchivo}`;
+            // Usamos una estructura organizada: ID_PROCESO/FECHA-NOMBRE
+            const ruta = `${procesoActualId}/${Date.now()}-${nombreArchivo}`;
             
+            // AQUÍ ESTÁ EL CAMBIO DE BUCKET
             const { error: uploadError } = await clienteSupabase.storage
-                .from('ARCHIVOS_TENDENCIA')
+                .from('expedientes_privados') 
                 .upload(ruta, archivoActuacionBlob);
             
             if (uploadError) throw uploadError;
 
-            // Obtener URL pública
+            // Obtener URL
             const { data } = clienteSupabase.storage
-                .from('ARCHIVOS_TENDENCIA')
+                .from('expedientes_privados')
                 .getPublicUrl(ruta);
             
             urlArchivo = data.publicUrl;
@@ -1045,7 +1047,7 @@ document.getElementById('formActuacion').addEventListener('submit', async functi
         const { error } = await clienteSupabase
             .from('actuaciones')
             .insert([{
-                proceso_id: procesoActualId, // ¡Importante! Vincula con el caso
+                proceso_id: procesoActualId,
                 titulo: document.getElementById('actTitulo').value,
                 fecha_actuacion: document.getElementById('actFecha').value,
                 tipo: document.getElementById('actTipo').value,
@@ -1059,7 +1061,7 @@ document.getElementById('formActuacion').addEventListener('submit', async functi
 
         alert("Actuación registrada correctamente.");
         cerrarModalActuacion();
-        cargarActuaciones(procesoActualId); // Recargar la línea de tiempo
+        cargarActuaciones(procesoActualId); 
 
     } catch (err) {
         alert("Error: " + err.message);
