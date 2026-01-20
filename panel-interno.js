@@ -730,7 +730,130 @@ function toggleCamposProceso() {
     }
 }
 
-// C. Función placeholder para el filtro (la programaremos completa en el siguiente paso)
-function cargarProcesos() {
-    console.log("Cargando procesos... (Lógica pendiente de implementación)");
+// --- E. Cargar y Pintar la Tabla de Procesos (VERSIÓN FINAL) ---
+async function cargarProcesos() {
+    const tbody = document.getElementById('tablaProcesosBody');
+    const filtro = document.getElementById('filtroEstadoProceso'); // El select de "Activos/Cerrados"
+    
+    if(!tbody || !filtro) return;
+
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>';
+
+    try {
+        // 1. Consultar a Supabase (incluyendo datos del Cliente)
+        const { data: procesos, error } = await clienteSupabase
+            .from('procesos')
+            .select('*, clientes(nombre)') 
+            .eq('estado_actual', filtro.value) // Filtra según lo que elijas en el select
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (procesos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No se encontraron expedientes en esta categoría.</td></tr>';
+            return;
+        }
+
+        // 2. Dibujar filas
+        tbody.innerHTML = '';
+        procesos.forEach(p => {
+            // Icono según tipo
+            let icono = '<i class="fas fa-balance-scale"></i>'; // Judicial
+            if(p.tipo === 'Consultoria') icono = '<i class="fas fa-comments"></i>'; // Consultoría
+            if(p.tipo === 'Tramite') icono = '<i class="fas fa-file-signature"></i>'; // Trámite
+
+            // Detalle inteligente
+            let detalle = p.radicado ? `<span style="font-family:monospace; color:#162F45;">${p.radicado}</span><br><small>${p.juzgado || ''}</small>` : '';
+            if(p.tipo === 'Consultoria' && p.fecha_cita) {
+                const fecha = new Date(p.fecha_cita).toLocaleString();
+                detalle = `<span style="color:#B68656; font-weight:bold;"><i class="far fa-calendar-alt"></i> ${fecha}</span>`;
+            }
+
+            // Nombre del cliente
+            const nombreCliente = p.clientes ? p.clientes.nombre : 'Cliente desconocido';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>
+                        <div style="font-weight:bold;">${nombreCliente}</div>
+                    </td>
+                    <td>
+                        <div style="color:#162F45;">${icono} ${p.tipo}</div>
+                        <small style="color:#666;">${p.subtipo || ''}</small>
+                    </td>
+                    <td>${detalle || 'Sin detalle'}</td>
+                    <td>
+                        <span class="status active" style="background:${p.etapa_procesal ? '#e3f2fd' : '#eee'}; color:#1565c0;">
+                            ${p.etapa_procesal || 'Iniciando'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-icon" title="Ver Expediente Completo"><i class="fas fa-folder-open" style="color:#B68656;"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (err) {
+        console.error("Error al cargar procesos:", err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Error de conexión.</td></tr>';
+    }
+}
+// --- D. Guardar Proceso (CREATE) ---
+const formProceso = document.getElementById('formProceso');
+if(formProceso) {
+    formProceso.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const btn = document.querySelector('#formProceso button[type="submit"]');
+        const txtOriginal = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        btn.disabled = true;
+
+        try {
+            // 1. Recoger datos básicos
+            const tipo = document.getElementById('procesoTipo').value;
+            
+            const datosProceso = {
+                cliente_id: document.getElementById('procesoClienteId').value,
+                tipo: tipo,
+                subtipo: document.getElementById('procesoSubtipo').value,
+                estado_actual: document.getElementById('procesoEstado').value,
+                etapa_procesal: document.getElementById('procesoEtapa').value,
+                user_id: usuarioActual.id
+            };
+
+            // 2. Agregar datos específicos según el tipo
+            if (tipo === 'Consultoria') {
+                datosProceso.fecha_cita = document.getElementById('procesoFechaCita').value || null;
+                // Limpiamos los otros campos para que no se guarde basura
+                datosProceso.radicado = null;
+                datosProceso.juzgado = null;
+                datosProceso.link_tyba = null;
+            } else {
+                // Judicial o Trámite
+                datosProceso.radicado = document.getElementById('procesoRadicado').value;
+                datosProceso.juzgado = document.getElementById('procesoJuzgado').value;
+                datosProceso.link_tyba = document.getElementById('procesoLink').value;
+                datosProceso.fecha_cita = null;
+            }
+
+            // 3. Enviar a Supabase
+            const { error } = await clienteSupabase
+                .from('procesos')
+                .insert([datosProceso]);
+
+            if(error) throw error;
+
+            alert("Proceso guardado correctamente.");
+            cerrarModalProceso();
+            cargarProcesos(); // Recargar la tabla
+
+        } catch (err) {
+            alert("Error: " + err.message);
+        } finally {
+            btn.innerHTML = txtOriginal;
+            btn.disabled = false;
+        }
+    });
 }
