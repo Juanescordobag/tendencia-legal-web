@@ -408,7 +408,6 @@ async function cargarClientesDesdeNube() {
                                 $ ${Number(c.valor_total).toLocaleString()} ${textoIva}
                             </div>
                         </td>
-                        /* --- REEMPLAZA EL BLOQUE DE BOTONES EN cargarClientesDesdeNube --- */
                         <td style="display: flex; gap: 5px; justify-content: center;">
                             <button class="btn-icon" onclick="verCliente(${c.id})" title="Ver Detalle">
                                 <i class="fas fa-eye" style="color:#162F45;"></i>
