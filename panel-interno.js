@@ -705,15 +705,26 @@ function cerrarModalProceso() {
 }
 
 // B. Alternar entre Judicial y Consultoría
+// B. Alternar entre Judicial/Trámite y Consultoría
 function toggleCamposProceso() {
     const tipo = document.getElementById('procesoTipo').value;
-    const divJudicial = document.getElementById('camposJudiciales');
+    const divJudicial = document.getElementById('camposJudiciales'); // Usaremos este mismo para Trámites
     const divConsultoria = document.getElementById('camposConsultoria');
 
-    if (tipo === 'Judicial') {
+    // SI ES JUDICIAL O TRÁMITE -> Muestra campos de radicado
+    if (tipo === 'Judicial' || tipo === 'Tramite') {
         divJudicial.style.display = 'block';
         divConsultoria.style.display = 'none';
+        
+        // Pequeño truco visual: Cambiar el placeholder si es trámite
+        if(tipo === 'Tramite') {
+            document.getElementById('procesoJuzgado').placeholder = "Entidad / Notaría / Superintendencia...";
+        } else {
+            document.getElementById('procesoJuzgado').placeholder = "Juzgado 15 Laboral...";
+        }
+
     } else {
+        // SI ES CONSULTORÍA -> Muestra solo fecha
         divJudicial.style.display = 'none';
         divConsultoria.style.display = 'block';
     }
