@@ -11,6 +11,7 @@ let rolActual = null;
 // Variables globales de estado
 let clienteEnEdicionId = null; 
 let clientesCache = []; // Almacena temporalmente los clientes descargados para verlos rápido
+let procesosCache = []; // Memoria temporal para procesos
 
 // Variables globales para archivos
 let archivoImagen = null;
@@ -731,52 +732,50 @@ function toggleCamposProceso() {
 }
 
 // --- E. Cargar y Pintar la Tabla de Procesos (VERSIÓN FINAL) ---
+// --- E. Cargar y Pintar la Tabla de Procesos (VERSIÓN ACTUALIZADA) ---
 async function cargarProcesos() {
     const tbody = document.getElementById('tablaProcesosBody');
-    const filtro = document.getElementById('filtroEstadoProceso'); // El select de "Activos/Cerrados"
+    const filtro = document.getElementById('filtroEstadoProceso'); 
     
     if(!tbody || !filtro) return;
 
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>';
 
     try {
-        // 1. Consultar a Supabase (incluyendo datos del Cliente)
         const { data: procesos, error } = await clienteSupabase
             .from('procesos')
             .select('*, clientes(nombre)') 
-            .eq('estado_actual', filtro.value) // Filtra según lo que elijas en el select
+            .eq('estado_actual', filtro.value) 
             .order('created_at', { ascending: false });
 
         if (error) throw error;
+
+        // GUARDAR EN MEMORIA GLOBAL (Para poder editar luego)
+        procesosCache = procesos || [];
 
         if (procesos.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; padding: 20px;">No se encontraron expedientes en esta categoría.</td></tr>';
             return;
         }
 
-        // 2. Dibujar filas
         tbody.innerHTML = '';
         procesos.forEach(p => {
-            // Icono según tipo
-            let icono = '<i class="fas fa-balance-scale"></i>'; // Judicial
-            if(p.tipo === 'Consultoria') icono = '<i class="fas fa-comments"></i>'; // Consultoría
-            if(p.tipo === 'Tramite') icono = '<i class="fas fa-file-signature"></i>'; // Trámite
+            let icono = '<i class="fas fa-balance-scale"></i>';
+            if(p.tipo === 'Consultoria') icono = '<i class="fas fa-comments"></i>';
+            if(p.tipo === 'Tramite') icono = '<i class="fas fa-file-signature"></i>';
 
-            // Detalle inteligente
             let detalle = p.radicado ? `<span style="font-family:monospace; color:#162F45;">${p.radicado}</span><br><small>${p.juzgado || ''}</small>` : '';
             if(p.tipo === 'Consultoria' && p.fecha_cita) {
                 const fecha = new Date(p.fecha_cita).toLocaleString();
                 detalle = `<span style="color:#B68656; font-weight:bold;"><i class="far fa-calendar-alt"></i> ${fecha}</span>`;
             }
 
-            // Nombre del cliente
             const nombreCliente = p.clientes ? p.clientes.nombre : 'Cliente desconocido';
 
+            // AQUÍ ESTÁN LOS NUEVOS BOTONES DE ACCIÓN (Editar y Borrar)
             tbody.innerHTML += `
                 <tr>
-                    <td>
-                        <div style="font-weight:bold;">${nombreCliente}</div>
-                    </td>
+                    <td><div style="font-weight:bold;">${nombreCliente}</div></td>
                     <td>
                         <div style="color:#162F45;">${icono} ${p.tipo}</div>
                         <small style="color:#666;">${p.subtipo || ''}</small>
@@ -788,7 +787,12 @@ async function cargarProcesos() {
                         </span>
                     </td>
                     <td>
-                        <button class="btn-icon" title="Ver Expediente Completo"><i class="fas fa-folder-open" style="color:#B68656;"></i></button>
+                        <button class="btn-icon" onclick="verProceso(${p.id})" title="Editar / Ver Detalle">
+                            <i class="fas fa-edit" style="color:#162F45;"></i>
+                        </button>
+                        <button class="btn-icon btn-delete" onclick="borrarProceso(${p.id})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `;
@@ -799,7 +803,7 @@ async function cargarProcesos() {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Error de conexión.</td></tr>';
     }
 }
-// --- D. Guardar Proceso (CREATE) ---
+// --- D. Guardar Proceso (CREATE / UPDATE) ---
 const formProceso = document.getElementById('formProceso');
 if(formProceso) {
     formProceso.addEventListener('submit', async function(e) {
@@ -811,49 +815,119 @@ if(formProceso) {
         btn.disabled = true;
 
         try {
-            // 1. Recoger datos básicos
+            // 1. Recoger datos
             const tipo = document.getElementById('procesoTipo').value;
-            
             const datosProceso = {
                 cliente_id: document.getElementById('procesoClienteId').value,
                 tipo: tipo,
                 subtipo: document.getElementById('procesoSubtipo').value,
                 estado_actual: document.getElementById('procesoEstado').value,
                 etapa_procesal: document.getElementById('procesoEtapa').value,
-                user_id: usuarioActual.id
+                user_id: usuarioActual.id // (Opcional en update, obligatorio en insert)
             };
 
-            // 2. Agregar datos específicos según el tipo
+            // 2. Datos específicos
             if (tipo === 'Consultoria') {
                 datosProceso.fecha_cita = document.getElementById('procesoFechaCita').value || null;
-                // Limpiamos los otros campos para que no se guarde basura
                 datosProceso.radicado = null;
                 datosProceso.juzgado = null;
                 datosProceso.link_tyba = null;
             } else {
-                // Judicial o Trámite
                 datosProceso.radicado = document.getElementById('procesoRadicado').value;
                 datosProceso.juzgado = document.getElementById('procesoJuzgado').value;
                 datosProceso.link_tyba = document.getElementById('procesoLink').value;
                 datosProceso.fecha_cita = null;
             }
 
-            // 3. Enviar a Supabase
-            const { error } = await clienteSupabase
-                .from('procesos')
-                .insert([datosProceso]);
+            let errorOperacion = null;
 
-            if(error) throw error;
+            // 3. DECISIÓN: ¿Insertar o Actualizar?
+            if (procesoEnEdicionId) {
+                // MODO ACTUALIZAR (UPDATE)
+                const { error } = await clienteSupabase
+                    .from('procesos')
+                    .update(datosProceso)
+                    .eq('id', procesoEnEdicionId);
+                errorOperacion = error;
+            } else {
+                // MODO CREAR (INSERT)
+                const { error } = await clienteSupabase
+                    .from('procesos')
+                    .insert([datosProceso]);
+                errorOperacion = error;
+            }
 
-            alert("Proceso guardado correctamente.");
+            if(errorOperacion) throw errorOperacion;
+
+            alert("Operación exitosa.");
             cerrarModalProceso();
-            cargarProcesos(); // Recargar la tabla
+            cargarProcesos(); 
 
         } catch (err) {
             alert("Error: " + err.message);
+            console.error(err);
         } finally {
             btn.innerHTML = txtOriginal;
             btn.disabled = false;
         }
     });
 }
+// --- F. Funciones de Edición y Borrado ---
+
+// 1. EDITAR (Llena el formulario con los datos existentes)
+function verProceso(id) {
+    const proceso = procesosCache.find(p => p.id === id);
+    if (!proceso) return;
+
+    // Abrir modal
+    document.getElementById('modalProceso').style.display = 'flex';
+    
+    // Llenar campos básicos
+    document.getElementById('procesoClienteId').value = proceso.cliente_id;
+    document.getElementById('procesoTipo').value = proceso.tipo;
+    document.getElementById('procesoSubtipo').value = proceso.subtipo || '';
+    document.getElementById('procesoEstado').value = proceso.estado_actual;
+    document.getElementById('procesoEtapa').value = proceso.etapa_procesal || '';
+
+    // Ejecutar lógica visual (mostrar/ocultar campos según tipo)
+    toggleCamposProceso();
+
+    // Llenar campos específicos
+    if (proceso.tipo === 'Judicial' || proceso.tipo === 'Tramite') {
+        document.getElementById('procesoRadicado').value = proceso.radicado || '';
+        document.getElementById('procesoJuzgado').value = proceso.juzgado || '';
+        document.getElementById('procesoLink').value = proceso.link_tyba || '';
+    } else {
+        // Formatear fecha para el input datetime-local (YYYY-MM-DDTHH:MM)
+        if(proceso.fecha_cita) {
+            const fecha = new Date(proceso.fecha_cita);
+            fecha.setMinutes(fecha.getMinutes() - fecha.getTimezoneOffset());
+            document.getElementById('procesoFechaCita').value = fecha.toISOString().slice(0,16);
+        }
+    }
+
+    // Configurar modo EDICIÓN
+    procesoEnEdicionId = id; // IMPORTANTE: Esto le dice al sistema que vamos a actualizar
+}
+
+// 2. BORRAR
+async function borrarProceso(id) {
+    if(!confirm("¿Estás seguro de eliminar este expediente? Esta acción no se puede deshacer.")) return;
+
+    try {
+        const { error } = await clienteSupabase
+            .from('procesos')
+            .delete()
+            .eq('id', id);
+
+        if(error) throw error;
+
+        alert("Proceso eliminado.");
+        cargarProcesos(); // Recargar tabla
+    } catch(err) {
+        alert("Error al borrar: " + err.message);
+    }
+}
+
+
+
