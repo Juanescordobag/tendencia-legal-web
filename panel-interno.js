@@ -1369,5 +1369,97 @@ function realizarCalculo() {
 function guardarEnAgendaCalculo() {
     alert("¡Calculado! En el próximo paso guardaremos '" + fechaCalculadaGlobal + "' en el Calendario real.");
 }
+// ==========================================
+// 10. IMPORTACIÓN MASIVA DE CLIENTES (COMPLETA)
+// ==========================================
+
+async function procesarExcelMasivo() {
+    const input = document.getElementById('inputExcelMasivo');
+    const archivo = input.files[0];
+
+    if (!archivo) return;
+
+    if (!confirm("Vas a importar clientes completos desde Excel.\n\nAsegúrate de usar los encabezados correctos:\nNombre, Cedula, Telefono, Correo, Direccion, Tipo, Servicio, Honorarios, etc.\n\n¿Continuar?")) {
+        input.value = ''; 
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+
+            // Convertir a JSON
+            const jsonDatos = XLSX.utils.sheet_to_json(worksheet);
+
+            if (jsonDatos.length === 0) {
+                alert("El archivo parece estar vacío.");
+                return;
+            }
+
+            // MAPEO INTELIGENTE (Excel -> Supabase)
+            const clientesParaInsertar = jsonDatos.map(fila => {
+                
+                // Función auxiliar para limpiar textos (quita espacios y pone minúsculas si es necesario)
+                const getVal = (keys) => {
+                    for (let key of keys) {
+                        if (fila[key] !== undefined) return fila[key];
+                    }
+                    return null;
+                };
+
+                return {
+                    user_id: usuarioActual.id,
+                    
+                    // 1. Datos Básicos
+                    nombre: getVal(['Nombre', 'nombre', 'Cliente']) || 'Sin Nombre',
+                    identificacion: getVal(['Cedula', 'cedula', 'NIT', 'Identificacion']) || '000',
+                    telefono: getVal(['Telefono', 'telefono', 'Celular']) || 0,
+                    email: getVal(['Correo', 'correo', 'Email']) || 'sin@correo.com',
+                    direccion: getVal(['Direccion', 'direccion', 'Ubicacion']) || '',
+                    
+                    // 2. Clasificación (Con valores por defecto si lo dejan vacío)
+                    tipo_persona: getVal(['Tipo', 'tipo']) || 'Natural', 
+                    servicio: getVal(['Servicio', 'servicio', 'Asunto']) || 'Consultoria',
+                    
+                    // 3. Detalles del Caso
+                    fecha_inicio: getVal(['Fecha Inicio', 'Fecha', 'Inicio']) || new Date().toISOString().split('T')[0],
+                    contraparte: getVal(['Contraparte', 'contraparte']) || '',
+                    descripcion: getVal(['Descripcion', 'descripcion', 'Detalle']) || 'Importado desde Excel',
+                    
+                    // 4. Financiero
+                    modalidad_pago: getVal(['Modalidad', 'modalidad', 'Cobro']) || 'Fijo',
+                    valor_total: getVal(['Valor', 'valor', 'Honorarios', 'Precio']) || 0,
+                    impuesto: getVal(['IVA', 'iva', 'Impuesto']) || 'NoAplica',
+                    porcentaje_exito: getVal(['Cuota Litis', 'Porcentaje', 'Exito']) || 0,
+                    
+                    estado_pago: 'Pendiente'
+                };
+            });
+
+            // ENVIAR A SUPABASE
+            const { error } = await clienteSupabase
+                .from('clientes')
+                .insert(clientesParaInsertar);
+
+            if (error) throw error;
+
+            alert(`¡Éxito! Se han creado ${clientesParaInsertar.length} expedientes completos.`);
+            cargarClientesDesdeNube(); 
+
+        } catch (err) {
+            console.error(err);
+            alert("Error al procesar el archivo: " + err.message);
+        } finally {
+            input.value = ''; 
+        }
+    };
+
+    reader.readAsArrayBuffer(archivo);
+}
 
 
