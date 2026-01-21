@@ -1186,5 +1186,94 @@ function cargarAgenda() {
     calendar.render();
     calendarioRenderizado = true;
 }
+// ==========================================
+// 9. CALCULADORA DE TÉRMINOS JUDICIALES
+// ==========================================
+
+// Lista de Festivos Colombia (2025 - 2026) - Formato AAAA-MM-DD
+const festivosColombia = [
+    // 2025
+    "2025-01-01", "2025-01-06", "2025-03-24", "2025-04-17", "2025-04-18", 
+    "2025-05-01", "2025-06-02", "2025-06-23", "2025-06-30", "2025-07-20", 
+    "2025-08-07", "2025-08-18", "2025-10-13", "2025-11-03", "2025-11-17", 
+    "2025-12-08", "2025-12-25",
+    // 2026 (Proyectados)
+    "2026-01-01", "2026-01-12", "2026-03-23", "2026-04-02", "2026-04-03",
+    "2026-05-01", "2026-05-18", "2026-06-08", "2026-06-15", "2026-06-29",
+    "2026-07-20", "2026-08-07", "2026-08-17", "2026-10-12", "2026-11-02",
+    "2026-11-16", "2026-12-08", "2026-12-25"
+];
+
+let fechaCalculadaGlobal = null; // Para guardar el resultado temporalmente
+
+function abrirModalCalculadora() {
+    document.getElementById('modalCalculadora').style.display = 'flex';
+    // Poner fecha de hoy por defecto
+    document.getElementById('calcFechaInicio').valueAsDate = new Date();
+    // Limpiar resultado anterior
+    document.getElementById('resultadoCalculo').style.display = 'none';
+}
+
+function cerrarModalCalculadora() {
+    document.getElementById('modalCalculadora').style.display = 'none';
+}
+
+function realizarCalculo() {
+    const fechaInput = document.getElementById('calcFechaInicio').value;
+    const diasInput = parseInt(document.getElementById('calcDias').value);
+    const tipo = document.getElementById('calcTipo').value; // 'Habiles' o 'Calendario'
+
+    if (!fechaInput || !diasInput) {
+        alert("Por favor ingresa la fecha y el número de días.");
+        return;
+    }
+
+    // El truco de la fecha: JS usa zona horaria local, esto evita errores de "ayer"
+    let fechaActual = new Date(fechaInput + 'T00:00:00');
+    let diasContados = 0;
+
+    // LÓGICA DE CÁLCULO
+    while (diasContados < diasInput) {
+        // Avanzamos un día
+        fechaActual.setDate(fechaActual.getDate() + 1);
+
+        if (tipo === 'Calendario') {
+            diasContados++;
+        } else {
+            // Si es Hábiles, verificamos que NO sea fin de semana NI festivo
+            const diaSemana = fechaActual.getDay(); // 0 = Domingo, 6 = Sábado
+            const fechaStr = fechaActual.toISOString().split('T')[0]; // YYYY-MM-DD
+
+            // Si no es Sábado (6) ni Domingo (0) ni Festivo
+            if (diaSemana !== 0 && diaSemana !== 6 && !festivosColombia.includes(fechaStr)) {
+                diasContados++;
+            }
+        }
+    }
+
+    // MOSTRAR RESULTADO
+    fechaCalculadaGlobal = fechaActual.toISOString().split('T')[0]; // Guardar para usar luego
+    
+    // Formato bonito para el usuario (Ej: Lunes, 24 de Agosto de 2026)
+    const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const textoFecha = fechaActual.toLocaleDateString('es-ES', opcionesFecha);
+
+    const divResultado = document.getElementById('resultadoCalculo');
+    divResultado.innerHTML = `
+        <div style="font-size: 14px; color: #666; margin-bottom: 5px;">El término vence el:</div>
+        <div style="font-size: 18px; font-weight: bold; color: #c62828; text-transform: capitalize;">${textoFecha}</div>
+        <div style="margin-top: 15px;">
+            <button type="button" class="btn-action" style="margin: 0 auto;" onclick="guardarEnAgendaCalculo()">
+                <i class="fas fa-calendar-check"></i> Agendar Vencimiento
+            </button>
+        </div>
+    `;
+    divResultado.style.display = 'block';
+}
+
+// Función temporal hasta que conectemos la base de datos de agenda
+function guardarEnAgendaCalculo() {
+    alert("¡Calculado! En el próximo paso guardaremos '" + fechaCalculadaGlobal + "' en el Calendario real.");
+}
 
 
