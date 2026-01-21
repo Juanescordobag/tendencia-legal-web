@@ -1142,49 +1142,127 @@ async function cargarActuaciones(idProceso) {
     });
 }
 // ==========================================
-// 8. AGENDA Y CALENDARIO
+// 8. AGENDA Y CALENDARIO (CONEXIÓN REAL)
 // ==========================================
 
-let calendarioRenderizado = false; // Para que no se dibuje 2 veces
+let calendarioInstancia = null; // Para controlar el calendario
 
+// A. Abrir Modal Manual
+function abrirModalEvento() {
+    document.getElementById('modalEvento').style.display = 'flex';
+    document.getElementById('formEvento').reset();
+    
+    // Cargar Procesos en el Select (para vincular la audiencia a un caso)
+    const select = document.getElementById('evtProcesoId');
+    select.innerHTML = '<option value="">-- Ninguno / Evento General --</option>';
+    
+    if(procesosCache.length > 0) {
+        procesosCache.forEach(p => {
+            const nombreCliente = p.clientes ? p.clientes.nombre : 'Cliente';
+            select.innerHTML += `<option value="${p.id}">Caso: ${nombreCliente} - ${p.tipo}</option>`;
+        });
+    }
+}
+
+function cerrarModalEvento() {
+    document.getElementById('modalEvento').style.display = 'none';
+}
+
+// B. Guardar Evento Manualmente
+document.getElementById('formEvento').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.querySelector('#formEvento button[type="submit"]');
+    btn.innerHTML = 'Guardando...'; btn.disabled = true;
+
+    try {
+        const procesoId = document.getElementById('evtProcesoId').value;
+        
+        const { error } = await clienteSupabase
+            .from('agenda')
+            .insert([{
+                titulo: document.getElementById('evtTitulo').value,
+                fecha_inicio: document.getElementById('evtFecha').value,
+                tipo_evento: document.getElementById('evtTipo').value,
+                proceso_id: procesoId || null, // Si está vacío, manda null
+                descripcion: document.getElementById('evtDescripcion').value,
+                user_id: usuarioActual.id
+            }]);
+
+        if (error) throw error;
+
+        alert("Evento agendado exitosamente.");
+        cerrarModalEvento();
+        
+        // Recargar el calendario para ver el nuevo evento
+        calendarioInstancia.refetchEvents(); 
+
+    } catch(err) {
+        alert("Error: " + err.message);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-save"></i> Guardar en Agenda';
+        btn.disabled = false;
+    }
+});
+
+// C. Cargar Calendario (LEER DE BASE DE DATOS)
 function cargarAgenda() {
-    // Si ya lo dibujamos una vez, solo aseguramos que se vea bien y salimos
-    if(calendarioRenderizado) {
-        // Un pequeño truco para que se ajuste bien al tamaño de pantalla al volver
+    const calendarEl = document.getElementById('calendar');
+
+    // Si ya existe, solo ajustamos tamaño y salimos
+    if (calendarioInstancia) {
         setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
         return;
     }
-
-    const calendarEl = document.getElementById('calendar');
     
     // Configuración del Calendario
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth', // Vista mensual por defecto
-        locale: 'es', // Idioma español
+    calendarioInstancia = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,listWeek' // Botones de vista
+            right: 'dayGridMonth,timeGridWeek,listWeek'
         },
-        buttonText: {
-            today: 'Hoy',
-            month: 'Mes',
-            week: 'Semana',
-            list: 'Lista'
+        buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', list: 'Lista' },
+        
+        // AQUÍ CONECTAMOS CON SUPABASE
+        events: async function(info, successCallback, failureCallback) {
+            try {
+                const { data, error } = await clienteSupabase
+                    .from('agenda')
+                    .select('*');
+                
+                if(error) throw error;
+
+                // Convertir formato Supabase a formato FullCalendar
+                const eventosMapeados = data.map(evt => {
+                    let color = '#162F45'; // Azul por defecto (Recordatorio)
+                    if(evt.tipo_evento === 'Audiencia') color = '#B68656'; // Dorado
+                    if(evt.tipo_evento === 'Vencimiento') color = '#c62828'; // Rojo
+                    if(evt.tipo_evento === 'Cita') color = '#2e7d32'; // Verde
+
+                    return {
+                        title: evt.titulo,
+                        start: evt.fecha_inicio,
+                        color: color,
+                        extendedProps: { descripcion: evt.descripcion } // Guardar info extra
+                    };
+                });
+
+                successCallback(eventosMapeados);
+
+            } catch(err) {
+                console.error("Error cargando agenda:", err);
+                failureCallback(err);
+            }
         },
-        events: [
-            // Eventos de prueba (luego conectaremos la base de datos)
-            { title: 'Audiencia Inicial - Caso Nancy', start: new Date().toISOString().split('T')[0], color: '#B68656' },
-            { title: 'Vencimiento Contestación', start: new Date(Date.now() + 86400000).toISOString().split('T')[0], color: '#c62828' }
-        ],
+
         eventClick: function(info) {
-            alert('Evento: ' + info.event.title);
-            // Aquí luego abriremos el expediente directamente
+            alert('Evento: ' + info.event.title + '\n\n' + (info.event.extendedProps.descripcion || ''));
         }
     });
 
-    calendar.render();
-    calendarioRenderizado = true;
+    calendarioInstancia.render();
 }
 // ==========================================
 // 9. CALCULADORA DE TÉRMINOS JUDICIALES
