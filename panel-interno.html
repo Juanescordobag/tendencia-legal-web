@@ -153,7 +153,7 @@
             <div class="data-table-container">
                 <div class="table-header-flex">
                     <h3>Calendario de Vencimientos y Audiencias</h3>
-                    <button class="btn-action" style="margin-top:0;" onclick="alert('Próximamente: La Calculadora de Términos agregará eventos aquí automáticamente.')">
+                    <button class="btn-action" style="margin-top:0;" onclick="abrirModalEvento()">
                         <i class="fas fa-plus"></i> Agendar Evento
                     </button>
                 </div>
@@ -652,6 +652,54 @@
   
           <div id="resultadoCalculo" style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; display: none;">
               </div>
+      </div>
+  </div
+    <div id="modalEvento" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+          <div class="modal-header">
+              <h2><i class="fas fa-calendar-plus"></i> Agendar Evento</h2>
+              <button class="btn-close-modal" onclick="cerrarModalEvento()">&times;</button>
+          </div>
+  
+          <form id="formEvento">
+              <div>
+                  <label>Título del Evento</label>
+                  <input type="text" id="evtTitulo" placeholder="Ej: Audiencia de Conciliación" required>
+              </div>
+  
+              <div class="form-grid-2">
+                  <div>
+                      <label>Fecha y Hora</label>
+                      <input type="datetime-local" id="evtFecha" required>
+                  </div>
+                  <div>
+                      <label>Tipo</label>
+                      <select id="evtTipo">
+                          <option value="Audiencia">📢 Audiencia</option>
+                          <option value="Vencimiento">⏰ Vencimiento Término</option>
+                          <option value="Cita">🤝 Cita Cliente</option>
+                          <option value="Recordatorio">📌 Recordatorio</option>
+                      </select>
+                  </div>
+              </div>
+  
+              <div>
+                  <label>Vincular a un Proceso (Opcional)</label>
+                  <select id="evtProcesoId">
+                      <option value="">-- Ninguno / Evento General --</option>
+                  </select>
+              </div>
+  
+              <div>
+                  <label>Descripción / Notas</label>
+                  <textarea id="evtDescripcion" rows="2" placeholder="Detalles, link de la audiencia virtual..."></textarea>
+              </div>
+  
+              <div class="modal-footer-btns" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                  <button type="button" class="btn-action" style="background: #888;" onclick="cerrarModalEvento()">Cancelar</button>
+                  <button type="submit" class="btn-action"><i class="fas fa-save"></i> Guardar en Agenda</button>
+              </div>
+          </form>
       </div>
   </div>
   
