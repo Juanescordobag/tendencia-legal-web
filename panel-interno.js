@@ -976,6 +976,7 @@ function abrirExpediente(id) {
 
     // 4. (Pendiente) Cargar Actuaciones de la base de datos...
     cargarActuaciones(id);
+    cargarEvidencias(id);
 }
 
 // B. Volver a la lista
