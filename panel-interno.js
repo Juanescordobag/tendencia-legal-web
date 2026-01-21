@@ -74,6 +74,7 @@ function showSection(sectionId, element) {
         'dashboard': 'Resumen Ejecutivo',
         'clientes': 'Gestión de Clientes',
         'procesos': 'Expedientes y Casos',
+        'agenda': 'Agenda Judicial'
         'finanzas': 'Departamento Financiero',
         'gestion-noticias': 'Publicación de Noticias',
         'usuarios-sistema': 'Control de Usuarios'
@@ -98,6 +99,7 @@ function showSection(sectionId, element) {
     if(sectionId === 'gestion-noticias') cargarNoticiasDesdeNube();
     if(sectionId === 'clientes' || sectionId === 'dashboard') cargarClientesDesdeNube();
     if(sectionId === 'procesos') cargarProcesos();
+    if(sectionId === 'agenda') cargarAgenda();
 }
 
 
@@ -1138,6 +1140,51 @@ async function cargarActuaciones(idProceso) {
             </div>
         `;
     });
+}
+// ==========================================
+// 8. AGENDA Y CALENDARIO
+// ==========================================
+
+let calendarioRenderizado = false; // Para que no se dibuje 2 veces
+
+function cargarAgenda() {
+    // Si ya lo dibujamos una vez, solo aseguramos que se vea bien y salimos
+    if(calendarioRenderizado) {
+        // Un pequeño truco para que se ajuste bien al tamaño de pantalla al volver
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+        return;
+    }
+
+    const calendarEl = document.getElementById('calendar');
+    
+    // Configuración del Calendario
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth', // Vista mensual por defecto
+        locale: 'es', // Idioma español
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek' // Botones de vista
+        },
+        buttonText: {
+            today: 'Hoy',
+            month: 'Mes',
+            week: 'Semana',
+            list: 'Lista'
+        },
+        events: [
+            // Eventos de prueba (luego conectaremos la base de datos)
+            { title: 'Audiencia Inicial - Caso Nancy', start: new Date().toISOString().split('T')[0], color: '#B68656' },
+            { title: 'Vencimiento Contestación', start: new Date(Date.now() + 86400000).toISOString().split('T')[0], color: '#c62828' }
+        ],
+        eventClick: function(info) {
+            alert('Evento: ' + info.event.title);
+            // Aquí luego abriremos el expediente directamente
+        }
+    });
+
+    calendar.render();
+    calendarioRenderizado = true;
 }
 
 
