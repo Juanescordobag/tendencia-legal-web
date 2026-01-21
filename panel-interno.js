@@ -1461,5 +1461,147 @@ async function procesarExcelMasivo() {
 
     reader.readAsArrayBuffer(archivo);
 }
+// ==========================================
+// 11. GESTIÓN DE EVIDENCIAS (PRUEBAS)
+// ==========================================
+
+// A. Control del Modal (Abrir/Cerrar y cambiar tipo)
+function abrirModalEvidencia() {
+    document.getElementById('modalEvidencia').style.display = 'flex';
+    document.getElementById('formEvidencia').reset();
+    toggleTipoEvidencia(); // Para que arranque con la opción correcta visible
+}
+
+function cerrarModalEvidencia() {
+    document.getElementById('modalEvidencia').style.display = 'none';
+}
+
+function toggleTipoEvidencia() {
+    // Revisa cuál bolita (radio button) está marcada
+    const tipo = document.querySelector('input[name="tipoSoporte"]:checked').value;
+    
+    // Si es Digital, muestra el campo de subir archivo. Si es Físico, muestra el campo de texto.
+    if (tipo === 'Digital') {
+        document.getElementById('bloqueArchivoEvidencia').style.display = 'block';
+        document.getElementById('bloqueFisicoEvidencia').style.display = 'none';
+    } else {
+        document.getElementById('bloqueArchivoEvidencia').style.display = 'none';
+        document.getElementById('bloqueFisicoEvidencia').style.display = 'block';
+    }
+}
+
+// B. Guardar la Evidencia (Botón "Guardar")
+document.getElementById('formEvidencia').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.querySelector('#formEvidencia button[type="submit"]');
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = 'Guardando...'; btn.disabled = true;
+
+    try {
+        const nombre = document.getElementById('evNombre').value;
+        const tipo = document.querySelector('input[name="tipoSoporte"]:checked').value;
+        let urlArchivo = null;
+        let nombreArchivo = null;
+        let ubicacion = null;
+
+        // Opción 1: Es un archivo DIGITAL
+        if (tipo === 'Digital') {
+            const input = document.getElementById('inputArchivoEvidencia');
+            if (input.files.length > 0) {
+                const archivo = input.files[0];
+                nombreArchivo = archivo.name;
+                // Ruta: ID_PROCESO/evidencias/FECHA-NOMBRE
+                const ruta = `${procesoActualId}/evidencias/${Date.now()}-${nombreArchivo}`;
+
+                // Subir a la carpeta segura
+                const { error: uploadError } = await clienteSupabase.storage
+                    .from('expedientes_privados')
+                    .upload(ruta, archivo);
+                
+                if (uploadError) throw uploadError;
+
+                // Obtener el link para guardarlo
+                const { data } = clienteSupabase.storage
+                    .from('expedientes_privados')
+                    .getPublicUrl(ruta);
+                urlArchivo = data.publicUrl;
+            } else {
+                throw new Error("Por favor selecciona un archivo.");
+            }
+        } else {
+            // Opción 2: Es un documento FÍSICO
+            ubicacion = document.getElementById('evUbicacion').value;
+            if(!ubicacion) throw new Error("Escribe dónde está guardado el documento físico.");
+        }
+
+        // Guardar en la Base de Datos
+        const { error } = await clienteSupabase
+            .from('evidencias')
+            .insert([{
+                proceso_id: procesoActualId, // Usa el ID del caso que tienes abierto
+                nombre: nombre,
+                tipo_soporte: tipo,
+                archivo_url: urlArchivo,
+                nombre_archivo: nombreArchivo,
+                ubicacion_fisica: ubicacion,
+                user_id: usuarioActual.id
+            }]);
+
+        if (error) throw error;
+
+        alert("Evidencia agregada correctamente.");
+        cerrarModalEvidencia();
+        cargarEvidencias(procesoActualId); // Recargar la listica visual
+
+    } catch (err) {
+        alert("Error: " + err.message);
+    } finally {
+        btn.innerHTML = textoOriginal;
+        btn.disabled = false;
+    }
+});
+
+// C. Pintar la lista en pantalla
+async function cargarEvidencias(idProceso) {
+    const contenedor = document.getElementById('lista-evidencias');
+    if(!contenedor) return;
+    
+    contenedor.innerHTML = '<small>Cargando...</small>';
+
+    const { data: evidencias, error } = await clienteSupabase
+        .from('evidencias')
+        .select('*')
+        .eq('proceso_id', idProceso)
+        .order('created_at', { ascending: false });
+
+    if (error || !evidencias || evidencias.length === 0) {
+        contenedor.innerHTML = '<div style="font-size:12px; color:#999; padding:5px;">No hay pruebas registradas.</div>';
+        return;
+    }
+
+    contenedor.innerHTML = '';
+    evidencias.forEach(ev => {
+        let icono = '';
+        let accion = '';
+
+        if (ev.tipo_soporte === 'Digital') {
+            icono = '<i class="fas fa-file-pdf" style="color:#e53935; margin-right:5px;"></i>';
+            accion = `<a href="${ev.archivo_url}" target="_blank" style="font-size:11px; color:#1565c0; text-decoration:underline;">Ver Archivo</a>`;
+        } else {
+            icono = '<i class="fas fa-box-open" style="color:#B68656; margin-right:5px;"></i>';
+            accion = `<span style="font-size:11px; color:#666;">Ubicación: ${ev.ubicacion_fisica}</span>`;
+        }
+
+        contenedor.innerHTML += `
+            <div style="display:flex; align-items:center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                <div style="display:flex; align-items:center;">
+                    ${icono}
+                    <span style="font-weight:500; font-size:13px; color:#333;">${ev.nombre}</span>
+                </div>
+                ${accion}
+            </div>
+        `;
+    });
+}
 
 
