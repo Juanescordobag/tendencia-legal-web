@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>  
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -131,6 +132,7 @@
         <div class="menu-item active" onclick="showSection('dashboard', this)"><i class="fas fa-home"></i> Inicio</div>
         <div class="menu-item" onclick="showSection('clientes', this)"><i class="fas fa-address-book"></i> Clientes</div>
         <div class="menu-item" onclick="showSection('procesos', this)"><i class="fas fa-balance-scale"></i> Procesos y Casos</div>
+        <div class="menu-item" onclick="showSection('agenda', this)"><i class="fas fa-calendar-alt"></i> Agenda Judicial</div>
         <div class="menu-item" onclick="showSection('finanzas', this)"><i class="fas fa-chart-line"></i> Finanzas</div>
         
         <div class="menu-item admin-only" onclick="showSection('gestion-noticias', this)"><i class="fas fa-newspaper"></i> Publicar Noticias</div>
@@ -144,6 +146,17 @@
             <h1 id="page-title">Resumen Ejecutivo</h1>
             <div class="user-profile">
                 <i class="fas fa-user-tie"></i> <span id="nombreUsuarioDisplay">Cargando...</span>
+            </div>
+        </div>
+        <div id="agenda" class="section-view">
+            <div class="data-table-container">
+                <div class="table-header-flex">
+                    <h3>Calendario de Vencimientos y Audiencias</h3>
+                    <button class="btn-action" style="margin-top:0;" onclick="alert('Próximamente: La Calculadora de Términos agregará eventos aquí automáticamente.')">
+                        <i class="fas fa-plus"></i> Agendar Evento
+                    </button>
+                </div>
+                <div id='calendar' style="max-width: 100%; min-height: 600px; font-family: Arial, sans-serif;"></div>
             </div>
         </div>
 
