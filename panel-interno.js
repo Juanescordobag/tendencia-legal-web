@@ -74,7 +74,7 @@ function showSection(sectionId, element) {
         'dashboard': 'Resumen Ejecutivo',
         'clientes': 'Gestión de Clientes',
         'procesos': 'Expedientes y Casos',
-        'agenda': 'Agenda Judicial'
+        'agenda': 'Agenda Judicial',
         'finanzas': 'Departamento Financiero',
         'gestion-noticias': 'Publicación de Noticias',
         'usuarios-sistema': 'Control de Usuarios'
