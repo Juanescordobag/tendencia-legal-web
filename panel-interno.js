@@ -1226,30 +1226,46 @@ function cargarAgenda() {
         buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', list: 'Lista' },
         
         // AQUÍ CONECTAMOS CON SUPABASE
+        // AQUÍ CONECTAMOS CON SUPABASE Y LOS FESTIVOS
         events: async function(info, successCallback, failureCallback) {
             try {
+                // 1. Descargar eventos reales de la Base de Datos
                 const { data, error } = await clienteSupabase
                     .from('agenda')
                     .select('*');
                 
                 if(error) throw error;
 
-                // Convertir formato Supabase a formato FullCalendar
-                const eventosMapeados = data.map(evt => {
-                    let color = '#162F45'; // Azul por defecto (Recordatorio)
+                // 2. Mapear eventos de Supabase (Tus audiencias, citas, etc.)
+                const eventosDeAgenda = data.map(evt => {
+                    let color = '#162F45'; // Azul (Por defecto)
                     if(evt.tipo_evento === 'Audiencia') color = '#B68656'; // Dorado
-                    if(evt.tipo_evento === 'Vencimiento') color = '#c62828'; // Rojo
+                    if(evt.tipo_evento === 'Vencimiento') color = '#c62828'; // Rojo fuerte
                     if(evt.tipo_evento === 'Cita') color = '#2e7d32'; // Verde
 
                     return {
                         title: evt.titulo,
                         start: evt.fecha_inicio,
                         color: color,
-                        extendedProps: { descripcion: evt.descripcion } // Guardar info extra
+                        extendedProps: { descripcion: evt.descripcion }
                     };
                 });
 
-                successCallback(eventosMapeados);
+                // 3. Mapear los FESTIVOS (Desde tu lista de JS)
+                // Usamos "display: 'background'" para que pinten todo el día de rojo suave
+                const eventosFestivos = festivosColombia.map(fecha => {
+                    return {
+                        start: fecha,
+                        display: 'background', // Esto lo pone de fondo
+                        backgroundColor: '#ffcdd2', // Rojo clarito (alerta visual)
+                        title: 'FESTIVO' // (Nota: en vista mensual a veces no se ve el título del fondo, pero sí el color)
+                    };
+                });
+
+                // 4. Unir ambas listas y enviarlas al calendario
+                const todosLosEventos = [...eventosDeAgenda, ...eventosFestivos];
+                
+                successCallback(todosLosEventos);
 
             } catch(err) {
                 console.error("Error cargando agenda:", err);
