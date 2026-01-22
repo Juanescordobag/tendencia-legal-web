@@ -1832,7 +1832,6 @@ function renderizarTimeline(movimientos, fmt) {
         `;
     });
 }
-    });
-}
+
 
 
