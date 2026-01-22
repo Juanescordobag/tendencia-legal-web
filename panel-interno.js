@@ -282,7 +282,7 @@ if(formCliente) {
     formCliente.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Feedback visual de carga
+        // Feedback visual de carga (Botón girando)
         const btn = document.querySelector('#formCliente button[type="submit"]');
         const txtOriginal = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
@@ -303,7 +303,7 @@ if(formCliente) {
                 }
             });
 
-            // 2. Preparar objeto para SQL (Nombres en snake_case)
+            // 2. Preparar objeto para SQL
             const datosCliente = {
                 tipo_persona: document.getElementById('clienteTipo').value,
                 identificacion: document.getElementById('clienteId').value,
@@ -320,67 +320,78 @@ if(formCliente) {
                 impuesto: document.getElementById('impuestoIva').value,
                 porcentaje_exito: document.getElementById('porcentajeExito').value || 0,
                 plan_pagos: cuotas,
-                // Nota: Por ahora guardamos el nombre del archivo como texto. 
                 contrato_url: document.getElementById('nombreContrato').innerText,
-                
-                user_id: usuarioActual.id // ¡Importante! El dueño del registro
+                user_id: usuarioActual.id
             };
 
-            let errorOperacion = null;
-
+            // BLOQUE DE DECISIÓN: ¿EDITAR O CREAR?
             if (clienteEnEdicionId) {
-                // UPDATE
+                // A. MODO EDICIÓN (UPDATE)
                 const { error } = await clienteSupabase
                     .from('clientes')
                     .update(datosCliente)
                     .eq('id', clienteEnEdicionId);
-                errorOperacion = error;
-            } else {
-                // INSERT
-                // 1. Guardar el Cliente y pedir que nos devuelva el ID (.select)
-            const { data: clientesCreados, error } = await clienteSupabase
-                .from('clientes')
-                .insert([datosCliente])
-                .select(); 
-
-            if (error) throw error;
-
-            // 2. AUTOMATIZACIÓN FINANCIERA
-            const nuevoCliente = clientesCreados[0]; 
-
-            if (nuevoCliente.valor_total > 0) {
-                const { error: errorFinanza } = await clienteSupabase
-                    .from('finanzas_movimientos')
-                    .insert([{
-                        cliente_id: nuevoCliente.id,
-                        user_id: usuarioActual.id,
-                        tipo: 'INGRESO',
-                        categoria: 'Honorarios',
-                        descripcion: 'Contrato Inicial: ' + nuevoCliente.nombre,
-                        monto_esperado: nuevoCliente.valor_total,
-                        monto_real: 0, 
-                        fecha_vencimiento: nuevoCliente.fecha_inicio,
-                        estado: 'PENDIENTE'
-                    }]);
                 
-                if (errorFinanza) console.error("Error financiero:", errorFinanza);
+                if (error) throw error;
+
+                // SINCRONIZAR CON FINANZAS (Nuevo: Actualiza la deuda si cambias el contrato)
+                if (datosCliente.valor_total > 0) {
+                    await clienteSupabase
+                        .from('finanzas_movimientos')
+                        .update({ 
+                            monto_esperado: datosCliente.valor_total,
+                            fecha_vencimiento: datosCliente.fecha_inicio
+                        })
+                        .eq('cliente_id', clienteEnEdicionId)
+                        .eq('estado', 'PENDIENTE')
+                        .eq('tipo', 'INGRESO');
+                }
+                alert("Cliente actualizado correctamente.");
+
+            } else {
+                // B. MODO CREACIÓN (INSERT)
+                const { data: clientesCreados, error } = await clienteSupabase
+                    .from('clientes')
+                    .insert([datosCliente])
+                    .select(); 
+
+                if (error) throw error;
+
+                // AUTOMATIZACIÓN FINANCIERA (Nuevo: Crea la deuda automáticamente)
+                const nuevoCliente = clientesCreados[0]; 
+                if (nuevoCliente.valor_total > 0) {
+                    const { error: errorFinanza } = await clienteSupabase
+                        .from('finanzas_movimientos')
+                        .insert([{
+                            cliente_id: nuevoCliente.id,
+                            user_id: usuarioActual.id,
+                            tipo: 'INGRESO',
+                            categoria: 'Honorarios',
+                            descripcion: 'Contrato Inicial: ' + nuevoCliente.nombre,
+                            monto_esperado: nuevoCliente.valor_total,
+                            monto_real: 0, 
+                            fecha_vencimiento: nuevoCliente.fecha_inicio,
+                            estado: 'PENDIENTE'
+                        }]);
+                    if (errorFinanza) console.error("Error financiero:", errorFinanza);
+                }
+                
+                alert("Cliente creado y vinculado a Finanzas correctamente.");
             }
 
-            alert("Cliente creado y vinculado a Finanzas correctamente.");
+            // LIMPIEZA FINAL
             cerrarModalCliente();
-            cargarClientesDesdeNube(); // Recargar tabla
-            }
-            }
+            cargarClientesDesdeNube();
+
         } catch (err) {
-            alert("Error al guardar: " + err.message);
             console.error(err);
+            alert("Error al guardar: " + err.message);
         } finally {
             btn.innerHTML = txtOriginal;
             btn.disabled = false;
         }
     });
 }
-
 // --- E. Cargar Clientes (READ desde Supabase) ---
 // --- NUEVA ESTRUCTURA PARA PODER BUSCAR ---
 
