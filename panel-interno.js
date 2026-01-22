@@ -1062,6 +1062,25 @@ document.getElementById('formActuacion').addEventListener('submit', async functi
 
         if (error) throw error;
 
+        // --- INICIO BLOQUE NUEVO: ACTUALIZAR ESTADO ---
+        const checkEstado = document.getElementById('actActualizarEstado');
+        if (checkEstado.checked) {
+            const nuevoEstado = document.getElementById('actTitulo').value;
+            
+            // 1. Actualizar en la Base de Datos (Tabla Procesos)
+            const { error: errorEstado } = await clienteSupabase
+                .from('procesos')
+                .update({ estado: nuevoEstado })
+                .eq('id', procesoActualId);
+
+            if (errorEstado) console.error("Error actualizando estado:", errorEstado);
+
+            // 2. Actualizar visualmente la etiqueta azul en pantalla inmediatamente
+            const etiquetaEstado = document.getElementById('procEstado');
+            if(etiquetaEstado) etiquetaEstado.innerText = nuevoEstado;
+        }
+        // --- FIN BLOQUE NUEVO ---
+
         alert("Actuación registrada correctamente.");
         cerrarModalActuacion();
         cargarActuaciones(procesoActualId); 
