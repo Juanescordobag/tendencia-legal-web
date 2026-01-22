@@ -547,6 +547,22 @@
             <button class="btn-close-modal" onclick="document.getElementById('modalTransaccion').style.display='none'">&times;</button>
         </div>
         <form id="formTransaccion">
+            <input type="hidden" id="finTipo"> <input type="hidden" id="finIdMovimientoExistente"> <div id="bloqueVinculacionCliente" style="margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                <label style="font-size:12px; color:#666;">Vincular a Cliente (Opcional)</label>
+                <select id="finClienteSelect" class="input-tabla" style="width:100%; margin-bottom:10px; border:1px solid #ccc;" onchange="cargarDeudasClienteFinanzas()">
+                    <option value="">-- Ninguno / Ingreso General --</option>
+                </select>
+
+                <div id="bloqueDeudaPendiente" style="display:none;">
+                    <label style="font-size:12px; color:#B68656; font-weight:bold;">⚠️ Deuda a saldar:</label>
+                    <select id="finDeudaSelect" class="input-tabla" style="width:100%; border:1px solid #B68656;" onchange="seleccionarDeudaExistente()">
+                        <option value="">-- Seleccionar Deuda --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label>Descripción / Concepto</label>
             <input type="hidden" id="finTipo"> <div>
                 <label>Descripción / Concepto</label>
                 <input type="text" id="finDesc" placeholder="Ej: Pago Arriendo, Honorarios Iniciales..." required>
