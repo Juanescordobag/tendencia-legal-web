@@ -337,15 +337,36 @@ if(formCliente) {
                 errorOperacion = error;
             } else {
                 // INSERT
-                const { error } = await clienteSupabase
-                    .from('clientes')
-                    .insert([datosCliente]);
-                errorOperacion = error;
+                // 1. Guardar el Cliente y pedir que nos devuelva el ID (.select)
+            const { data: clientesCreados, error } = await clienteSupabase
+                .from('clientes')
+                .insert([datosCliente])
+                .select(); 
+
+            if (error) throw error;
+
+            // 2. AUTOMATIZACIÓN FINANCIERA
+            const nuevoCliente = clientesCreados[0]; 
+
+            if (nuevoCliente.valor_total > 0) {
+                const { error: errorFinanza } = await clienteSupabase
+                    .from('finanzas_movimientos')
+                    .insert([{
+                        cliente_id: nuevoCliente.id,
+                        user_id: usuarioActual.id,
+                        tipo: 'INGRESO',
+                        categoria: 'Honorarios',
+                        descripcion: 'Contrato Inicial: ' + nuevoCliente.nombre,
+                        monto_esperado: nuevoCliente.valor_total,
+                        monto_real: 0, 
+                        fecha_vencimiento: nuevoCliente.fecha_inicio,
+                        estado: 'PENDIENTE'
+                    }]);
+                
+                if (errorFinanza) console.error("Error financiero:", errorFinanza);
             }
 
-            if(errorOperacion) throw errorOperacion;
-
-            alert("Operación exitosa.");
+            alert("Cliente creado y vinculado a Finanzas correctamente.");
             cerrarModalCliente();
             cargarClientesDesdeNube(); // Recargar tabla
 
