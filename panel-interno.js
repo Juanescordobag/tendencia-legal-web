@@ -100,6 +100,7 @@ function showSection(sectionId, element) {
     if(sectionId === 'clientes' || sectionId === 'dashboard') cargarClientesDesdeNube();
     if(sectionId === 'procesos') cargarProcesos();
     if(sectionId === 'agenda') cargarAgenda();
+    if(sectionId === 'finanzas') cargarFinanzas();
 }
 
 
@@ -1619,6 +1620,181 @@ async function cargarEvidencias(idProceso) {
                     <span style="font-weight:500; font-size:13px; color:#333;">${ev.nombre}</span>
                 </div>
                 ${accion}
+            </div>
+        `;
+    });
+}
+// ==========================================
+// 12. MÓDULO FINANCIERO (TIMELINE Y P&L)
+// ==========================================
+
+function abrirModalTransaccion(tipo) {
+    document.getElementById('modalTransaccion').style.display = 'flex';
+    document.getElementById('formTransaccion').reset();
+    document.getElementById('finTipo').value = tipo;
+    
+    // Configurar título y color según sea Ingreso o Gasto
+    const titulo = document.getElementById('tituloModalFinanzas');
+    if(tipo === 'INGRESO') {
+        titulo.innerText = 'Registrar Ingreso / Cuenta de Cobro';
+        titulo.style.color = '#2e7d32';
+    } else {
+        titulo.innerText = 'Registrar Gasto Operativo';
+        titulo.style.color = '#c62828';
+    }
+    document.getElementById('finFecha').valueAsDate = new Date();
+}
+
+// GUARDAR TRANSACCIÓN MANUAL
+document.getElementById('formTransaccion').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.querySelector('#formTransaccion button[type="submit"]');
+    btn.innerHTML = 'Guardando...'; btn.disabled = true;
+
+    try {
+        const tipo = document.getElementById('finTipo').value;
+        const monto = parseFloat(document.getElementById('finMonto').value);
+        const estado = document.getElementById('finEstado').value;
+        const fecha = document.getElementById('finFecha').value;
+        
+        // Lógica clave: Si está PAGADO, la fecha real es la ingresada. Si es PENDIENTE, es solo vencimiento.
+        const fechaPagoReal = (estado === 'PAGADO') ? fecha : null;
+
+        const { error } = await clienteSupabase
+            .from('finanzas_movimientos')
+            .insert([{
+                tipo: tipo,
+                descripcion: document.getElementById('finDesc').value,
+                monto_esperado: monto,
+                monto_real: (estado === 'PAGADO') ? monto : 0, // Solo suma al real si se pagó
+                fecha_vencimiento: fecha,
+                fecha_pago_real: fechaPagoReal,
+                estado: estado,
+                categoria: (tipo === 'INGRESO') ? 'Honorarios' : 'Gastos Generales',
+                user_id: usuarioActual.id
+            }]);
+
+        if (error) throw error;
+
+        alert("Movimiento registrado correctamente.");
+        document.getElementById('modalTransaccion').style.display = 'none';
+        cargarFinanzas(); // Recargar tablero
+
+    } catch(err) {
+        alert("Error: " + err.message);
+    } finally {
+        btn.innerHTML = 'Registrar'; btn.disabled = false;
+    }
+});
+
+// CARGAR DASHBOARD FINANCIERO
+async function cargarFinanzas() {
+    const anio = document.getElementById('filtroAnioFinanzas').value;
+    
+    // 1. Traer datos del año seleccionado
+    const fechaInicio = `${anio}-01-01`;
+    const fechaFin = `${anio}-12-31`;
+
+    const { data: movimientos, error } = await clienteSupabase
+        .from('finanzas_movimientos')
+        .select('*')
+        .gte('fecha_vencimiento', fechaInicio)
+        .lte('fecha_vencimiento', fechaFin)
+        .order('fecha_vencimiento', { ascending: true });
+
+    if(error) { console.error(error); return; }
+
+    // 2. Calcular KPIs Generales
+    let totalIngresosReales = 0;
+    let totalGastos = 0;
+    let totalCartera = 0;
+
+    movimientos.forEach(m => {
+        if(m.estado === 'PAGADO') {
+            if(m.tipo === 'INGRESO') totalIngresosReales += m.monto_real;
+            if(m.tipo === 'GASTO') totalGastos += m.monto_real;
+        } else if (m.estado === 'PENDIENTE' && m.tipo === 'INGRESO') {
+            totalCartera += m.monto_esperado;
+        }
+    });
+
+    // Formatear moneda COP
+    const fmt = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v);
+
+    document.getElementById('kpiIngresos').innerText = fmt(totalIngresosReales);
+    document.getElementById('kpiGastos').innerText = fmt(totalGastos);
+    document.getElementById('kpiCartera').innerText = fmt(totalCartera);
+
+    // 3. Generar Timeline Mensual
+    renderizarTimeline(movimientos, fmt);
+    
+    // 4. Llenar Tabla Detalle
+    const tbody = document.getElementById('tablaMovimientosBody');
+    tbody.innerHTML = '';
+    movimientos.slice(0, 10).forEach(m => { // Mostrar últimos 10
+        let colorEstado = m.estado === 'PAGADO' ? '#2e7d32' : '#f57c00';
+        let signo = m.tipo === 'GASTO' ? '-' : '+';
+        let colorMonto = m.tipo === 'GASTO' ? '#c62828' : '#2e7d32';
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${m.fecha_vencimiento}</td>
+                <td><span class="badge" style="background:${m.tipo==='INGRESO'?'#e8f5e9':'#ffebee'}; color:${colorMonto}">${m.tipo}</span></td>
+                <td>${m.descripcion}</td>
+                <td><span style="color:${colorEstado}; font-weight:bold; font-size:11px;">${m.estado}</span></td>
+                <td style="color:${colorMonto}; font-weight:bold;">${signo} ${fmt(m.monto_esperado)}</td>
+            </tr>
+        `;
+    });
+}
+
+function renderizarTimeline(movimientos, fmt) {
+    const contenedor = document.getElementById('timelineFinanciero');
+    contenedor.innerHTML = '';
+
+    // Agrupar por mes (0-11)
+    const meses = Array(12).fill(null).map(() => ({ ingreso: 0, gasto: 0, cartera: 0 }));
+    
+    movimientos.forEach(m => {
+        // Usamos fecha de vencimiento para ubicarlo en el mes
+        const mesIndex = new Date(m.fecha_vencimiento).getMonth(); // 0 = Enero
+        
+        if(m.tipo === 'GASTO' && m.estado === 'PAGADO') {
+            meses[mesIndex].gasto += m.monto_real;
+        } else if (m.tipo === 'INGRESO') {
+            if(m.estado === 'PAGADO') meses[mesIndex].ingreso += m.monto_real;
+            else meses[mesIndex].cartera += m.monto_esperado;
+        }
+    });
+
+    // Dibujar las barras (HTML puro para no complicarnos con librerías externas aún)
+    const nombresMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    
+    // Encontrar el valor más alto para calcular porcentajes de altura
+    let maxValor = 0;
+    meses.forEach(m => {
+        if((m.ingreso + m.cartera) > maxValor) maxValor = m.ingreso + m.cartera;
+        if(m.gasto > maxValor) maxValor = m.gasto;
+    });
+    if(maxValor === 0) maxValor = 1; // Evitar división por cero
+
+    meses.forEach((m, i) => {
+        // Alturas relativas (máximo 150px de alto)
+        const hIngreso = (m.ingreso / maxValor) * 150;
+        const hCartera = (m.cartera / maxValor) * 150;
+        const hGasto = (m.gasto / maxValor) * 150;
+
+        contenedor.innerHTML += `
+            <div style="flex: 1; min-width: 60px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; border-right: 1px dashed #eee;">
+                
+                <div style="display:flex; flex-direction:column-reverse; width: 40%; align-items:center; margin-bottom:2px;">
+                    <div title="Recaudado: ${fmt(m.ingreso)}" style="width:100%; height:${hIngreso}px; background:#4caf50; border-radius: 2px 2px 0 0;"></div>
+                    <div title="Por Cobrar: ${fmt(m.cartera)}" style="width:100%; height:${hCartera}px; background:#ffb74d; border-radius: 2px 2px 0 0;"></div>
+                </div>
+                
+                <div title="Gastos: ${fmt(m.gasto)}" style="width: 40%; height:${hGasto}px; background:#ef5350; border-radius: 2px 2px 0 0; opacity:0.8;"></div>
+
+                <div style="margin-top: 10px; font-size: 11px; font-weight: bold; color: #555;">${nombresMeses[i]}</div>
             </div>
         `;
     });
