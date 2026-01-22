@@ -475,7 +475,106 @@
             </div>
         
         </div>
-        <div id="finanzas" class="section-view"><div class="data-table-container"><h3>Finanzas</h3><p>Módulo financiero...</p></div></div>
+        <div id="finanzas" class="section-view">
+    <div class="data-table-container">
+        <div class="table-header-flex">
+            <div>
+                <h3><i class="fas fa-chart-line"></i> Departamento Financiero</h3>
+                <p style="color:#666; font-size:13px; margin:0;">Estado de Resultados y Flujo de Caja</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <select id="filtroAnioFinanzas" class="form-select" style="width:100px;" onchange="cargarFinanzas()">
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                </select>
+                <button class="btn-action" onclick="abrirModalTransaccion('INGRESO')" style="background:#2e7d32;">
+                    <i class="fas fa-plus"></i> Ingreso
+                </button>
+                <button class="btn-action" onclick="abrirModalTransaccion('GASTO')" style="background:#c62828;">
+                    <i class="fas fa-minus"></i> Gasto
+                </button>
+            </div>
+        </div>
+
+        <div class="kpi-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0;">
+            <div class="kpi-card" style="border-left: 4px solid #2e7d32;">
+                <div class="kpi-title">Total Recaudado (Real)</div>
+                <div class="kpi-value" id="kpiIngresos">$0</div>
+                <small style="color:#2e7d32;">Dinero en banco</small>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #c62828;">
+                <div class="kpi-title">Total Gastos Operativos</div>
+                <div class="kpi-value" id="kpiGastos">$0</div>
+                <small style="color:#c62828;">Salidas confirmadas</small>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #1565c0;">
+                <div class="kpi-title">Cartera por Cobrar</div>
+                <div class="kpi-value" id="kpiCartera">$0</div>
+                <small style="color:#1565c0;">Facturado pendiente de pago</small>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Comportamiento Mensual (Ingresos vs Gastos)</h4>
+            <div id="timelineFinanciero" style="display: flex; gap: 10px; overflow-x: auto; padding: 20px 0; min-height: 250px;">
+                <div style="text-align:center; width:100%; color:#999;">Cargando datos financieros...</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <h4>Libro Diario de Movimientos</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Concepto / Cliente</th>
+                        <th>Estado</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaMovimientosBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modalTransaccion" class="modal-overlay">
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header">
+            <h2 id="tituloModalFinanzas">Registrar Movimiento</h2>
+            <button class="btn-close-modal" onclick="document.getElementById('modalTransaccion').style.display='none'">&times;</button>
+        </div>
+        <form id="formTransaccion">
+            <input type="hidden" id="finTipo"> <div>
+                <label>Descripción / Concepto</label>
+                <input type="text" id="finDesc" placeholder="Ej: Pago Arriendo, Honorarios Iniciales..." required>
+            </div>
+
+            <div class="form-grid-2">
+                <div>
+                    <label>Monto</label>
+                    <input type="number" id="finMonto" placeholder="0" required>
+                </div>
+                <div>
+                    <label>Fecha Real</label>
+                    <input type="date" id="finFecha" required>
+                </div>
+            </div>
+
+            <div>
+                <label>Estado del Pago</label>
+                <select id="finEstado">
+                    <option value="PAGADO">✅ Pagado / Ejecutado (Afecta Caja)</option>
+                    <option value="PENDIENTE">⏳ Pendiente / Por Cobrar (Cartera)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-action" style="width:100%; margin-top:20px;">Registrar</button>
+        </form>
+    </div>
+</div>
 
         <div id="gestion-noticias" class="section-view">
             <div class="data-table-container">
